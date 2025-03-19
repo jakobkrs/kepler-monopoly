@@ -1,18 +1,19 @@
 class Player():
-    def __init__(self,name,money,property,position,prison,prisoncard_community,prisoncard_event,bankrupt):
+    def __init__(self):
         """
         Konstruktoraufruf für Playerklasse
         """
-        self.__name=name
-        self.__geld=money
-        self.__grundstücke=property
-        self.__position=position
-        self.__gefängnis=prison
-        self.__gefängniskarte_gemein=prisoncard_community
-        self.__gefängniskarte_ereignis=prisoncard_event
-        self.__insolvent=bankrupt
+        self.__name=[]
+        self.__money=0                          #wird noch geändert auf Startkapital
+        self.__properties=property
+        self.__position=0
+        self.__currentSquare=Square 
+        self.__prison=False
+        self.__prisoncardCommunity=False
+        self.__prisoncardEvent=False
+        self.__bankrupt=False
 
-    def dice(self):
+    def rollDice(self):
         """
         2 zufählige Zahlen von 1-6 generieren, diese anschließend zu der Position addieren
         """
