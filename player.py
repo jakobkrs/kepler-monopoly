@@ -21,6 +21,8 @@ class Player():
             self.__game.nextPlayersTurn()
         else:
             # sonstige Spieler-Aktionen
+            position=self.move()
+            self.__position=position
 
 
             self.__game.nextPlayersTurn()
