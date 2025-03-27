@@ -20,12 +20,24 @@ class Player():
         if self.__bankrupt:
             self.__game.nextPlayersTurn()
         else:
-            # sonstige Spieler-Aktionen
-            position=self.move()
-            self.__position=position
-
-
-            self.__game.nextPlayersTurn()
+            doubleCheck=self.doubleCheck
+            doubleCount=0
+            num1,num2,num=self.rollDice()
+            if doubleCheck=false:
+                self.__position+=num
+                #sonstige Spieler-Aktionen
+            elif doubleCheck=true:
+                doubleCount+=1
+                if doubleCount==3:
+                    self.__prison=True
+                    self.__position=0 
+                else:
+                self.__position+=num
+                #sonstige Spieler-Aktionen
+                #Arbeit an würfeln
+                
+            else:
+                self.__game.nextPlayersTurn()
 
 
     def rollDice():
@@ -37,29 +49,19 @@ class Player():
         num=num1+num2
         return num1,num2,num
 
-    def move(self):
-        """
-        bewegt Spieler um die gewürfelte Zahl, wenn er nicht im Gefängnis ist
-        """
-        if self.__prison==False:
-            num1,num2,num=self.rollDice()
-            self.__position+= num
-        return self.__position
+    
 
-    def double(self):
+    def doubleCheck(self):
         """
-        erneutes Würfeln bei Pasch; bei 3* Pasch in Folge in Knast
+        checkt, ob Pasch
         """
+        #Variablen noch ändern
         num1,num2,num=self.rollDice()
-        if self.__prison==False:
-            if num1==num2:
-                self.__doubleCount+=1
-                if self.__doubleCount==3:
-                    self.__prison=True
-                    self.__position=0               #Position des Gefängnisses muss noch eingefügt werden
-                self.rollDice()
-            else:
-                self.__doubleCount=0
+        if num1==num2:
+            self.__doubleCount=True
+        else:
+            self.__doubleCount=False      
+        return self.__doubleCount   
 
 
                 
