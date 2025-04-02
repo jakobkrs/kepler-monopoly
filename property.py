@@ -1,5 +1,3 @@
-import csv
-
 class Property():
     def __init__(self,name,houses,rent,cost):
         """
@@ -14,7 +12,7 @@ class Property():
 
     """
     def setRent(self)
-    muss noch erstellt werdern
+    muss noch erstellt werden
     --> rent abhängig von houses
     """
 
