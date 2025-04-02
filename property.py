@@ -1,18 +1,24 @@
 import csv
 
 class Property():
-    def __init__(self,name,houses,rent,cost,mortgage,owner):
+    def __init__(self,name,houses,rent,cost):
         """
         Initialisierung und Festlegung der Werte eines Grundstücks
         """
-        self.__name=""
-        self.__houses=0
-        self.__rent=0       #Fester Wert aus einer .CSV Date
-        self.__cost=0      #Fester Wert aus einer .CSV Datei
-        self.__mortgage=0  #Fester Wert aus einer .CSV Datei
-        self.__owner=None
+        self.__name=name
+        self.__houses=houses
+        self.__rent=rent       
+        self.__cost=cost      
+        self.__mortgage=False  #Startwert
+        self.__owner=None      #Startwert
 
-    def setRent(self):
+    """
+    def setRent(self)
+    muss noch erstellt werdern
+    --> rent abhängig von houses
+    """
+
+    def getRent(self):
         """
         Mietpreis eines Grundstücks festlegen
         """       
@@ -22,20 +28,14 @@ class Property():
             #Es gibt einen besitzer -> Standartmiete oder Miete mit Häusern
             return self.__rent                  
 
-    def buildHouses(self): 
+    def buildHouse(self): 
         """
-        Prozedur zum erichten von Häusern auf einem Grundstück - Erhöt die Anzahl der Häuser auf einem Grundstück
+        Prozedur zum Erichten von Häusern auf einem Grundstück - Erhöt die Anzahl der Häuser auf einem Grundstück
         """
-        if self.__owner is None: #Kein Besitzer
-            return 0 #IDK WASS HIER HIN SOLL!!! #Haus kann nicht gebaut werden da dieses Grundstück noch keinen besitzer hat.
+        if (not self.__owner is None) and self.__houses < 5:        #Haus bauen nur, wenn es Besitzer gibt und noch nicht 5 Häuser gebaut sind
+            self.__houses +=1
 
-        if self.__houses >= 5 #4 Häuser + 1 Hotel als Maximum
-            return 0
-
-        self.__houses +=1
-        #print("Ein Haus wurde auf " + self.name + " gebaut. Neue Anzahl: self.__houses")
-
-    def getHouseCount(self):
+    def getHouses(self):
         """
         Prozedur zum abrufen der Anzahl von Häusern auf einem Grundstück
         """
@@ -43,7 +43,7 @@ class Property():
 
     def setOwner(self, owner):
         """
-        Stellt einen neuen Besitzer für das Grundstück fest
+        legt einen neuen Besitzer für das Grundstück fest
         """
         self.__owner = owner
     
