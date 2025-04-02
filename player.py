@@ -1,4 +1,5 @@
 import random
+import Square 
 class Player():
     def __init__(self,game):
         """
@@ -13,33 +14,59 @@ class Player():
         self.__prisoncardCommunity=False
         self.__prisoncardEvent=False
         self.__bankrupt=False
-        self.__doubleCount=0
         self.__game=game
 
     def startTurn(self):
         if self.__bankrupt:
             self.__game.nextPlayersTurn()
         else:
-            doubleCheck=self.doubleCheck
-            doubleCount=0
             num1,num2,num=self.rollDice()
-            if doubleCheck=false:
+            if num1 != num2:
                 self.__position+=num
                 #sonstige Spieler-Aktionen
-            elif doubleCheck=true:
-                doubleCount+=1
-                if doubleCount==3:
-                    self.__prison=True
-                    self.__position=0 
-                else:
-                self.__position+=num
-                #sonstige Spieler-Aktionen
-                #Arbeit an würfeln
-                
-            else:
                 self.__game.nextPlayersTurn()
+            else:
+                self.__position+=num
+                #sonstige Spieler-Aktionen
+                self.turn
+                
+            
 
+    def goToPrison(self):
+        """
+        gehe ins Gefängnis
+        """
+        self.__prison=True
+        self.__position=0 
+        self.__game.nextPlayersTurn()
 
+    def turn(self):
+        """
+        Durchlauf nach Pasch
+        """
+        num1,num2,num=self.rollDice()
+        if num1 != num2:
+            self.__position+=num
+            #sonstige Spieler-Aktionen
+            self.__game.nextPlayersTurn()
+        else:
+            self.__position+=num
+            #sonstige Spieler-Aktionen
+            self.turn2
+
+    def turn2(self):
+        """
+        Durschlauf nach 2.Pasch
+        """
+        num1,num2,num=self.rollDice()
+        if num1 != num2:
+            self.__position+=num
+            #sonstige Spieler-Aktionen
+            self.__game.nextPlayersTurn()
+        else:
+            self.goToPrison
+
+ 
     def rollDice():
         """
         2 zufählige Zahlen von 1-6 generieren, diese anschließend addieren
@@ -50,18 +77,6 @@ class Player():
         return num1,num2,num
 
     
-
-    def doubleCheck(self):
-        """
-        checkt, ob Pasch
-        """
-        #Variablen noch ändern
-        num1,num2,num=self.rollDice()
-        if num1==num2:
-            self.__doubleCount=True
-        else:
-            self.__doubleCount=False      
-        return self.__doubleCount   
 
 
                 
