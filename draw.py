@@ -1,22 +1,24 @@
 import pygame
+from game import *
 
 # pygame initialisieren
 pygame.init()
 boardImage = pygame.image.load("board.png")
 
 # Standardfenstergröße setzen
-screenWidth, screenHeight = 1280, 720  # Sichere Standardwerte
-screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)
+screenWidth, screenHeight = 1920, 1080  # Sichere Standardwerte
+screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE) # Möglichekeit Fenstergröße zu ändern
 pygame.display.set_caption("KeplerMonopoly")
 
 # Farben
 white = (255, 255, 255)
 black = (0, 0, 0)
 lightGray = (200, 200, 200)
+red = (255, 0, 0)
 
 # Spielfeldgrößen berechnen
 def recalculateSizes():
-    global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
+    global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage, startX, startY, cornerSize, fieldWidth, fieldLenght
     margin = min(screenWidth, screenHeight) // 20  # 5% Rand
     boardHeight = screenHeight - margin
     boardWidth = screenWidth // 2 - margin
@@ -28,6 +30,18 @@ def recalculateSizes():
     boardY = (screenHeight - boardHeight) / 2  # Oberer Rand
 
     scaledBoardImage = pygame.transform.scale(boardImage, (boardHeight, boardWidth))
+    
+    startX = boardX + boardWidth
+    startY = boardY + boardHeight
+    
+    # Berechnung der Eckengröße
+    cornerSize = boardHeight / 7.5
+    
+    # Berechnung der Feldergröße
+    fieldWidth = (boardWidth - 2 * cornerSize) / 9
+    fieldLenght = cornerSize
+    
+    
 
 # Initiale Berechnung der Spielfeldgrößen
 recalculateSizes()
@@ -46,8 +60,32 @@ while running:
 
     # Spielfeld zeichnen
     pygame.draw.rect(screen, lightGray, (boardX, boardY, boardWidth, boardHeight))
+    
+    # Spielfeldbild
     screen.blit(scaledBoardImage, (boardX, boardY))
-
+    
+    gameboard = game.getGameBoard()
+    
+    gameboard[0].setFieldCoord(boardX, boardY, boardWidth, boardHeight)  # Spielfeld-Objekt mit Koordinaten füttern
+    
+    # Eckfelder in square-Objekte von Game registrieren
+    """
+    # Eckfelder zeichnen
+    pygame.draw.rect(screen, black, (boardX, boardY, cornerSize, cornerSize))  # Oben links
+    pygame.draw.rect(screen, black, (boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize))  # Oben rechts
+    pygame.draw.rect(screen, black, (boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize))  # Unten links
+    pygame.draw.rect(screen, black, (boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize))  # Unten rechts
+    
+    # Spielfelder zeichnen
+    for i in range (0, 9):
+        pygame.draw.rect(screen, red, (boardX + cornerSize + (i) * fieldWidth, boardY, fieldWidth, fieldLenght))
+        pygame.draw.rect(screen, red, (boardX, boardY + cornerSize + (i) * fieldWidth, fieldLenght, fieldWidth))
+        pygame.draw.rect(screen, red, (boardX + boardWidth - cornerSize, boardY + cornerSize + (i) * fieldWidth, fieldLenght, fieldWidth))
+        pygame.draw.rect(screen, red, (boardX + cornerSize + (i) * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght))
+    """
+    
+    
+    
     pygame.display.update()
 
 pygame.quit()
