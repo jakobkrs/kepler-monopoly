@@ -15,11 +15,21 @@ class Property(Square):
         self.__mortgage=False  #Startwert
         self.__owner=None      #Startwert
 
-    """
-    def setRent(self)
-    muss noch erstellt werden
-    --> rent abhängig von houses
-    """
+    
+    def setRent(self):
+       """
+        Mietpreis festlegen
+        """
+        match self.__houses:
+            case 0: self.__rent = self.__baseRent
+                    if self.owner.completeGroup:
+                        self.__rent = 2*self.baseRent
+            case 1: self.__rent = 5*self.__baseRent
+            case 2: self.__rent = 15*self.__baseRent
+            case 3: self.__rent = 45*self.__baseRent
+            case 4: self.__rent = 70*self.__baseRent
+            case 5: self.__rent = 100*self.__baseRent
+    
 
     def getRent(self):
         if self.__owner is None: # Kein Besitzer 
