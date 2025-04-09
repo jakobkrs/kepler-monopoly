@@ -17,13 +17,13 @@ class Property(Square):
 
     
     def setRent(self):
-       """
+        """
         Mietpreis festlegen
         """
         match self.__houses:
             case 0: self.__rent = self.__baseRent
-                    if self.owner.completeGroup:
-                        self.__rent = 2*self.baseRent
+                if self.owner.completeGroup:
+                    self.__rent = 2*self.baseRent
             case 1: self.__rent = 5*self.__baseRent
             case 2: self.__rent = 15*self.__baseRent
             case 3: self.__rent = 45*self.__baseRent
