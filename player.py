@@ -1,5 +1,6 @@
 import random
-import Square 
+from square import * 
+from property import *
 class Player():
     def __init__(self,game):
         """
@@ -9,7 +10,7 @@ class Player():
         self.__money=0                          #wird noch geändert auf Startkapital
         self.__properties=property
         self.__position=0
-        self.__currentSquare=Square 
+        self.__currentSquare=game.getGameBoard()[self.__position] 
         self.__prison=False
         self.__prisoncardCommunity=False
         self.__prisoncardEvent=False
@@ -20,15 +21,8 @@ class Player():
         if self.__bankrupt:
             self.__game.nextPlayersTurn()
         else:
-            num1,num2,num=self.rollDice()
-            if num1 != num2:
-                self.__position+=num
-                #sonstige Spieler-Aktionen
-                self.__game.nextPlayersTurn()
-            else:
-                self.__position+=num
-                #sonstige Spieler-Aktionen
-                self.turn
+            self.__doubleCount = 0
+            self.turn()
                 
             
 
@@ -37,34 +31,34 @@ class Player():
         gehe ins Gefängnis
         """
         self.__prison=True
-        self.__position=0 
+        self.goToPosition(10)
         self.__game.nextPlayersTurn()
 
     def turn(self):
         """
-        Durchlauf nach Pasch
+        Einmal würfeln
         """
         num1,num2,num=self.rollDice()
-        if num1 != num2:
-            self.__position+=num
-            #sonstige Spieler-Aktionen
-            self.__game.nextPlayersTurn()
-        else:
-            self.__position+=num
-            #sonstige Spieler-Aktionen
-            self.turn2
 
-    def turn2(self):
-        """
-        Durschlauf nach 2.Pasch
-        """
-        num1,num2,num=self.rollDice()
+        if num1 != num2 and self.__doubleCount >= 2:
+            self.goToPrison()
+            return
+        
+        self.goToPosition(self.__position+num)
+        #miete und sonstiges
+        
         if num1 != num2:
-            self.__position+=num
-            #sonstige Spieler-Aktionen
             self.__game.nextPlayersTurn()
         else:
-            self.goToPrison
+            self.__doubleCount += 1
+            self.turn
+
+    def goToPosition(self, position):
+        """
+        setzt Spieler auf richtige Position
+        """
+        self.__position=position
+        self.__currentSquare=game.getGameBoard()[self.__position]
 
  
     def rollDice():
