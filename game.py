@@ -1,5 +1,6 @@
 from player import *
 from square import *
+from property import *
 import os
 
 
@@ -13,16 +14,25 @@ class Game():
         self.__playerCount = 0
         self.__playerOrder = []             # Füge die Reihenfolgebestimmung hinzu !later
         self.__players = []                 # Liste von Objekten der Klasse Spieler
-        self.__gameBoard = []
         self.__communityCards = []
         self.__eventCards = []
 
-        csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "\\csv-files\\"
+        csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "\\CSV-files\\"
         
         squaresTable = self.__loadCSV(csvDirPath + "squares.csv")
+        propertiesTable = self.__loadCSV(csvDirPath + "properties.csv")
         for square in squaresTable:
-            self.__gameBoard.append(Square(square[0],square[1],square[2]))
+            if square[2] == 'property':
+                for property in propertiesTable:
+                    if property[0] == square[1]:     # position is equal
+                        propertyObject = Property(square[0],square[1],property[1],property[2],property[3])
+                        self.__gameBoard.append(propertyObject)
+                        self.__properties.append(propertyObject)
+            else:
+                self.__gameBoard.append(Square(square[0],square[1],square[2]))
         
+        
+
 
     def addPlayer(self, player: Player):
         """
@@ -67,6 +77,15 @@ class Game():
         self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]
 
         self.__currentPlayer.startTurn()
+
+
+
+    
+
+
+
+    def getGameBoard(self):
+        return self.__gameBoard
 
 
 game = Game()

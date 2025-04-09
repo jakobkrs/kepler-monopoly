@@ -1,11 +1,16 @@
-class Property():
-    def __init__(self,name,houses,rent,cost):
+from square import *
+from player import *
+
+class Property(Square):
+    def __init__(self,name,position,group,baseRent,cost):
         """
         Initialisierung und Festlegung der Werte eines Grundstücks
         """
-        self.__name=name
-        self.__houses=houses
-        self.__rent=rent       
+        super().__init__(name, position, 'property')
+        self.__group=group
+        self.__houses=0
+        self.__baseRent=baseRent
+        self.__rent=self.__baseRent     
         self.__cost=cost      
         self.__mortgage=False  #Startwert
         self.__owner=None      #Startwert
@@ -17,9 +22,6 @@ class Property():
     """
 
     def getRent(self):
-        """
-        Mietpreis eines Grundstücks festlegen
-        """       
         if self.__owner is None: # Kein Besitzer 
             return 0
         else:
@@ -44,5 +46,3 @@ class Property():
         legt einen neuen Besitzer für das Grundstück fest
         """
         self.__owner = owner
-    
-
