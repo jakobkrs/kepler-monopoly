@@ -1,4 +1,41 @@
-name,position,type
-LOS,0,start
-infostra√üe,1,property
-seifertweg,2,property
+position;nane;type
+0;LOS;start
+1;Badstraﬂe;property
+2;Gemeinschaftsfeld;community
+3;Turmstraﬂe;property
+4;Einkommenssteuer;taxes1
+5;S¸dbahnhof;trainStation
+6;Chausseestraﬂe;property
+7;Ereignisfeld;event
+8;Elisenstraﬂe;property
+9;Poststraﬂe;property
+10;Gef‰ngnis;jail
+11;Seestraﬂe;property
+12;Elektrizit‰tswerk;supplyPlant
+13;Hafenstraﬂe;property
+14;Neue Straﬂe;property
+15;Westbahnhof;trainStation
+16;M¸nchner Straﬂe;property
+17;Gemeinschaftsfeld;community
+18;Wiener Straﬂe;property
+19;Berliner Straﬂe;property
+20;Frei Parken;freeParking
+21;Theaterstraﬂe;property
+22;Ereignisfeld;event
+23;Museumstraﬂe;property
+24;Opernplatz;property
+25;Nordbahnhof;trainStation
+26;Lessingstraﬂe;property
+27;Schillerstraﬂe;property
+28;Wasserwerk;supplyPlant
+29;Goethestraﬂe;property
+30;Gehe ins Gef‰ngnis;goToJail
+31;Rathausplatz;property
+32;Hauptstraﬂe;property
+33;Gemeinschaftsfeld;community
+34;Bahnhofstraﬂe;property
+35;Hauptbahnhof;trainStation
+36;Ereignisfeld;event
+37;Parkstraﬂe;property
+38;Zusatzsteuer;taxes2
+39;Schlossallee;property

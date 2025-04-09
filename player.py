@@ -58,7 +58,7 @@ class Player():
         setzt Spieler auf richtige Position
         """
         self.__position=position
-        self.__currentSquare=game.getGameBoard()[self.__position]
+        self.__currentSquare=self.__game.getGameBoard()[self.__position]
 
  
     def rollDice():

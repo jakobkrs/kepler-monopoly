@@ -1,6 +1,6 @@
-from player import *
-from square import *
-from property import *
+from player import Player
+from square import Square
+from property import Property
 import os
 
 
@@ -13,19 +13,22 @@ class Game():
         self.__currentPlayer = None
         self.__playerCount = 0
         self.__playerOrder = []             # Füge die Reihenfolgebestimmung hinzu !later
-        self.__players = []                 # Liste von Objekten der Klasse Spieler
+        self.__players = []                 # Liste aller Objekten der Klasse Spieler
+        self.__gameBoard = []               # Liste aller Objekten der Klasse Square (bzw. Property als Unterklasse von Square)
+        self.__properties  =[]                # Liste aller Objekten der Klasse Property
         self.__communityCards = []
         self.__eventCards = []
 
-        csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "\\CSV-files\\"
+        csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
         squaresTable = self.__loadCSV(csvDirPath + "squares.csv")
         propertiesTable = self.__loadCSV(csvDirPath + "properties.csv")
         for square in squaresTable:
-            if square[2] == 'property':
+            print(square, square[2], (square[2] in ['property', 'trainStation', 'supplyPlant']))
+            if square[2] in ['property', 'trainStation', 'supplyPlant']:
                 for property in propertiesTable:
-                    if property[0] == square[1]:     # position is equal
-                        propertyObject = Property(square[0],square[1],property[1],property[2],property[3])
+                    if property[0] == square[0]:     # Position ist gleich -> property und square gehören zusammen
+                        propertyObject = Property(square[0],square[1],square[2],property[1],property[2],property[3])    # 
                         self.__gameBoard.append(propertyObject)
                         self.__properties.append(propertyObject)
             else:
@@ -45,7 +48,7 @@ class Game():
     def shufflePlayerOrder(self):  # WIP !later
         pass
 
-    def __loadCSV(self,filepath) -> list[list]:
+    def __loadCSV(self,filepath: str) -> list[list]:
         """
         Methode, um Square aus der CSV-Datei einzulesen
         """
@@ -58,7 +61,7 @@ class Game():
             if start:                                                           # erste Zeile ignorieren
                 start = not (start)
             else:
-                a = line.rstrip().split(",")
+                a = line.rstrip().split(";")
                 # Zeile in Feld auftrennen
                 table.append(a)
 

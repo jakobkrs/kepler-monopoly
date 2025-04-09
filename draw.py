@@ -1,5 +1,4 @@
 import pygame
-from game import *
 
 global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
 global startX, startY, cornerSize, fieldWidth, fieldLenght, screenHeight, screenWidth
@@ -8,7 +7,7 @@ def initDraw(game):
     # pygame initialisieren
     pygame.init()
 
-    boardImage = pygame.image.load("board.png")
+    boardImage = pygame.image.load("images/board.png")
     
     # Standardfenstergröße setzen
     screenWidth, screenHeight = 1920, 1080  # Sichere Standardwerte

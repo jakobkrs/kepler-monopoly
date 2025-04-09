@@ -1,4 +1,4 @@
-from game import *
+from game import Game
 from draw import *
 
 game = Game()
@@ -7,3 +7,4 @@ game = Game()
 initDraw(game)
 
 
+print([game.getGameBoard()[i].getName() for i in range(len(game.getGameBoard()))])

@@ -1,5 +1,5 @@
 class Square():
-    def __init__(self, name, position, squaretype):
+    def __init__(self, position: int, name: str, squaretype: str):
         """
         Konstruktor der Klasse Square
         """
@@ -28,7 +28,6 @@ class Square():
             return self.__fieldWidth
         elif whichInfo == "height":
             return self.__fieldHeight
-        
-        
-        
-        
+
+    def getName(self):
+        return self.__name

@@ -1,12 +1,12 @@
-from square import *
-from player import *
+from square import Square
+#from player import Player
 
 class Property(Square):
-    def __init__(self,name,position,group,baseRent,cost):
+    def __init__(self, position: int, name: str, type: str, group: str, baseRent: int, cost: int):
         """
         Initialisierung und Festlegung der Werte eines Grundstücks
         """
-        super().__init__(name, position, 'property')
+        super().__init__(position, name, type)
         self.__group=group
         self.__houses=0
         self.__baseRent=baseRent
@@ -18,17 +18,12 @@ class Property(Square):
     
     def setRent(self):
         """
-        Mietpreis festlegen
+        Mietpreis neu Berechnen
         """
-        match self.__houses:
-            case 0: self.__rent = self.__baseRent
-                if self.owner.completeGroup:
-                    self.__rent = 2*self.baseRent
-            case 1: self.__rent = 5*self.__baseRent
-            case 2: self.__rent = 15*self.__baseRent
-            case 3: self.__rent = 45*self.__baseRent
-            case 4: self.__rent = 70*self.__baseRent
-            case 5: self.__rent = 100*self.__baseRent
+        if self.__owner and self.__owner.completeGroup():       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt
+            self.__rent = 2 * self.__baseRent
+        else:
+            self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent
     
 
     def getRent(self):
@@ -57,4 +52,3 @@ class Property(Square):
         """
         self.__owner = owner
 
-    
