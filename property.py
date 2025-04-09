@@ -46,3 +46,5 @@ class Property(Square):
         legt einen neuen Besitzer für das Grundstück fest
         """
         self.__owner = owner
+
+    

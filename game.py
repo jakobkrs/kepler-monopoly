@@ -87,5 +87,10 @@ class Game():
     def getGameBoard(self):
         return self.__gameBoard
 
+    def getProperties(self):
+        return self.__properties
+
+    
+
 
 game = Game()

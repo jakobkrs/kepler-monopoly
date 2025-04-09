@@ -46,7 +46,7 @@ class Player():
         
         self.goToPosition(self.__position+num)
         #miete und sonstiges
-        
+
         if num1 != num2:
             self.__game.nextPlayersTurn()
         else:
@@ -70,6 +70,18 @@ class Player():
         num=num1+num2
         return num1,num2,num
 
+    def completeGroup(self,id):
+        properties = self.__game.getProperties()
+
+        owners = []
+
+        for property in properties:
+            if property.group == id:
+                owners.append(property.owner)
+        
+        return all(x==owners[0] for x in owners)
+
+        
     
 
 
