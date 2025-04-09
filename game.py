@@ -24,7 +24,6 @@ class Game():
         squaresTable = self.__loadCSV(csvDirPath + "squares.csv")
         propertiesTable = self.__loadCSV(csvDirPath + "properties.csv")
         for square in squaresTable:
-            print(square, square[2], (square[2] in ['property', 'trainStation', 'supplyPlant']))
             if square[2] in ['property', 'trainStation', 'supplyPlant']:
                 for property in propertiesTable:
                     if property[0] == square[0]:     # Position ist gleich -> property und square gehören zusammen
