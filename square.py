@@ -19,6 +19,10 @@ class Square():
     def getFieldCoord(self, whichInfo):
         """
         Gibt die Position und Maße des Feldes zurück
+        "x" ==> x-Koordinate
+        "y" ==> y-Koordinate
+        "width" ==> Breite
+        "height" ==> Höhe
         """
         if whichInfo == "x":
             return self.__fieldX

@@ -18,9 +18,9 @@ def initDraw(game):
     def recalculateSizes():
         global margin, boardWidth, boardHeight, boardX, boardY, scaledBoardImage
         global startX, startY, cornerSize, fieldWidth, fieldLenght
-        margin = min(screenWidth, screenHeight) // 20  # 5% Rand
+        margin = min(screenWidth, screenHeight) / 20  # 5% Rand
         boardHeight = screenHeight - margin
-        boardWidth = screenWidth // 2 - margin
+        boardWidth = screenWidth / 2 - margin
         if boardHeight > boardWidth:
             boardHeight = boardWidth
         else:
@@ -72,8 +72,28 @@ def initDraw(game):
         
         gameboard = game.getGameBoard()
         
-        gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)  # Spielfeld-Objekt mit Koordinaten füttern
+        # Eckfelder speichern
+        gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+        gameboard[10].setFieldCoord(boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+        gameboard[20].setFieldCoord(boardX, boardY, cornerSize, cornerSize)
+        gameboard[30].setFieldCoord(boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize)
+
+        # Spielfeldfelder speichern
+        for i in range (1, 10):
+            # Spielfelder unten
+            gameboard[i].setFieldCoord(boardX + boardWidth - cornerSize - i * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght)
+            # Speilfelder links
+            gameboard[i + 10].setFieldCoord(boardX, boardY + boardHeight - cornerSize - i * fieldWidth, fieldLenght, fieldWidth)
+            # Spielfelder oben
+            gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
+            # Spielfelder rechts
+            gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
         
+    
+        for i in range (0, 40):
+            # Spielfelder zeichnen
+            pygame.draw.rect(screen, black, (gameboard[i].getFieldCoord("x"), gameboard[i].getFieldCoord("y"), gameboard[i].getFieldCoord("width"), gameboard[i].getFieldCoord("height")))
+
         # Eckfelder in square-Objekte von Game registrieren
         """
         # Eckfelder zeichnen
