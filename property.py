@@ -12,18 +12,18 @@ class Property(Square):
         self.__baseRent=baseRent
         self.__rent=self.__baseRent     
         self.__cost=cost      
-        self.__mortgage=False  #Startwert
-        self.__owner=None      #Startwert
+        self.__mortgage=False  # Startwert: keine Hypothek
+        self.__owner=None      # Startwert: kein Besitzer
 
     
     def setRent(self):
         """
         Mietpreis neu Berechnen
         """
-        if self.__owner and self.__owner.completeGroup():       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt
+        if self.__owner and self.__owner.completeGroup() and self.__houses == 0:       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
             self.__rent = 2 * self.__baseRent
         else:
-            self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent
+            self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent          # Liste enthält Faktoren für verschiedene Anzahlen an Häusern 
     
 
     def getRent(self):

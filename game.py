@@ -15,23 +15,24 @@ class Game():
         self.__playerOrder = []             # Füge die Reihenfolgebestimmung hinzu !later
         self.__players = []                 # Liste aller Objekten der Klasse Spieler
         self.__gameBoard = []               # Liste aller Objekten der Klasse Square (bzw. Property als Unterklasse von Square)
-        self.__properties  =[]                # Liste aller Objekten der Klasse Property
+        self.__properties  =[]              # Liste aller Objekten der Klasse Property
         self.__communityCards = []
         self.__eventCards = []
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
+        # 
         squaresTable = self.__loadCSV(csvDirPath + "squares.csv")
         propertiesTable = self.__loadCSV(csvDirPath + "properties.csv")
         for square in squaresTable:
             if square[2] in ['property', 'trainStation', 'supplyPlant']:
                 for property in propertiesTable:
-                    if property[0] == square[0]:     # Position ist gleich -> property und square gehören zusammen
-                        propertyObject = Property(square[0],square[1],square[2],property[1],property[2],property[3])    # 
+                    if property[0] == square[0]:                                    # Position ist gleich -> property und square gehören zusammen
+                        propertyObject = Property(square[0],square[1],square[2],property[1],property[2],property[3])    # erstellt property Objekt und fügt dieses gamebBoard und properties hinzu
                         self.__gameBoard.append(propertyObject)
                         self.__properties.append(propertyObject)
-            else:
-                self.__gameBoard.append(Square(square[0],square[1],square[2]))
+            else:                                                                   # type ist weder property, noch trainStation noch supplyPlant
+                self.__gameBoard.append(Square(square[0],square[1],square[2]))          # erstellt square Objekt und fügt dieses zum Feld gameBoard hinzu
         
         
 
@@ -42,7 +43,7 @@ class Game():
         """
         self.__players.append(player)
         self.__playerCount += 1
-        self.__playerOrder.append(self.__playerCount - 1)
+        self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler am Ende der Reihenfolge hinzu
 
     def shufflePlayerOrder(self):  # WIP !later
         pass
@@ -76,7 +77,7 @@ class Game():
         """
         self.__currentPlayerId = (
             self.__currentPlayerId + 1) % self.__playerCount
-        self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]
+        self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]       # aktualisiere currentPlayer auf aktuelles Spieler Objekt
 
         self.__currentPlayer.startTurn()
 

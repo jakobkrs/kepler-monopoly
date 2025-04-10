@@ -53,12 +53,13 @@ class Player():
             self.__doubleCount += 1
             self.turn
 
-    def goToPosition(self, position):
+    def goToPosition(self, position: int):
         """
         setzt Spieler auf richtige Position
         """
-        self.__position=position
+        self.__position=position % len(self.__game.getGameBoard())          # aktualisiere Postion und handelt das überschreiten von Los in der Positions-Variable
         self.__currentSquare=self.__game.getGameBoard()[self.__position]
+        # Ergänzung von Code für Überschreiten von LOS notwendig
 
  
     def rollDice():
@@ -70,7 +71,7 @@ class Player():
         num=num1+num2
         return num1,num2,num
 
-    def completeGroup(self,id):
+    def completeGroup(self,id: str):
         properties = self.__game.getProperties()
 
         owners = []
