@@ -1,41 +1,41 @@
-position;nane;type
+position;name;type
 0;LOS;start
-1;Badstraﬂe;property
+1;Badstra√üe;property
 2;Gemeinschaftsfeld;community
-3;Turmstraﬂe;property
+3;Turmstra√üe;property
 4;Einkommenssteuer;taxes1
-5;S¸dbahnhof;trainStation
-6;Chausseestraﬂe;property
+5;S√ºdbahnhof;trainStation
+6;Chausseestra√üe;property
 7;Ereignisfeld;event
-8;Elisenstraﬂe;property
-9;Poststraﬂe;property
-10;Gef‰ngnis;jail
-11;Seestraﬂe;property
-12;Elektrizit‰tswerk;supplyPlant
-13;Hafenstraﬂe;property
-14;Neue Straﬂe;property
+8;Elisenstra√üe;property
+9;Poststra√üe;property
+10;Gef√§ngnis;jail
+11;Seestra√üe;property
+12;Elektrizit√§tswerk;supplyPlant
+13;Hafenstra√üe;property
+14;Neue Stra√üe;property
 15;Westbahnhof;trainStation
-16;M¸nchner Straﬂe;property
+16;M√ºnchner Stra√üe;property
 17;Gemeinschaftsfeld;community
-18;Wiener Straﬂe;property
-19;Berliner Straﬂe;property
+18;Wiener Stra√üe;property
+19;Berliner Stra√üe;property
 20;Frei Parken;freeParking
-21;Theaterstraﬂe;property
+21;Theaterstra√üe;property
 22;Ereignisfeld;event
-23;Museumstraﬂe;property
+23;Museumstra√üe;property
 24;Opernplatz;property
 25;Nordbahnhof;trainStation
-26;Lessingstraﬂe;property
-27;Schillerstraﬂe;property
+26;Lessingstra√üe;property
+27;Schillerstra√üe;property
 28;Wasserwerk;supplyPlant
-29;Goethestraﬂe;property
-30;Gehe ins Gef‰ngnis;goToJail
+29;Goethestra√üe;property
+30;Gehe ins Gef√§ngnis;goToJail
 31;Rathausplatz;property
-32;Hauptstraﬂe;property
+32;Hauptstra√üe;property
 33;Gemeinschaftsfeld;community
-34;Bahnhofstraﬂe;property
+34;Bahnhofstra√üe;property
 35;Hauptbahnhof;trainStation
 36;Ereignisfeld;event
-37;Parkstraﬂe;property
+37;Parkstra√üe;property
 38;Zusatzsteuer;taxes2
 39;Schlossallee;property

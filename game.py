@@ -53,7 +53,7 @@ class Game():
         """
         table = []
         # Datei öffnen zum Lesen
-        file = open(filepath, "r")
+        file = open(filepath, "r", encoding="utf-8")
         # Variable, um erste Zeile ignorieren zu können
         start = True
         for line in file:
@@ -64,7 +64,7 @@ class Game():
                 # Zeile in Feld auftrennen
                 table.append(a)
 
-        file.close
+        file.close()
         return table
 
     def trade(self, player1: Player, player2: Player):
