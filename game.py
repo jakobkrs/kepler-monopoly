@@ -1,6 +1,7 @@
 from player import Player
 from square import Square
 from property import Property
+import random
 import os
 
 
@@ -12,7 +13,7 @@ class Game():
         self.__currentPlayerId = 0
         self.__currentPlayer = None
         self.__playerCount = 0
-        self.__playerOrder = []             # Füge die Reihenfolgebestimmung hinzu !later
+        self.__playerOrder = []             # Liste an ganzen Zahlen, die die postion der Spieler-Objekte in players angeben 
         self.__players = []                 # Liste aller Objekten der Klasse Spieler
         self.__gameBoard = []               # Liste aller Objekten der Klasse Square (bzw. Property als Unterklasse von Square)
         self.__properties  =[]              # Liste aller Objekten der Klasse Property
@@ -43,10 +44,25 @@ class Game():
         """
         self.__players.append(player)
         self.__playerCount += 1
-        self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler am Ende der Reihenfolge hinzu
+        self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler an letzter Position der Reihenfolge hinzu
+    
+    
+    def startGame(self):
+        """
+        Startet die Haupt-Spiel-Ablauf
+        """
+        self.__shufflePlayerOrder()
+        self.__players[self.__playerOrder[0]].startTurn()       # Starte Zug des ersten Spielers
+        
 
-    def shufflePlayerOrder(self):  # WIP !later
-        pass
+    def __shufflePlayerOrder(self):
+        """
+        Mischt die Spieler-Reihenfolge
+        """
+        for i in range(self.__playerCount, 0, -1):
+            randomPlayerId = self.__playerOrder.pop(random.randint(0, i-1))
+            self.__playerOrder.append(randomPlayerId)
+
 
     def __loadCSV(self,filepath: str) -> list[list]:
         """
@@ -68,8 +84,10 @@ class Game():
         file.close()
         return table
 
+
     def trade(self, player1: Player, player2: Player):
         pass
+
 
     def nextPlayersTurn(self):
         """
@@ -94,6 +112,13 @@ class Game():
         return self.__properties
 
     
-
-
-game = Game()
+# nur zu Testzwecken, später möglichst wieder entfernen !later
+if __name__ == '__main__':
+    game = Game()
+    
+    game.addPlayer(Player(game))
+    game.addPlayer(Player(game))
+    game.addPlayer(Player(game))
+    game.addPlayer(Player(game))
+    
+    game.startGame()

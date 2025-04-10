@@ -62,7 +62,7 @@ class Player():
         # Ergänzung von Code für Überschreiten von LOS notwendig
 
  
-    def rollDice():
+    def rollDice(self):
         """
         2 zufählige Zahlen von 1-6 generieren, diese anschließend addieren
         """
