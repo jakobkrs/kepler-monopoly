@@ -22,7 +22,7 @@ class Game():
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
-        # 
+        # Lade die Properties und Square Daten aus den CSV-Dateien
         squaresTable = self.__loadCSV(csvDirPath + "squares.csv")
         propertiesTable = self.__loadCSV(csvDirPath + "properties.csv")
         for square in squaresTable:
@@ -35,6 +35,13 @@ class Game():
             else:                                                                   # type ist weder property, noch trainStation noch supplyPlant
                 self.__gameBoard.append(Square(square[0],square[1],square[2]))          # erstellt square Objekt und fügt dieses zum Feld gameBoard hinzu
         
+        # Lade die Gemeinschafts- und Ereigniskarten aus den CSV-Dateien
+        communityTable = self.__loadCSV(csvDirPath + "communityCards.csv")
+        for card in communityTable:
+            self.__communityCards.append({'text': card[0], 'action': card[1], 'value': int(card[2])})
+        eventTable = self.__loadCSV(csvDirPath + "eventCards.csv")
+        for card in eventTable:
+            self.__eventCards.append({'text': card[0], 'action': card[1], 'value': int(card[2])})
         
 
 
@@ -51,17 +58,29 @@ class Game():
         """
         Startet die Haupt-Spiel-Ablauf
         """
+        # Mische Gemeinschafts- un Ereigniskarten Felder
+        self.__shuffleList(self.__communityCards)
+        self.__shuffleList(self.__eventCards)
+        
         self.__shufflePlayerOrder()
         self.__players[self.__playerOrder[0]].startTurn()       # Starte Zug des ersten Spielers
         
 
-    def __shufflePlayerOrder(self):
+    def __shufflePlayerOrder(self):     # vielleicht später noch hinzufügen, dass Spieler wirklich würfeln und denn Augensummen entsprechend die Startreheinfolge festgelegt wird
         """
         Mischt die Spieler-Reihenfolge
         """
-        for i in range(self.__playerCount, 0, -1):
-            randomPlayerId = self.__playerOrder.pop(random.randint(0, i-1))
-            self.__playerOrder.append(randomPlayerId)
+        self.__shuffleList(self.__playerOrder)
+
+
+    def __shuffleList(self, array: list):
+        """
+        Mischt eine Liste mit Hilfe der Python Random-Methode 
+        """
+        for i in range(len(array), 0, -1):
+            element = array.pop(random.randint(0, i-1))
+            array.append(element)
+        print(array)
 
 
     def __loadCSV(self,filepath: str) -> list[list]:
