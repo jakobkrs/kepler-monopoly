@@ -7,6 +7,9 @@ class Square():
         self.__position = position
         self.__type = squaretype
     
+    def __str__(self):
+        return 'Square-Object{' + f'name: {self.__name}, position: {self.__position}, type: {self.__type}' + '}'
+    
     
     def playerLandedOn(self, player):
         match self.__type:
@@ -46,3 +49,9 @@ class Square():
 
     def getName(self):
         return self.__name
+    
+    def getType(self):
+        return self.__type
+    
+    def getPosition(self):
+        return self.__position

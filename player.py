@@ -16,6 +16,18 @@ class Player():
         self.__prisoncardEvent=False
         self.__bankrupt=False
         self.__game=game
+    
+    def __str__(self):
+        propertyStr = 'properties: ['
+        for property in self.__properties:
+            propertyStr += f'\n\t\t{property}'
+            if property == self.__properties[len(self.__properties)-1]:
+                propertyStr += '\n\t'
+            else:
+                propertyStr += ','
+        propertyStr += ']'
+        return 'Player-Object{\n' + f'\tname: {self.__name},\n\tmoney: {self.__money},\n\tposition: {self.__position},\n\tcurrentSquare: {self.__currentSquare},\n\t{propertyStr},\n\tprison: {self.__prison},\n\tbankrupt: {self.__bankrupt}\n' + '}'
+
 
 
     def startTurn(self):
@@ -129,4 +141,7 @@ class Player():
         Spieler erhält Geld von beliebiger Quelle
         """
         self.__money += amount
-        
+    
+    
+    def getName(self):
+        return self.__name

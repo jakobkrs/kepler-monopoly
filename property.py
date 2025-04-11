@@ -14,6 +14,9 @@ class Property(Square):
         self.__cost=cost      
         self.__mortgage=False  # Startwert: keine Hypothek
         self.__owner=None      # Startwert: kein Besitzer
+        
+    def __str__(self):
+        return 'Property-Object{' + f'name: {super().getName()}, position: {super().getPosition()}, type: {super().getType()}, group: {self.__group}, rent: {self.__baseRent}, cost: {self.__cost}, owner: {(not (self.__owner is None) and self.__owner.getName()) or self.__owner}, mortgage: {self.__mortgage}' + '}'
 
     
     def calculateRent(self):
