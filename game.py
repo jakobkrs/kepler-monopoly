@@ -29,11 +29,11 @@ class Game():
             if square[2] in ['property', 'trainStation', 'supplyPlant']:
                 for property in propertiesTable:
                     if property[0] == square[0]:                                    # Position ist gleich -> property und square gehören zusammen
-                        propertyObject = Property(square[0],square[1],square[2],property[1],property[2],property[3])    # erstellt property Objekt und fügt dieses gamebBoard und properties hinzu
+                        propertyObject = Property(int(square[0]),square[1],square[2],property[1],int(property[2]),int(property[3]))    # erstellt property Objekt und fügt dieses gamebBoard und properties hinzu
                         self.__gameBoard.append(propertyObject)
                         self.__properties.append(propertyObject)
             else:                                                                   # type ist weder property, noch trainStation noch supplyPlant
-                self.__gameBoard.append(Square(square[0],square[1],square[2]))          # erstellt square Objekt und fügt dieses zum Feld gameBoard hinzu
+                self.__gameBoard.append(Square(int(square[0]),square[1],square[2]))          # erstellt square Objekt und fügt dieses zum Feld gameBoard hinzu
         
         # Lade die Gemeinschafts- und Ereigniskarten aus den CSV-Dateien
         communityTable = self.__loadCSV(csvDirPath + "communityCards.csv")
@@ -80,7 +80,6 @@ class Game():
         for i in range(len(array), 0, -1):
             element = array.pop(random.randint(0, i-1))
             array.append(element)
-        print(array)
 
 
     def __loadCSV(self,filepath: str) -> list[list]:
@@ -122,7 +121,8 @@ class Game():
 
     
 
-
+    def getPlayers(self):
+        return self.__players
 
     def getGameBoard(self):
         return self.__gameBoard

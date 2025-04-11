@@ -16,12 +16,14 @@ class Property(Square):
         self.__owner=None      # Startwert: kein Besitzer
 
     
-    def setRent(self):
+    def calculateRent(self):
         """
         Mietpreis neu Berechnen
         """
-        if self.__owner and self.__owner.completeGroup() and self.__houses == 0:       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
+        if self.__owner and self.__owner.completeGroup(self.__group) and self.__houses == 0:       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
             self.__rent = 2 * self.__baseRent
+        elif self.__mortgage:
+            self.__rent = 0
         else:
             self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent          # Liste enthält Faktoren für verschiedene Anzahlen an Häusern 
     
@@ -30,8 +32,7 @@ class Property(Square):
         if self.__owner is None: # Kein Besitzer 
             return 0
         else:
-            #Es gibt einen besitzer -> Standartmiete oder Miete mit Häusern
-            return self.__rent                  
+            return self.__rent                  # Es gibt einen Besitzer -> Standardmiete oder Miete mit Häusern
 
     def buildHouse(self): 
         """
@@ -41,14 +42,15 @@ class Property(Square):
             self.__houses +=1
 
     def getHouses(self):
-        """
-        Prozedur zum abrufen der Anzahl von Häusern auf einem Grundstück
-        """
         return self.__houses
+
+    def getOwner(self):
+        return self.__owner
 
     def setOwner(self, owner):
         """
-        legt einen neuen Besitzer für das Grundstück fest
+        Setzt Besitzer des Grundstücks und fügt Grundstück zur Besitzliste des Besitzers hinzu
         """
         self.__owner = owner
+        owner.addProperty(self)
 

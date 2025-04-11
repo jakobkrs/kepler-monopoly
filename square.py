@@ -6,6 +6,17 @@ class Square():
         self.__name = name
         self.__position = position
         self.__type = squaretype
+    
+    
+    def playerLandedOn(self, player):
+        match self.__type:
+            case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren Feldern
+                owner = self.getOwner()
+                if owner is None:
+                    pass                        # Möglichkeit Grundstück zu kaufen, später hinzufügen
+                elif owner != player:
+                    player.payPlayer(owner, self.getRent())     # Miete wird bezahlt
+            
         
     def setFieldCoord(self, x, y, width, height):
         """

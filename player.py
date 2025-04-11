@@ -2,20 +2,21 @@ import random
 from square import * 
 from property import *
 class Player():
-    def __init__(self,game):
+    def __init__(self,game, name: str):
         """
         Konstruktoraufruf für Playerklasse
         """
-        self.__name=[]
-        self.__money=0                          #wird noch geändert auf Startkapital
-        self.__properties=property
+        self.__name=name
+        self.__money=30000                          # Startkapital
+        self.__properties=[]
         self.__position=0
-        self.__currentSquare=game.getGameBoard()[self.__position] 
+        self.__currentSquare=game.getGameBoard()[self.__position]
         self.__prison=False
         self.__prisoncardCommunity=False
         self.__prisoncardEvent=False
         self.__bankrupt=False
         self.__game=game
+
 
     def startTurn(self):
         if self.__bankrupt:
@@ -59,6 +60,7 @@ class Player():
         """
         self.__position=position % len(self.__game.getGameBoard())          # aktualisiere Postion und handelt das überschreiten von Los in der Positions-Variable
         self.__currentSquare=self.__game.getGameBoard()[self.__position]
+        self.__currentSquare.playerLandedOn(self)                             # behandelt landen des Spielers auf Feld
         # Ergänzung von Code für Überschreiten von LOS notwendig
 
  
@@ -72,21 +74,59 @@ class Player():
         return num1,num2,num
 
     def completeGroup(self,id: str):
+        """
+        Überprüft ob ein Spieler alle Grundstücke einer Gruppe besitzt
+        """
         properties = self.__game.getProperties()
 
         owners = []
-
         for property in properties:
             if property.group == id:
                 owners.append(property.owner)
         
         return all(x==owners[0] for x in owners)
-
-        
     
+    def addProperty(self, property):
+        """
+        Fügt eine neue Property als Besitzung des Spielers hinzu
+        """
+        self.__properties.append(property)
 
 
-                
 
-
+    # Geldbezogene Methoden
+    
+    def __pay(self, amount: int):
+        """
+        Spieler muss Geld bezahlen, wobei überprüft wird ob der Spieler bezahlen kann und gegebenenfalls die OPtion für Hypotheken oder Bankrott gehen gegeben werden. Sie gibt ob der Spieler Zahlungsfähig ist.
+        """
+        if self.__money >= amount:
+            self.__money -= amount
+            return True     # Spieler kann zahlen
+        else:
+            return False    # Spieler hat zu wenig Geld. Option zum Hypotheken eingehen, oder Bankrott gehen muss hinzugefügt werden und entsprechend der Rückgabewert angepasst werden.
+    
+    def payPlayer(self, player, amount: int):
+        """
+        Transferiert Geld von diesem Spieler zum angegebenen
+        """
+        if self.__pay(amount):
+            player.giveMoney(amount)
+        else:
+            pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler 
+        
+    def payBank(self, amount: int):
+        """
+        Spieler zahlt Geld an Bank bzw. in den Frei Parken Pot 
+        """
+        if self.__pay(amount):
+            pass # Geld zu Frei Parken hinzufügen
+        else:
+            pass # Spieler ist Bankrott und muss allen Besitz wieder zur freien Verfügbarkeit freigeben
+    
+    def giveMoney(self, amount: int):
+        """
+        Spieler erhält Geld von beliebiger Quelle
+        """
+        self.__money += amount
         
