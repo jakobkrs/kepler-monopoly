@@ -1,8 +1,27 @@
 import pygame
+import random
 
 global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
 global startX, startY, cornerSize, fieldWidth, fieldLenght, screenHeight, screenWidth
-    
+
+def startDialog():
+    pygame.init()
+
+    screen = pygame.display.set_mode((800, 600))
+    pygame.display.set_caption("Spieler einrichten")
+    font = pygame.font.SysFont(None, 36)
+
+    figures = ["Hund", "Auto", "Schiff", "Hut", "Katze", "Boot", "Flugzeug", "Zug"]
+    usedFigures = []
+
+    inputBox = pygame.Rect(400, 200, 100, 50)
+    colorInactive = pygame.Color('lightskyblue3')
+    colorActive = pygame.Color('dodgerblue2')
+    color = colorInactive
+    active = False
+    inputText = ''
+
+
 def initDraw(game):
     # pygame initialisieren
     pygame.init()
@@ -89,27 +108,11 @@ def initDraw(game):
             # Spielfelder rechts
             gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
         
-    
+        """
         for i in range (0, 40):
             # Spielfelder zeichnen
             pygame.draw.rect(screen, black, (gameboard[i].getFieldCoord("x"), gameboard[i].getFieldCoord("y"), gameboard[i].getFieldCoord("width"), gameboard[i].getFieldCoord("height")))
-
-        # Eckfelder in square-Objekte von Game registrieren
         """
-        # Eckfelder zeichnen
-        pygame.draw.rect(screen, black, (boardX, boardY, cornerSize, cornerSize))  # Oben links
-        pygame.draw.rect(screen, black, (boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize))  # Oben rechts
-        pygame.draw.rect(screen, black, (boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize))  # Unten links
-        pygame.draw.rect(screen, black, (boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize))  # Unten rechts
-        
-        # Spielfelder zeichnen
-        for i in range (0, 9):
-            pygame.draw.rect(screen, red, (boardX + cornerSize + (i) * fieldWidth, boardY, fieldWidth, fieldLenght))
-            pygame.draw.rect(screen, red, (boardX, boardY + cornerSize + (i) * fieldWidth, fieldLenght, fieldWidth))
-            pygame.draw.rect(screen, red, (boardX + boardWidth - cornerSize, boardY + cornerSize + (i) * fieldWidth, fieldLenght, fieldWidth))
-            pygame.draw.rect(screen, red, (boardX + cornerSize + (i) * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght))
-        """
-        
         
         
         pygame.display.update()

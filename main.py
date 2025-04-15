@@ -4,6 +4,9 @@ from player import Player
 
 game = Game()
 
+gameSettings = startDialog()
+print(gameSettings)  # Testausgabe
+
 # Stellt initDraw game zur Verfügung und führt initDraw aus
 initDraw(game)
 
