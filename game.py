@@ -19,6 +19,7 @@ class Game():
         self.__properties  =[]              # Liste aller Objekten der Klasse Property
         self.__communityCards = []
         self.__eventCards = []
+        self.__freeParkingMoney = 0
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
@@ -45,10 +46,11 @@ class Game():
         
 
 
-    def addPlayer(self, player: Player):
+    def addPlayer(self, name: str, symbol: str):
         """
         Fügt einen Spieler zur Liste aller Spieler hinzu.
         """
+        player = Player(self, name, symbol)
         self.__players.append(player)
         self.__playerCount += 1
         self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler an letzter Position der Reihenfolge hinzu
@@ -118,6 +120,17 @@ class Game():
         self.__currentPlayer.startTurn()
 
 
+    def resetFreeParkingMoney(self):
+        """
+        Setzt Frei-Parken Geld zurück
+        """
+        self.__freeParkingMoney = 0
+    
+    def addFreeParkingMoney(self, amount: int):
+        """
+        Fügt Geld zu Frei-Parken hinzu
+        """
+        self.__freeParkingMoney += amount
 
     
 
@@ -129,15 +142,3 @@ class Game():
 
     def getProperties(self):
         return self.__properties
-
-    
-# nur zu Testzwecken, später möglichst wieder entfernen !later
-if __name__ == '__main__':
-    game = Game()
-    
-    game.addPlayer(Player(game))
-    game.addPlayer(Player(game))
-    game.addPlayer(Player(game))
-    game.addPlayer(Player(game))
-    
-    game.startGame()
