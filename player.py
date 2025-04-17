@@ -53,7 +53,7 @@ class Player():
         """
         num1,num2,num=self.rollDice()
 
-        if num1 != num2 and self.__doubleCount >= 2:
+        if num1 == num2 and self.__doubleCount >= 2:
             self.goToPrison()
             return
         
@@ -71,9 +71,10 @@ class Player():
         setzt Spieler auf richtige Position
         """
         self.__position=position % len(self.__game.getGameBoard())          # aktualisiere Postion und handelt das überschreiten von Los in der Positions-Variable
+        if position > 39:
+            self.giveMoney(4000)                                            # Geld erhalten bei Überschreiten von Los
         self.__currentSquare=self.__game.getGameBoard()[self.__position]
         self.__currentSquare.playerLandedOn(self)                             # behandelt landen des Spielers auf Feld
-        # Ergänzung von Code für Überschreiten von LOS notwendig
 
  
     def rollDice(self):
