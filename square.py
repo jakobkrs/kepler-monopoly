@@ -1,11 +1,12 @@
 class Square():
-    def __init__(self, position: int, name: str, squaretype: str):
+    def __init__(self, game,  position: int, name: str, squaretype: str):
         """
         Konstruktor der Klasse Square
         """
         self.__name = name
         self.__position = position
         self.__type = squaretype
+        self.__game = game
     
     def __str__(self):
         return 'Square-Object{' + f'name: {self.__name}, position: {self.__position}, type: {self.__type}' + '}'
@@ -19,6 +20,21 @@ class Square():
                     pass                        # Möglichkeit Grundstück zu kaufen, später hinzufügen
                 elif owner != player:
                     player.payPlayer(owner, self.getRent())     # Miete wird bezahlt
+            case 'community':
+                pass
+            case 'event':
+                pass
+            case 'taxes1':
+                player.payBank(4000)
+            case 'taxes2':
+                player.payBank(2000)
+            case 'freeParking':
+                money = self.__game.resetFreeParkingMoney()
+                player.giveMoney(money)
+            case 'goToJail':
+                player.goToPrison()
+            case 'start' | 'jail':      # hier muss nichts passieren
+                pass
             
         
     def setFieldCoord(self, x, y, width, height):
