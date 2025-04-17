@@ -2,11 +2,11 @@ from square import Square
 #from player import Player
 
 class Property(Square):
-    def __init__(self, position: int, name: str, type: str, group: str, baseRent: int, cost: int):
+    def __init__(self, game, position: int, name: str, type: str, group: str, baseRent: int, cost: int):
         """
         Initialisierung und Festlegung der Werte eines Grundstücks
         """
-        super().__init__(position, name, type)
+        super().__init__(game, position, name, type)
         self.__group=group
         self.__houses=0
         self.__baseRent=baseRent
@@ -57,8 +57,8 @@ class Property(Square):
         self.__owner = owner
         owner.addProperty(self)
 
-    def getMortgage(self)
+    def getMortgage(self):
         return self.__mortgage
 
-    def setMortgage(self, boolean)
+    def setMortgage(self, boolean):
         self.__mortgage = boolean

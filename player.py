@@ -2,11 +2,12 @@ import random
 from square import * 
 from property import *
 class Player():
-    def __init__(self,game, name: str):
+    def __init__(self,game, name: str, symbol: str):
         """
         Konstruktoraufruf für Playerklasse
         """
         self.__name=name
+        self.__symbol=symbol
         self.__money=30000                          # Startkapital
         self.__properties=[]
         self.__position=0
