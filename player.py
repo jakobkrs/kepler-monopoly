@@ -148,6 +148,9 @@ class Player():
     
     def getName(self):
         return self.__name
+    
+    def getPosition(self):
+        return self.__position
 
     
     def choose_mortgage(self, amount):

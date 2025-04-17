@@ -13,6 +13,9 @@ class Square():
     
     
     def playerLandedOn(self, player):
+        """
+        Führt bei Betreten eine Feldes entsprechende Aktion aus.
+        """ 
         match self.__type:
             case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren Feldern
                 owner = self.getOwner()
@@ -35,6 +38,39 @@ class Square():
                 player.goToPrison()
             case 'start' | 'jail':      # hier muss nichts passieren
                 pass
+
+    def __cardField(self, player, type: str):
+        """
+        Zieht bei Betreten eines Karten Feldes eine Karte und führt entsprechende Aktion aus.
+        """
+        if type == "community":
+            card = self.__game.drawCommunityCard()
+        else:
+            card = self.__game.drawEventCard()
+        match card.action:
+            case "moveTo":
+                player.goToPosition(card.value)
+            case "moveToNearestSupplyPlant":
+                pass
+            case "moveToNearestTrainStation":
+                pass
+            case "goToJail":
+                player.goToPrison()
+            case "renovate":
+                pass
+            case "moveBack":
+                player.goToPosition(player.getPosition() - card.value)
+            case "earnMoney":
+                player.giveMoney(card.value)
+            case "payMoney":
+                player.payBank(card.value)
+            case "getOutOfJail":
+                pass
+            case "earnFromPlayers":
+                pass
+            case "payPlayers":
+                pass
+
             
         
     def setFieldCoord(self, x, y, width, height):
