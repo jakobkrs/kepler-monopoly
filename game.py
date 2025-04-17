@@ -134,6 +134,23 @@ class Game():
         Fügt Geld zu Frei-Parken hinzu
         """
         self.__freeParkingMoney += amount
+    
+    def drawCommunityCard(self) -> object:
+        """
+        Zieht die oberste Gemeinschaftskarte und gibt deren Werte zurück.
+        """
+        card = self.__communityCards.pop(0)
+        self.__communityCards.append(card)
+        return card
+    
+    def drawEventCard(self) -> object:
+        """
+        Zieht die oberste Ereigniskarte und gibt deren Werte zurück.
+        """
+        card = self.__eventCards.pop(0)
+        self.__eventCards.append(card)
+        return card
+
 
     
 
