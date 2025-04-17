@@ -126,6 +126,7 @@ class Player():
         if self.__pay(amount):
             player.giveMoney(amount)
         else:
+            self.choose_mortgage(amount)
             pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler 
         
     def payBank(self, amount: int):
@@ -146,3 +147,9 @@ class Player():
     
     def getName(self):
         return self.__name
+
+    
+    def choose_mortgage(self, amount):
+        """
+        Methode zum Auswählen einer Hypothek
+        """

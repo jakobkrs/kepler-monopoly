@@ -57,3 +57,8 @@ class Property(Square):
         self.__owner = owner
         owner.addProperty(self)
 
+    def getMortgage(self)
+        return self.__mortgage
+
+    def setMortgage(self, boolean)
+        self.__mortgage = boolean
