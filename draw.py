@@ -1,26 +1,71 @@
 import pygame
 import random
+import tkinter as tk
 
 global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
 global startX, startY, cornerSize, fieldWidth, fieldLenght, screenHeight, screenWidth
 
 def startDialog():
-    pygame.init()
+    def submitPlayerCount():
+        try:
+            count = int(playerCountEntry.get())
+            if count < 2 or count > len(figures):
+                return
+            showPlayerSetup(count)
+        except:
+            return
 
-    screen = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Spieler einrichten")
-    font = pygame.font.SysFont(None, 36)
+    def showPlayerSetup(count):
+        setupWindow = tk.Toplevel(root)
+        setupWindow.title("Spielereinstellungen")
+        playerEntries = []
+        figureVars = []
+
+        def submitPlayers():
+            selectedFigures = [var.get() for var in figureVars]
+            if len(set(selectedFigures)) != len(selectedFigures):
+                return  # Doppelte Figur
+            result = []
+            for i in range(count):
+                result.append((
+                    playerEntries[i].get(),
+                    figureVars[i].get(),
+                ))
+            nonlocal finalPlayers
+            finalPlayers = result
+            setupWindow.destroy()
+            root.quit()  # beendet mainloop
+
+        for i in range(count):
+            tk.Label(setupWindow, text=f"Spieler {i+1} Name:").grid(row=i, column=0)
+            entry = tk.Entry(setupWindow)
+            entry.insert(0, f"Spieler {i+1}")
+            entry.grid(row=i, column=1)
+            playerEntries.append(entry)
+
+            tk.Label(setupWindow, text="Figur:").grid(row=i, column=2)
+            figureVar = tk.StringVar(setupWindow)
+            figureVar.set(figures[i])  # Vorauswahl
+            option = tk.OptionMenu(setupWindow, figureVar, *figures)
+            option.grid(row=i, column=3)
+            figureVars.append(figureVar)
+
+        tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
+        root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
 
     figures = ["Hund", "Auto", "Schiff", "Hut", "Katze", "Boot", "Flugzeug", "Zug"]
-    usedFigures = []
+    finalPlayers = []
 
-    inputBox = pygame.Rect(400, 200, 100, 50)
-    colorInactive = pygame.Color('lightskyblue3')
-    colorActive = pygame.Color('dodgerblue2')
-    color = colorInactive
-    active = False
-    inputText = ''
-
+    root = tk.Tk()
+    root.title("Spiel starten")
+    tk.Label(root, text="Anzahl der Spieler (2-{}):".format(len(figures))).pack()
+    playerCountEntry = tk.Entry(root)
+    playerCountEntry.pack()
+    tk.Button(root, text="Weiter", command=submitPlayerCount).pack()
+    root.mainloop()  # Hauptloop startet, wartet bis root.quit() aufgerufen wird
+    root.destroy()
+    tk._default_root = None
+    return finalPlayers
 
 def initDraw(game):
     # pygame initialisieren
