@@ -117,7 +117,7 @@ class Game():
             self.__currentPlayerId + 1) % self.__playerCount
         self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]       # aktualisiere currentPlayer auf aktuelles Spieler Objekt
 
-        self.__currentPlayer.startTurn()
+        #self.__currentPlayer.startTurn()
 
 
     def resetFreeParkingMoney(self):
@@ -162,3 +162,12 @@ class Game():
 
     def getProperties(self):
         return self.__properties
+
+if __file__ == "__main__":
+    game = Game()
+    for i in range(4): game.addPlayer(chr(65 + i), "")
+    game.startGame()
+
+    #game.getPlayers()[0].goToPosition(35)
+    #game.getGameBoard()[2].playerLandedOn(game.getPlayers()[0])
+    #print(game.getPlayers()[0])

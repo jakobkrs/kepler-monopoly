@@ -24,9 +24,9 @@ class Square():
                 elif owner != player:
                     player.payPlayer(owner, self.getRent())     # Miete wird bezahlt
             case 'community':
-                pass
+                self.__cardField(player, "community")
             case 'event':
-                pass
+                self.__cardField(player, "event")
             case 'taxes1':
                 player.payBank(4000)
             case 'taxes2':
@@ -47,32 +47,50 @@ class Square():
             card = self.__game.drawCommunityCard()
         else:
             card = self.__game.drawEventCard()
-        match card.action:
+        print(card["action"])
+        match card["action"]:
             case "moveTo":
-                player.goToPosition(card.value)
+                player.goToPosition(card["value"])
             case "moveToNearestSupplyPlant":
-                pass
+                self.moveToNearest(player, "supplyPlant")
             case "moveToNearestTrainStation":
-                pass
+                self.moveToNearest(player, "trainStation")
             case "goToJail":
                 player.goToPrison()
             case "renovate":
-                pass
+                sum = 0
+                for property in player.getProperties():
+                    sum += 500 * min(property.getHouses(),4)
+                player.payBank(sum)
             case "moveBack":
-                player.goToPosition(player.getPosition() - card.value)
+                player.goToPosition(player.getPosition() - card["value"])
             case "earnMoney":
-                player.giveMoney(card.value)
+                player.giveMoney(card["value"])
             case "payMoney":
-                player.payBank(card.value)
-            case "getOutOfJail":
-                pass
+                player.payBank(card["value"])
+            #case "getOutOfJail":
+                #pass
             case "earnFromPlayers":
-                pass
+                for opponent in self.__game.getPlayers():
+                    if opponent != player:
+                        opponent.payPlayer(player, card["value"])    
             case "payPlayers":
-                pass
+                for opponent in self.__game.getPlayers():
+                    if opponent != player:
+                        player.payPlayer(opponent, card["value"])
 
             
-        
+    def moveToNearest(self, player, type: str):
+        """
+        Ermittelt das nächstliegende Feld eines bestimmten Typen und bewegt Spieler dort hint
+        """
+        pos = player.getPosition()
+        while  self.__game.getGameBoard()[pos].getType() != type:
+            pos = (pos + 1) % len(self.__game.getGameBoard())
+        player.goToPosition(pos)
+                
+
+
     def setFieldCoord(self, x, y, width, height):
         """
         Setzt die Position und Maße des Feldes

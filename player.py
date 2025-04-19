@@ -13,8 +13,8 @@ class Player():
         self.__position=0
         self.__currentSquare=game.getGameBoard()[self.__position]
         self.__prison=False
-        self.__prisoncardCommunity=False
-        self.__prisoncardEvent=False
+        #self.__prisoncardCommunity=False           # Budget spar Maßnahme
+        #self.__prisoncardEvent=False
         self.__bankrupt=False
         self.__game=game
     
@@ -151,6 +151,9 @@ class Player():
     
     def getPosition(self):
         return self.__position
+    
+    def getProperties(self):
+        return self.__properties
 
     
     def choose_mortgage(self, amount):

@@ -7,7 +7,6 @@ Zahle Schulgeld: 1.500 M.;payMoney;1500
 Zahle deine Versicherung: 1.000 M.;payMoney;1000
 Arzt-Kosten: Zahle 1.000 M.;payMoney;1000
 Rücken Sie vor bis LOS;moveTo;0
-Sie kommen aus dem Gefängnis frei. Diese Karte können Sie behalten oder verkaufen.;getOutOfJail;0
 Du bist zum Vorstand gewählt worden. Zahle jedem Spieler 500 M.;payPlayers;500
 Du hast Geburtstag. Jeder Spieler schenkt dir 500 M.;earnFromPlayers;500
 Du erhältst eine Rückzahlung deiner Einkommenssteuer in Höhe von 1.000 M.;earnMoney;1000
