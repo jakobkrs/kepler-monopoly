@@ -58,9 +58,9 @@ class Game():
     
     def startGame(self):
         """
-        Startet die Haupt-Spiel-Ablauf
+        Startet den Haupt-Spiel-Ablauf
         """
-        # Mische Gemeinschafts- un Ereigniskarten Felder
+        # Mische Gemeinschafts- und Ereigniskarten
         self.__shuffleList(self.__communityCards)
         self.__shuffleList(self.__eventCards)
         
@@ -163,7 +163,7 @@ class Game():
     def getProperties(self):
         return self.__properties
 
-if __file__ == "__main__":
+if __name__ == "__main__":
     game = Game()
     for i in range(4): game.addPlayer(chr(65 + i), "")
     game.startGame()

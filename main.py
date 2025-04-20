@@ -1,7 +1,6 @@
 import multiprocessing
 from game import Game
 from draw import *
-from player import Player
 
 def runDialog(queue):
     """

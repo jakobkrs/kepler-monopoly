@@ -32,7 +32,7 @@ class Square():
             case 'taxes2':
                 player.payBank(2000)
             case 'freeParking':
-                money = self.__game.resetFreeParkingMoney()
+                money = self.__game.resetFreeParkingMoney()     # Seit Frei Parken Geld auf 0 zurück und speichert den Betrag in money
                 player.giveMoney(money)
             case 'goToJail':
                 player.goToPrison()
@@ -47,7 +47,6 @@ class Square():
             card = self.__game.drawCommunityCard()
         else:
             card = self.__game.drawEventCard()
-        print(card["action"])
         match card["action"]:
             case "moveTo":
                 player.goToPosition(card["value"])

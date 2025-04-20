@@ -65,7 +65,7 @@ class Player():
             self.__game.nextPlayersTurn()
         else:
             self.__doubleCount += 1
-            self.turn
+            self.turn()
 
     def goToPosition(self, position: int):
         """
@@ -85,7 +85,7 @@ class Player():
         num1= random.randint(1,6)
         num2= random.randint(1,6)
         num=num1+num2
-        return num1,num2,num
+        return num1,num2,7#,num
 
     def completeGroup(self,id: str):
         """
