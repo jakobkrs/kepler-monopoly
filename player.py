@@ -149,6 +149,9 @@ class Player():
     def getName(self):
         return self.__name
     
+    def getMoney(self):
+        return self.__money
+    
     def getPosition(self):
         return self.__position
     
