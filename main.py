@@ -15,12 +15,17 @@ if __name__ == "__main__":
 
     # Starte den Dialog in einem neuen Prozess
     p = multiprocessing.Process(target=runDialog, args=(queue,))
+    p.daemon = True  # Setze den Prozess als Daemon-Prozess
     p.start()
-    gameSettings = queue.get()  # Warte auf die Ergebnisse des Dialogs
+    try:
+        gameSettings = queue.get(timeout=60)
+    except Exception:
+        p.terminate()
+        os._exit(0)
     p.join()
-
+ 
     if gameSettings == []:
-        exit()
+        os._exit(0)
 
     game = Game()
     playerCount = len(gameSettings)

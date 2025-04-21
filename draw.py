@@ -4,6 +4,8 @@ import random
 import tkinter as tk
 from game import Game
 from player import Player
+import sys
+import os
 
 global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
 global cornerSize, fieldWidth, fieldLenght, screenHeight, screenWidth
@@ -56,17 +58,40 @@ def startDialog():
         tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
         root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
 
+    def onRootClose():
+        # Setze einen leeren Wert als Ergebnis, damit der Hauptprozess weiterarbeitet
+        nonlocal finalPlayers
+        finalPlayers = []
+        try:
+            root.quit()  # beendet mainloop
+        except Exception:
+            pass
+        try:
+            root.destroy()  # zerstört das Fenster
+        except Exception:
+            pass
+
     figures = ["Hund", "Auto", "Schiff", "Hut", "Katze", "Boot", "Flugzeug", "Zug"]
     finalPlayers = []
 
+
+    # Erstelle das Hauptfenster
     root = tk.Tk()
     root.title("Spiel starten")
+    # Sorge dafür, dass beim Schließen des Fensters die Anwendung beendet wird
+    root.protocol("WM_DELETE_WINDOW", onRootClose)
+    # Hebe das Fenster in den Vordergrund
+    root.lift()
+    root.focus_force()
     tk.Label(root, text="Anzahl der Spieler (2-{}):".format(len(figures))).pack()
     playerCountEntry = tk.Entry(root)
     playerCountEntry.pack()
     tk.Button(root, text="Weiter", command=submitPlayerCount).pack()
     root.mainloop()  # Hauptloop startet, wartet bis root.quit() aufgerufen wird
-    root.destroy()
+    try:
+        root.destroy()
+    except:
+        pass
     tk._default_root = None
     return finalPlayers
 
