@@ -1,6 +1,7 @@
 import random
 from square import * 
 from property import *
+from gui import *
 class Player():
     def __init__(self,game, name: str, symbol: str):
         """
@@ -16,6 +17,7 @@ class Player():
         #self.__prisoncardCommunity=False           # Budget spar Maßnahme
         #self.__prisoncardEvent=False
         self.__bankrupt=False
+        self.__lastDiceRoll = []
         self.__game=game
     
     def __str__(self):
@@ -36,7 +38,8 @@ class Player():
             self.__game.nextPlayersTurn()
         else:
             self.__doubleCount = 0
-            self.turn()
+            self.__lastDiceRoll = []
+            setScreen(SCREEN_ROLLDICE)
                 
             
 
@@ -59,13 +62,13 @@ class Player():
             return
         
         self.goToPosition(self.__position+num)
-        #miete und sonstiges
+        # sonstiges
 
         if num1 != num2:
-            self.__game.nextPlayersTurn()
+            addScreenToQueue(SCREEN_CONTINUE)
         else:
             self.__doubleCount += 1
-            self.turn()
+            addScreenToQueue(SCREEN_ROLLDICEAGAIN)
 
     def goToPosition(self, position: int):
         """
@@ -85,7 +88,8 @@ class Player():
         num1= random.randint(1,6)
         num2= random.randint(1,6)
         num=num1+num2
-        return num1,num2,7#,num
+        self.__lastDiceRoll = [num1, num2]
+        return num1,num2,num
 
     def completeGroup(self,id: str):
         """
@@ -100,6 +104,14 @@ class Player():
         
         return all(x==owners[0] for x in owners)
     
+    def buyProperty(self, property):
+        """
+        Erwerben des Grundstücks.
+        """
+        self.payBank(property.getCost(), False)
+        property.setOwner(self)
+        nextScreen()
+        
     def addProperty(self, property):
         """
         Fügt eine neue Property als Besitzung des Spielers hinzu
@@ -126,16 +138,18 @@ class Player():
         """
         if self.__pay(amount):
             player.giveMoney(amount)
+            return True
         else:
             self.choose_mortgage(amount)
-            pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler 
+            pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler abgeben
         
-    def payBank(self, amount: int):
+    def payBank(self, amount: int, freeParking = True):
         """
         Spieler zahlt Geld an Bank bzw. in den Frei Parken Pot 
         """
         if self.__pay(amount):
-            pass # Geld zu Frei Parken hinzufügen
+            if freeParking:
+                self.__game.addFreeParkingMoney(amount)     # Geld wird zu Frei Parken hinzugefügt
         else:
             pass # Spieler ist Bankrott und muss allen Besitz wieder zur freien Verfügbarkeit freigeben
     
@@ -157,6 +171,12 @@ class Player():
     
     def getProperties(self):
         return self.__properties
+    
+    def getCurrentSquare(self):
+        return self.__currentSquare
+    
+    def getLastDiceRoll(self):
+        return self.__lastDiceRoll
 
     
     def choose_mortgage(self, amount):

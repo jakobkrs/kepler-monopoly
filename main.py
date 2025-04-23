@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 from game import Game
 from draw import *
 
@@ -6,7 +7,8 @@ def runDialog(queue):
     """
     Funktion für den Dialog, der die Spielerinformationen abfragt.
     """
-    result = startDialog()
+    #result = startDialog()
+    result = [('Spieler 1', 'Hund'), ('Spieler 2', 'Auto'), ('Spieler 3', 'Schiff')]
     queue.put(result)  # Ergebnisse in die Queue setzen
 
 if __name__ == "__main__":
@@ -33,11 +35,7 @@ if __name__ == "__main__":
     for i in range (playerCount):
         game.addPlayer(gameSettings[i][0], gameSettings[i][1])  # Spieler mit Namen und Figur hinzufügen
 
-    #for i in range(2): game.addPlayer(chr(65 + i), "")    # zu Test zwecken, muss später durch UI ausgelöst werden
-    
-    print(game.getPlayers())
-
+    #for property in game.getProperties():
+    #    property.setOwner(game.getPlayers()[0])
     # Stellt initDraw game zur Verfügung und führt initDraw aus
     initDraw(game)
-    
-    game.startGame()  # Spiel muss später durch UI Element gestartet werden, nachdem mindestens zwei Spieler hinzufügt wurden 

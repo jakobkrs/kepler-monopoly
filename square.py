@@ -1,3 +1,5 @@
+from gui import *
+
 class Square():
     def __init__(self, game,  position: int, name: str, squaretype: str):
         """
@@ -16,17 +18,17 @@ class Square():
         """
         Führt bei Betreten eine Feldes entsprechende Aktion aus.
         """ 
+        setScreen(SCREEN_CONTINUE)
         match self.__type:
             case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren Feldern
                 owner = self.getOwner()
                 if owner is None:
-                    pass                        # Möglichkeit Grundstück zu kaufen, später hinzufügen
+                    setScreen(SCREEN_BUYOPTION)
                 elif owner != player:
-                    player.payPlayer(owner, self.getRent())     # Miete wird bezahlt
-            case 'community':
-                self.__cardField(player, "community")
-            case 'event':
-                self.__cardField(player, "event")
+                    setScreen(SCREEN_PAYRENT)
+            case 'community' | 'event':
+                self.__game.drawCard(self.__type)
+                setScreen(SCREEN_CARD)
             case 'taxes1':
                 player.payBank(4000)
             case 'taxes2':
@@ -39,14 +41,13 @@ class Square():
             case 'start' | 'jail':      # hier muss nichts passieren
                 pass
 
-    def __cardField(self, player, type: str):
+    def executeCard(self):
         """
-        Zieht bei Betreten eines Karten Feldes eine Karte und führt entsprechende Aktion aus.
+        Führt die zuletzt gezogene Gemeinschafts- oder Ereigniskarte aus.
         """
-        if type == "community":
-            card = self.__game.drawCommunityCard()
-        else:
-            card = self.__game.drawEventCard()
+        card = self.__game.getLastDrawnCard()
+        player = self.__game.getCurrentPlayer()
+        nextScreen()
         match card["action"]:
             case "moveTo":
                 player.goToPosition(card["value"])

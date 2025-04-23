@@ -3,6 +3,7 @@ from square import Square
 from property import Property
 import random
 import os
+from gui import *
 
 
 class Game():
@@ -20,6 +21,7 @@ class Game():
         self.__communityCards = []
         self.__eventCards = []
         self.__freeParkingMoney = 0
+        self.__lastDrawnCard = None
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
@@ -54,9 +56,11 @@ class Game():
         self.__players.append(player)
         self.__playerCount += 1
         self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler an letzter Position der Reihenfolge hinzu
+        if self.__currentPlayer == None:
+            self.__currentPlayer = player       # fill in value before its properly setup in startGame
     
     
-    def startGame(self):
+    def startGame(self, shufflePlayerOrder = True):
         """
         Startet den Haupt-Spiel-Ablauf
         """
@@ -64,7 +68,8 @@ class Game():
         self.__shuffleList(self.__communityCards)
         self.__shuffleList(self.__eventCards)
         
-        self.__shufflePlayerOrder()
+        if shufflePlayerOrder:
+            self.__shufflePlayerOrder()
         self.__players[self.__playerOrder[0]].startTurn()       # Starte Zug des ersten Spielers
         
 
@@ -73,6 +78,7 @@ class Game():
         Mischt die Spieler-Reihenfolge
         """
         self.__shuffleList(self.__playerOrder)
+        self.__currentPlayer = self.__players[self.__playerOrder[0]]
 
 
     def __shuffleList(self, array: list):
@@ -117,7 +123,8 @@ class Game():
             self.__currentPlayerId + 1) % self.__playerCount
         self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]       # aktualisiere currentPlayer auf aktuelles Spieler Objekt
 
-        #self.__currentPlayer.startTurn()
+        self.__currentPlayer.startTurn()
+        setScreen(SCREEN_ROLLDICE)
 
 
     def resetFreeParkingMoney(self):
@@ -135,20 +142,18 @@ class Game():
         """
         self.__freeParkingMoney += amount
     
-    def drawCommunityCard(self) -> object:
+    def drawCard(self, type: str) -> object:
         """
-        Zieht die oberste Gemeinschaftskarte und gibt deren Werte zurück.
+        Zieht die oberste Gemeinschafts- oder Ereigniskarte und gibt deren Werte zurück.
         """
-        card = self.__communityCards.pop(0)
-        self.__communityCards.append(card)
-        return card
-    
-    def drawEventCard(self) -> object:
-        """
-        Zieht die oberste Ereigniskarte und gibt deren Werte zurück.
-        """
-        card = self.__eventCards.pop(0)
-        self.__eventCards.append(card)
+        if type == "community":
+            card = self.__communityCards.pop(0)
+            self.__communityCards.append(card)
+        else:
+            card = self.__eventCards.pop(0)
+            self.__eventCards.append(card)
+        card["type"] = type
+        self.__lastDrawnCard = card
         return card
 
 
@@ -162,6 +167,16 @@ class Game():
 
     def getProperties(self):
         return self.__properties
+
+    def getPlayerOrder(self):
+        return self.__playerOrder
+    
+    def getCurrentPlayer(self):
+        return self.__currentPlayer
+    
+    def getLastDrawnCard(self):
+        return self.__lastDrawnCard
+
 
 if __name__ == "__main__":
     game = Game()

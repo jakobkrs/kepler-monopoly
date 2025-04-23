@@ -1,14 +1,8 @@
 import pygame
 import pygame_gui
-import random
 import tkinter as tk
-from game import Game
-from player import Player
-import sys
-import os
+from gui import *
 
-global margin, boardWidth, boardHeight, boardX, boardY, boardImage, scaledBoardImage
-global cornerSize, fieldWidth, fieldLenght, screenHeight, screenWidth
 
 def startDialog():
     def submitPlayerCount():
@@ -58,40 +52,17 @@ def startDialog():
         tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
         root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
 
-    def onRootClose():
-        # Setze einen leeren Wert als Ergebnis, damit der Hauptprozess weiterarbeitet
-        nonlocal finalPlayers
-        finalPlayers = []
-        try:
-            root.quit()  # beendet mainloop
-        except Exception:
-            pass
-        try:
-            root.destroy()  # zerstört das Fenster
-        except Exception:
-            pass
-
     figures = ["Hund", "Auto", "Schiff", "Hut", "Katze", "Boot", "Flugzeug", "Zug"]
     finalPlayers = []
 
-
-    # Erstelle das Hauptfenster
     root = tk.Tk()
     root.title("Spiel starten")
-    # Sorge dafür, dass beim Schließen des Fensters die Anwendung beendet wird
-    root.protocol("WM_DELETE_WINDOW", onRootClose)
-    # Hebe das Fenster in den Vordergrund
-    root.lift()
-    root.focus_force()
     tk.Label(root, text="Anzahl der Spieler (2-{}):".format(len(figures))).pack()
     playerCountEntry = tk.Entry(root)
     playerCountEntry.pack()
     tk.Button(root, text="Weiter", command=submitPlayerCount).pack()
     root.mainloop()  # Hauptloop startet, wartet bis root.quit() aufgerufen wird
-    try:
-        root.destroy()
-    except:
-        pass
+    root.destroy()
     tk._default_root = None
     return finalPlayers
 
@@ -107,7 +78,7 @@ def initDraw(game):
     pygame.display.set_caption("KeplerMonopoly")
 
     # Manager für pygame_gui
-    manager = pygame_gui.UIManager((screenWidth, screenHeight))
+    manager = pygame_gui.UIManager((screenWidth, screenHeight), 'theme.json')
     
     # Spielfeldgrößen berechnen
     def recalculateSizes():
@@ -154,28 +125,54 @@ def initDraw(game):
     
     # Initiale Berechnung der Spielfeldgrößen
     recalculateSizes()
+    
+    gameboard = game.getGameBoard()
+        
+    # Eckfelder speichern
+    gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+    gameboard[10].setFieldCoord(boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+    gameboard[20].setFieldCoord(boardX, boardY, cornerSize, cornerSize)
+    gameboard[30].setFieldCoord(boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize)
 
+    # Spielfeldfelder speichern
+    for i in range (1, 10):
+        # Spielfelder unten
+        gameboard[i].setFieldCoord(boardX + boardWidth - cornerSize - i * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght)
+        # Speilfelder links
+        gameboard[i + 10].setFieldCoord(boardX, boardY + boardHeight - cornerSize - i * fieldWidth, fieldLenght, fieldWidth)
+        # Spielfelder oben
+        gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
+        # Spielfelder rechts
+        gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
+    
     # erstelle UI-Scrollcontainer im Panelbereich
     scrollContainer = pygame_gui.elements.UIScrollingContainer(
         relative_rect=pygame.Rect(panelX, panelY, panelWidth, panelHeight),
         manager=manager,
         container=None
     )
+    
+    # initialisiert Gui-Element System
+    initGUI(manager, game, scrollContainer)
 
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
+    # muss aus initDraw rausbewegt werden!
     while running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.VIDEORESIZE:
-                screenWidth, screenHeight = event.size  # Neue Fenstergröße speichern
-                screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)  # Fenster neu setzen
-                manager.set_window_resolution((screenWidth, screenHeight)) 
-                recalculateSizes()
-                scrollContainer.set_relative_position((panelX, panelY))
-                scrollContainer.set_dimensions((panelWidth, panelHeight))
+            match event.type:
+                case pygame.QUIT:
+                    running = False
+                case pygame.VIDEORESIZE:
+                    screenWidth, screenHeight = event.size  # Neue Fenstergröße speichern
+                    screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)  # Fenster neu setzen
+                    manager.set_window_resolution((screenWidth, screenHeight)) 
+                    recalculateSizes()
+                    scrollContainer.set_relative_position((panelX, panelY))
+                    scrollContainer.set_dimensions((panelWidth, panelHeight))
+                case pygame_gui.UI_BUTTON_PRESSED:
+                    executeButtonPress(event)
             manager.process_events(event) 
         
         screen.fill(white)
@@ -186,42 +183,10 @@ def initDraw(game):
         # Spielfeldbild
         screen.blit(scaledBoardImage, (boardX, boardY))
         
-        gameboard = game.getGameBoard()
-        
-        # Eckfelder speichern
-        gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
-        gameboard[10].setFieldCoord(boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
-        gameboard[20].setFieldCoord(boardX, boardY, cornerSize, cornerSize)
-        gameboard[30].setFieldCoord(boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize)
-
-        # Spielfeldfelder speichern
-        for i in range (1, 10):
-            # Spielfelder unten
-            gameboard[i].setFieldCoord(boardX + boardWidth - cornerSize - i * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght)
-            # Speilfelder links
-            gameboard[i + 10].setFieldCoord(boardX, boardY + boardHeight - cornerSize - i * fieldWidth, fieldLenght, fieldWidth)
-            # Spielfelder oben
-            gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
-            # Spielfelder rechts
-            gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
-        
-
         # Panel zeichnen
         #pygame.draw.rect(screen, lightGray, (panelX, panelY, panelWidth, panelHeight))
         
-        for child in scrollContainer.get_container():
-            child.kill()
-
-        yOffset = 10
-        for player in game.getPlayers():
-            infoText = f"{player.getName()}: Pos {player.getPosition()} | Geld: {player.getMoney()}€"
-            label = pygame_gui.elements.UILabel(
-                relative_rect=pygame.Rect(10, yOffset, panelWidth - 10, len(game.getPlayers()) * 100),
-                text=infoText,
-                manager=manager,
-                container=scrollContainer
-            )
-            yOffset += 35 # Abstand zwischen den Labels
+        drawCurrentScreen()
 
         manager.update(timeDelta)
         manager.draw_ui(screen)

@@ -1,8 +1,8 @@
 from square import Square
-#from player import Player
+from gui import *
 
 class Property(Square):
-    def __init__(self, game, position: int, name: str, type: str, group: str, baseRent: int, cost: int):
+    def __init__(self, game, position: int, name: str, type: str, group: str, cost: int, baseRent: int):
         """
         Initialisierung und Festlegung der Werte eines Grundstücks
         """
@@ -14,6 +14,7 @@ class Property(Square):
         self.__cost=cost      
         self.__mortgage=False  # Startwert: keine Hypothek
         self.__owner=None      # Startwert: kein Besitzer
+        self.__game=game
         
     def __str__(self):
         return 'Property-Object{' + f'name: {super().getName()}, position: {super().getPosition()}, type: {super().getType()}, group: {self.__group}, rent: {self.__baseRent}, cost: {self.__cost}, owner: {(not (self.__owner is None) and self.__owner.getName()) or self.__owner}, mortgage: {self.__mortgage}' + '}'
@@ -30,6 +31,16 @@ class Property(Square):
         else:
             self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent          # Liste enthält Faktoren für verschiedene Anzahlen an Häusern 
     
+    def payRent(self, player):
+        """
+        Führt Mietzahlung vom Spieler an Besitzer aus und ändert Screens. 
+        """
+        if player.payPlayer(self.__owner, self.getRent()):
+            roll = self.__game.getCurrentPlayer().getLastDiceRoll()
+            if roll[0] != roll[1]:
+                setScreen(SCREEN_CONTINUE)
+            else:
+                setScreen(SCREEN_ROLLDICEAGAIN)
 
     def getRent(self):
         if self.__owner is None: # Kein Besitzer 
@@ -56,6 +67,9 @@ class Property(Square):
         """
         self.__owner = owner
         owner.addProperty(self)
+    
+    def getCost(self):
+        return self.__cost
 
     def getMortgage(self):
         return self.__mortgage

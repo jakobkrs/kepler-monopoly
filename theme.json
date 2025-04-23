@@ -1,0 +1,37 @@
+{
+    "defaults": {
+        "colours": {
+            "normal_text":"#000000",
+            "hovered_text":"#000000",
+            "active_text":"#000000"
+        }
+     },
+    
+    "button": {
+        "colours": {
+            "normal_bg":"#cccccc",
+            "hovered_bg": "#dddddd",
+            "active_bg": "#ddddff",
+            "normal_border": "#a0a0a0",
+            "hovered_border": "#b0b0b0",
+            "active_border": "#b0b0e0"
+        }, 
+
+        "misc": {
+            "text_horiz_alignment": "center",
+            "text_horiz_alignment_padding": "5"
+        }
+    },
+
+    "debug": {
+        "colours": {
+            "normal_text": "#a0a0a0"
+        }
+    },
+
+    "cardPanel": {
+        "colours": {
+            "dark_bg": "#a0a0a0"
+        }
+    }
+}
