@@ -52,7 +52,7 @@ def startDialog():
         tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
         root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
 
-    figures = ["Hund", "Auto", "Schiff", "Hut", "Katze", "Boot", "Flugzeug", "Zug"]
+    figures = ["Hund", "Auto", "Pinguin", "Fingerhut"]
     finalPlayers = []
 
     root = tk.Tk()
@@ -158,7 +158,8 @@ def initDraw(game):
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
-    # muss aus initDraw rausbewegt werden!
+
+    # Prüft dauerhaft auf Ereignisse
     while running:
         for event in pygame.event.get():
             match event.type:
@@ -182,9 +183,6 @@ def initDraw(game):
         
         # Spielfeldbild
         screen.blit(scaledBoardImage, (boardX, boardY))
-        
-        # Panel zeichnen
-        #pygame.draw.rect(screen, lightGray, (panelX, panelY, panelWidth, panelHeight))
         
         drawCurrentScreen()
 
