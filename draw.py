@@ -52,7 +52,7 @@ def startDialog():
         tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
         root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
 
-    figures = ["Hund", "Auto", "Pinguin", "Fingerhut"]
+    figures = ["Hund", "Auto", "Pinguin", "Fingerhut", "Schiff", "Katze", "Ente", "Hut"]
     finalPlayers = []
 
     root = tk.Tk()
