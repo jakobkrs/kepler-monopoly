@@ -16,7 +16,7 @@ class Player():
         self.__prison=False
         #self.__prisoncardCommunity=False           # Budget spar Maßnahme
         #self.__prisoncardEvent=False
-        self.__bankrupt=False
+        self.__bankrupt=True if name == 'Spieler 3' else False      # zu Test Zwecken
         self.__lastDiceRoll = []
         self.__game=game
     
@@ -172,8 +172,14 @@ class Player():
     def getProperties(self):
         return self.__properties
     
+    def getSymbol(self):
+        return self.__symbol
+    
     def getCurrentSquare(self):
         return self.__currentSquare
+    
+    def getBankrupt(self):
+        return self.__bankrupt
     
     def getLastDiceRoll(self):
         return self.__lastDiceRoll

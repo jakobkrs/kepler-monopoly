@@ -23,15 +23,99 @@
         }
     },
 
+    "label": {
+        "misc": {
+            "text_horiz_alignment": "left",
+            "text_horiz_padding": 5
+        }
+    },
+
     "debug": {
         "colours": {
             "normal_text": "#a0a0a0"
         }
     },
 
+    "centerLabel": {
+        "misc": {
+            "text_horiz_alignment": "center"
+        }
+    },
+
     "cardPanel": {
         "colours": {
             "dark_bg": "#a0a0a0"
+        }
+    },
+
+    "groupA": {
+        "colours": {
+            "normal_bg": "#845035",
+            "hovered_bg": "#845035",
+            "active_bg": "#99644C"
+        }
+    },
+    "groupB": {
+        "colours": {
+            "normal_bg": "#C1DFF7",
+            "hovered_bg": "#C1DFF7",
+            "active_bg": "#D3EBFA"
+        }
+    },
+    "groupC": {
+        "colours": {
+            "normal_bg": "#B83685",
+            "hovered_bg": "#B83685",
+            "active_bg": "#CE5A9E"
+        }
+    },
+    "groupD": {
+        "colours": {
+            "normal_bg": "#DD8E24",
+            "hovered_bg": "#DD8E24",
+            "active_bg": "#E7A54F"
+        }
+    },
+    "groupE": {
+        "colours": {
+            "normal_bg": "#C4131B",
+            "hovered_bg": "#C4131B",
+            "active_bg": "#D3343B"
+        }
+    },
+    "groupF": {
+        "colours": {
+            "normal_bg": "#FEEC02",
+            "hovered_bg": "#FEEC02",
+            "active_bg": "#FFF23F"
+        }
+    },
+    "groupG": {
+        "colours": {
+            "normal_bg": "#5AA856",
+            "hovered_bg": "#5AA856",
+            "active_bg": "#78BF74"
+        }
+    },
+    "groupH": {
+        "colours": {
+            "normal_bg": "#1368AD",
+            "hovered_bg": "#1368AD",
+            "active_bg": "#3B85C1"
+        }
+    },
+    "groupSP": {
+        "colours": {
+            "normal_bg": "#808080",
+            "hovered_bg": "#808080",
+            "active_bg": "#999999"
+        }
+    },
+    "groupTS": {
+        "colours": {
+            "normal_bg": "#000000",
+            "hovered_bg": "#000000",
+            "active_bg": "#1A1A1A"
         }
     }
 }

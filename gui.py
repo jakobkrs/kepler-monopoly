@@ -15,15 +15,16 @@ SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
 
 class BaseGuiElement:
-    def __init__ (self: pygame_gui.elements, screenList: list[str]):
+    def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition):
         self.__screenList = screenList
+        self.__visibilityCondition = visibilityCondition
         guiElementList.append(self)
     
     def updateVisibility(self):
         """
         Aktualisiert die Visibilität eines Elements abhängig vom aktuellen Screen
         """
-        if self.isInCurrentScreen():                                  # Element ist sichtbar, wenn es beim aktuellen screen sichtbar sein soll
+        if self.isInCurrentScreen() and self.__visibilityCondition():          # Element ist sichtbar, wenn es beim aktuellen screen sichtbar sein soll und die zusätzliche Bedingung (standard True) wahr ist
             self.show()
         else:
             self.hide()
@@ -43,24 +44,17 @@ def createGuiElementClass(pygameGuiElementClass):
     """
     global managerInstance
     class GuiElement(pygameGuiElementClass, BaseGuiElement):
-        def __init__(self, screenList = ['*'], manager=managerInstance, *args, **kwargs):
+        def __init__(self, screenList = ['*'], manager=managerInstance, visibilityCondition = lambda: True, *args, **kwargs):
             pygameGuiElementClass.__init__(self, manager=manager, *args, **kwargs)
-            BaseGuiElement.__init__(self, screenList)
+            BaseGuiElement.__init__(self, screenList, visibilityCondition)
     return GuiElement
 
 # definieren der speziellen guiElementKlassen
-class UpdatingLabel(createGuiElementClass(pygame_gui.elements.UILabel)):
-    def __init__(self, textFunction, *args, **kwargs):
-        super().__init__(text='', *args, **kwargs)
-        self.__textFunction = textFunction
-
-    def updateElement(self):
-        """
-        Aktualisiert den Textinhalt des Labels, entsprechend der lambda-Function.
-        """
-        text = str(self.__textFunction())
-        if self.text != text:
-            self.set_text(text)
+class Label(createGuiElementClass(pygame_gui.elements.UILabel)):
+    def __init__(self, text='', textFunction=None, *args, **kwargs):
+        super().__init__(text=text, *args, **kwargs)
+        if not textFunction is None:
+            self.updateElement = lambda: self.set_text(str(textFunction()))
 
 class Button(createGuiElementClass(pygame_gui.elements.UIButton)):
     def __init__(self, onClickMethod, *args, **kwargs):
@@ -74,14 +68,20 @@ class Button(createGuiElementClass(pygame_gui.elements.UIButton)):
         self.__onCLickMethod()
 
 class Container(createGuiElementClass(pygame_gui.elements.UIAutoResizingContainer)):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, relative_rect = pygame.Rect(0,0,0,0).copy(), positionFunction = None, *args, **kwargs):
+        if not positionFunction is None:
+            self.updateElement = lambda: self.set_relative_position(positionFunction())
+            rect = pygame.Rect(positionFunction(), (relative_rect[2],relative_rect[3]))
+        else:
+            rect = relative_rect
+        super().__init__(relative_rect = rect, *args, **kwargs)
+        
 
 class Panel(createGuiElementClass(pygame_gui.elements.UIPanel)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class Label(createGuiElementClass(pygame_gui.elements.UILabel)):
+class Image(createGuiElementClass(pygame_gui.elements.UIImage)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -148,25 +148,31 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     currentScreen = SCREEN_STARTGAME
     guiElementList = []
     managerInstance = manager
-    guiContainer = container
+    guiContainer = container    
     
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
-        relative_rect = pygame.Rect(0, 0, 0, 0),
+        relative_rect = pygame.Rect(100, 0, guiContainer.relative_rect.width, 0),
         screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_CARD, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT],
-        anchors = {'top': 'top'},
+        object_id = "playerInfoContainer",
         container = guiContainer
     )
     
     # debug
-    UpdatingLabel(  # zeigt den aktuellen Screen an
-        relative_rect = pygame.Rect(0, 0, -1, -1),
-        textFunction = lambda: f"Debug: {currentScreen}",
-        anchors = {'left': 'left', 'top': 'top'},
+    Label(  # zeigt den aktuellen Screen an
+        relative_rect = pygame.Rect(-350, 0, -1, -1),
+        textFunction = lambda: f"Debug: {currentScreen}, selectedCard: {'' if game.getSelectedProperty() is None else game.getSelectedProperty().getName()}",
+        anchors = {'right': 'right', 'top': 'top'},
         object_id = 'debug',
         container = guiContainer
     )
     
     # Spieler Liste
+    playerListContainer = Container(    # Container der Liste aller Spieler enthält
+        relative_rect = pygame.Rect(0, 0, 0, 0),
+        screenList = [SCREEN_STARTGAME],
+        anchors = {'top': 'top'},
+        container = guiContainer
+    )
     yOffset = 0
     for player in game.getPlayers():
         Label(      # Label um ungemischte Spielernamen anzuzeigen
@@ -174,7 +180,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             text = player.getName(),
             screenList = [SCREEN_STARTGAME],
             manager = manager,
-            container = playerInfoContainer,
+            container = playerListContainer,
         )
         yOffset += 25 # Abstand zwischen den Labels
     
@@ -184,16 +190,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         Startet Spiel und mischt eventuell Spielerreihenfolge.
         """
         game.startGame(shufflePlayerOrder)
-        # Erstellung der Spieler Informationsanzeige
-        yOffset = 0
-        for i in game.getPlayerOrder():
-            player = game.getPlayers()[i]
-            UpdatingLabel(      # Zeigt Spieler Informationen an
-                relative_rect = pygame.Rect(0, yOffset, guiContainer.relative_rect.width - 10, -1),
-                textFunction = lambda player=player: f"{'> ' if player == game.getCurrentPlayer() else ''}{player.getName()}: Pos {player.getPosition()} | Geld: {player.getMoney()}€",
-                container = playerInfoContainer,
-            )
-            yOffset += 35 # Abstand zwischen den Labels
+        initPlayerInformationContainer()  # Erstellung der Spieler Informationsanzeige
     Button(     # Button zum Spiel starten und ohne die Spielerreihenfolge zu mischen
         relative_rect = pygame.Rect(0, yOffset + 10, -1, -1),
         text = ' Spielstart mit dieser Spielereihenfolge ',
@@ -211,6 +208,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = guiContainer
     )
     
+    yOffset = 500   # temporary needs to get changed
     
     Button(     # Button um Würfel Aktion auszulösen
         relative_rect = pygame.Rect(10, yOffset + 180, -1, -1),
@@ -228,21 +226,23 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx', 'top': 'top'},
         container = guiContainer
     )
-    def setDiceText() -> str:
+    def setDiceTextMethod() -> str:
         """
         Gibt den richtigen Text für das Würfel Resultat zurück.
         """
         roll = game.getCurrentPlayer().getLastDiceRoll()
         if len(roll) == 0: return ""
         else: return f"Dein Würfelergebnis: {roll[0]}, {roll[1]}{ ' - Pasch' if roll[0] == roll[1] else ''}"     # f"{chr(roll[0] + 9855)} {chr(roll[1] + 9855)}" Weg mit ⚀⚁⚂⚃⚄⚅ funktionier nicht in Standard-Font
-    UpdatingLabel(      # Zeigt Würfelergebnis
+    Label(      # Zeigt Würfelergebnis
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
-        textFunction = setDiceText,
+        textFunction = setDiceTextMethod,
+        object_id = "centerLabel",
         container = diceResultContainer
     )
-    UpdatingLabel(      # Zeigt Feld auf dem Spieler gelandet ist.
+    Label(      # Zeigt Feld auf dem Spieler gelandet ist.
         relative_rect = pygame.Rect(0, 30, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Du bist auf dem Feld {game.getCurrentPlayer().getCurrentSquare().getName()} gelandet.",
+        object_id = "centerLabel",
         container = diceResultContainer
     )
     
@@ -253,9 +253,10 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx', 'top': 'top'},
         container = guiContainer
     )
-    UpdatingLabel(
+    Label(
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Das Grundstück gehört bereits {game.getCurrentPlayer().getCurrentSquare().getOwner().getName()}. Du musst {game.getCurrentPlayer().getCurrentSquare().getRent()} $ Miete zahlen.",
+        object_id = 'centerLabel',
         container = payRentContainer
     )
     Button(
@@ -272,9 +273,10 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx', 'top': 'top'},
         container = guiContainer
     )
-    UpdatingLabel(
+    Label(
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Dieses Grundstück gehört noch niemanden. Du kannst es für {game.getCurrentPlayer().getCurrentSquare().getCost()} $ kaufen.",
+        object_id = "centerLabel",
         container = buyPropertyContainer
     )
     Button(
@@ -299,17 +301,18 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         object_id = "cardPanel",
         container = guiContainer
     )
-    UpdatingLabel(  # Zeigt Typ der Karte
+    Label(  # Zeigt Typ der Karte
         relative_rect = pygame.Rect(0, 0, cardPanel.relative_rect.width, -1),
         textFunction = lambda: f"{'Gemeinschafts' if game.getLastDrawnCard()['type'] == 'community' else 'Ereignis'}karte",
+        object_id = "centerLabel",
         container = cardPanel
     )
-    UpdatingLabel(
+    Label(
         relative_rect = pygame.Rect(0, 30, cardPanel.relative_rect.width, -1),
         textFunction = lambda: game.getLastDrawnCard()["text"],
+        object_id = "centerLabel",
         container = cardPanel
     )
-    
     Button(     # Button um Karte auszuführen
         relative_rect = pygame.Rect(0, 120, -1, -1),
         screenList = [SCREEN_CARD],
@@ -330,6 +333,67 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
 
         
+
+
+    def initPlayerInformationContainer():
+        """
+        Erstellt die Spielerinformations-Elemente
+        """
+        propertyCardGrid = [                # deklariert an welcher Position welche Grundstückskarte angezeigt werden soll
+            [0,3,6,11,14,18,22,26,2,17],
+            [1,4,8,12,15,19,23,27,10,25],
+            [-1,5,9,13,16,21,24,-1,7,20]
+        ]
+        
+
+        for i in game.getPlayerOrder():
+            player = game.getPlayers()[i]
+            
+            playerContainer = Container(      # enthält gesamten Eintrag für einen Spieler
+                relative_rect = pygame.Rect(0, 10 + 140 * i, playerInfoContainer.relative_rect.width, -1),
+                container = playerInfoContainer,
+            )
+            containerWidth = playerContainer.relative_rect.width
+            
+            Label(      # Zeigt an ob Spieler am Zug ist
+                relative_rect = pygame.Rect(-65, 0, containerWidth, -1),
+                textFunction = lambda player=player: '>' if player == game.getCurrentPlayer() else '',
+                container = playerContainer,
+            )
+            Image(      # Zeigt Spielersymbol an
+                relative_rect = pygame.Rect(-53, -15, 50, 50),
+                image_surface = pygame.image.load(f"images/playerSymbols/{player.getSymbol()}.png").convert_alpha(),
+                container = playerContainer,
+            )
+            Label(      # Zeigt Spieler Name (und Position) an
+                relative_rect = pygame.Rect(0, 0, containerWidth, -1),
+                textFunction = lambda player=player: f"{player.getName()}: Pos {player.getPosition()}",
+                container = playerContainer,
+            )
+            Label(      # Zeigt Geld / bankrott an
+                relative_rect = pygame.Rect(5, 20, containerWidth, -1),
+                textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} €'}",
+                container = playerContainer,
+            )
+            
+            propertyCardContainer = Container(      # Enthält alle Grundstücks-Karten
+                relative_rect = pygame.Rect(0, 50, containerWidth, 0),
+                container = playerContainer
+            )
+            for row in range(len(propertyCardGrid)):                
+                for col in range(len(propertyCardGrid[row])):
+                    id = propertyCardGrid[row][col]
+                    property = game.getProperties()[id]
+                    if id >= 0:
+                        Button(          # muss mit Bildern ersetzt werden
+                            relative_rect = pygame.Rect(col * 35, row * 25, 35, 25),
+                            text = '',
+                            onClickMethod = lambda id=id: game.setSelectedPropertyById(id),     # füge Methode hinzu
+                            visibilityCondition = lambda property = property, player = player: property in player.getProperties(),
+                            object_id = f"group{property.getGroup()}",
+                            container = propertyCardContainer
+                        )
+
 
 """
 Benötigte Screens

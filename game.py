@@ -22,6 +22,7 @@ class Game():
         self.__eventCards = []
         self.__freeParkingMoney = 0
         self.__lastDrawnCard = None
+        self.__selectedProperty = None
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
@@ -159,23 +160,35 @@ class Game():
 
     
 
-    def getPlayers(self):
+    def getPlayers(self) -> list[Player]:
         return self.__players
 
-    def getGameBoard(self):
+    def getGameBoard(self) -> list[Square]:
         return self.__gameBoard
 
-    def getProperties(self):
+    def getProperties(self) -> list[Property]:
         return self.__properties
 
-    def getPlayerOrder(self):
+    def getPlayerOrder(self) -> list[int]:
         return self.__playerOrder
     
-    def getCurrentPlayer(self):
+    def getCurrentPlayer(self) -> Player:
         return self.__currentPlayer
     
-    def getLastDrawnCard(self):
+    def getLastDrawnCard(self) -> object:
         return self.__lastDrawnCard
+    
+    def getSelectedProperty(self) -> Property:
+        return self.__selectedProperty
+    
+    def setSelectedPropertyById(self, id: int):
+        """
+        Setzt selectedProperty ausgehend von der Property-Id
+        """
+        if id >= 0:
+            self.__selectedProperty = self.__properties[id]
+        else:
+            self.__selectedProperty = None
 
 
 if __name__ == "__main__":

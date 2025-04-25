@@ -71,6 +71,9 @@ class Property(Square):
     def getCost(self):
         return self.__cost
 
+    def getGroup(self):
+        return self.__group
+
     def getMortgage(self):
         return self.__mortgage
 

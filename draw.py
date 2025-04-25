@@ -70,7 +70,7 @@ def initDraw(game):
     # pygame initialisieren
     pygame.init()
 
-    boardImage = pygame.image.load("images/board.png")
+    boardImage = pygame.image.load("images/board1.png")
     
     # Standardfenstergröße setzen
     screenWidth, screenHeight = 1920, 1080  # Sichere Standardwerte
@@ -177,7 +177,10 @@ def initDraw(game):
                     executeButtonPress(event)
                 case pygame.MOUSEBUTTONDOWN:
                     mousePos = event.pos
-                    getClickedField(mousePos, game)
+                    clickedFieldIndex = getClickedField(mousePos, game)
+                    propertyPostionList = [property.getPosition() for property in game.getProperties()]     # Liste mit den Positionen der Grundstücke
+                    if clickedFieldIndex in propertyPostionList:
+                        game.setSelectedPropertyById(propertyPostionList.index(clickedFieldIndex))
 
 
             manager.process_events(event) 
