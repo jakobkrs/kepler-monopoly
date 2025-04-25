@@ -126,6 +126,18 @@ def executeButtonPress(event):
     for element in guiElementList:
         if type(element) == Button and event.ui_element == element:
             element.executeClick()
+
+def getClickedField(clickedPos, game):
+    """
+    Gibt das Spielfeld zurück, auf das geklickt wurde.
+    """
+    for square in game.getProperties():
+        x = square.getFieldCoord("x")
+        y = square.getFieldCoord("y")
+        width = square.getFieldCoord("width")
+        height = square.getFieldCoord("height")
+        if x <= clickedPos[0] <= x + width and y <= clickedPos[1] <= y + height:
+            return square.getPosition()
     
 
 def initGUI(manager: pygame_gui.ui_manager, game, container):

@@ -116,6 +116,26 @@ def initDraw(game):
         panelX = boardX + boardWidth + margin
         panelY = boardY
 
+        gameboard = game.getGameBoard()
+        
+        # Eckfelder speichern
+        gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+        gameboard[10].setFieldCoord(boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
+        gameboard[20].setFieldCoord(boardX, boardY, cornerSize, cornerSize)
+        gameboard[30].setFieldCoord(boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize)
+
+        # Spielfeldfelder speichern
+        for i in range (1, 10):
+            # Spielfelder unten
+            gameboard[i].setFieldCoord(boardX + boardWidth - cornerSize - i * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght)
+            # Speilfelder links
+            gameboard[i + 10].setFieldCoord(boardX, boardY + boardHeight - cornerSize - i * fieldWidth, fieldLenght, fieldWidth)
+            # Spielfelder oben
+            gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
+            # Spielfelder rechts
+            gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
+        
+
   
     # Farben
     white = (255, 255, 255)
@@ -125,25 +145,6 @@ def initDraw(game):
     
     # Initiale Berechnung der Spielfeldgrößen
     recalculateSizes()
-    
-    gameboard = game.getGameBoard()
-        
-    # Eckfelder speichern
-    gameboard[0].setFieldCoord(boardX + boardWidth - cornerSize, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
-    gameboard[10].setFieldCoord(boardX, boardY + boardHeight - cornerSize, cornerSize, cornerSize)
-    gameboard[20].setFieldCoord(boardX, boardY, cornerSize, cornerSize)
-    gameboard[30].setFieldCoord(boardX + boardWidth - cornerSize, boardY, cornerSize, cornerSize)
-
-    # Spielfeldfelder speichern
-    for i in range (1, 10):
-        # Spielfelder unten
-        gameboard[i].setFieldCoord(boardX + boardWidth - cornerSize - i * fieldWidth, boardY + boardHeight - cornerSize, fieldWidth, fieldLenght)
-        # Speilfelder links
-        gameboard[i + 10].setFieldCoord(boardX, boardY + boardHeight - cornerSize - i * fieldWidth, fieldLenght, fieldWidth)
-        # Spielfelder oben
-        gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
-        # Spielfelder rechts
-        gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
     
     # erstelle UI-Scrollcontainer im Panelbereich
     scrollContainer = pygame_gui.elements.UIScrollingContainer(
@@ -174,6 +175,11 @@ def initDraw(game):
                     scrollContainer.set_dimensions((panelWidth, panelHeight))
                 case pygame_gui.UI_BUTTON_PRESSED:
                     executeButtonPress(event)
+                case pygame.MOUSEBUTTONDOWN:
+                    mousePos = event.pos
+                    getClickedField(mousePos, game)
+
+
             manager.process_events(event) 
         
         screen.fill(white)
