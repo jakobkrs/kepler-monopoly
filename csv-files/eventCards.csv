@@ -1,16 +1,16 @@
 text;action;value
-Rücke vor bis zur Schlossallee. Wenn du über LOS kommst, ziehe 4.000 M. ein.;moveTo;39
-Rücke vor bis zur Opernplatz. Wenn du über LOS kommst, ziehe 4.000 M. ein.;moveTo;24
-Rücke vor bis zum Südbahnhof. Wenn du über LOS kommst, ziehe 4.000 M. ein.;moveTo;5
+Rücke vor bis zur Schlossallee. Wenn du über LOS kommst, ziehe 4.000 $ ein.;moveTo;39
+Rücke vor bis zur Opernplatz. Wenn du über LOS kommst, ziehe 4.000 $ ein.;moveTo;24
+Rücke vor bis zum Südbahnhof. Wenn du über LOS kommst, ziehe 4.000 $ ein.;moveTo;5
 Rücke vor bis zum nächsten Versorgungswerk. Wenn es frei ist, kannst du es kaufen. Wenn nicht, zahle dem Eigentümer das Doppelte der normalen Miete.;moveToNearestSupplyPlant;0
 Rücke vor bis zur nächsten Bahnstation. Zahle dem Eigentümer das Doppelte der Miete. Wenn die Station frei ist, kannst du sie kaufen.;moveToNearestTrainStation;0
-Du wurdest zum Vorsitzenden des Wohltätigkeitsvereins gewählt. Zahle jedem Spieler 500 M.;payPlayers;500
-Zahle 500 M. je Haus und 2.000 M. je Hotel, das du besitzt;renovate;500
+Du wurdest zum Vorsitzenden des Wohltätigkeitsvereins gewählt. Zahle jedem Spieler 500 $;payPlayers;500
+Zahle 500 $ je Haus und 2.000 $ je Hotel, das du besitzt;renovate;500
 Gehe 3 Felder zurück;moveBack;3
-Du hast den 2. Preis im Schönheitswettbewerb gewonnen. Ziehe 1.000 M. ein.;earnMoney;1000
-Bank-Irrtum zu deinen Gunsten. Ziehe 2.000 M. ein.;earnMoney;2000
-Zahle eine Strafe von 1.000 M. oder ziehe eine Ereigniskarte;payMoney;1000
-Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 M. ein.;goToJail;0
-Mieteinnahmen aus Immobilien: Ziehe 2.500 M. ein;earnMoney;2500
-Zahle 1.500 M. für deine Urlaubsreise;payMoney;1500
-Zahle 1.000 M. für deine Autoversicherung;payMoney;1000
+Du hast den 2. Preis im Schönheitswettbewerb gewonnen. Ziehe 1.000 $ ein.;earnMoney;1000
+Bank-Irrtum zu deinen Gunsten. Ziehe 2.000 $ ein.;earnMoney;2000
+Zahle eine Strafe von 1.000 $ oder ziehe eine Ereigniskarte;payMoney;1000
+Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 $ ein.;goToJail;0
+Mieteinnahmen aus Immobilien: Ziehe 2.500 $ ein;earnMoney;2500
+Zahle 1.500 $ für deine Urlaubsreise;payMoney;1500
+Zahle 1.000 $ für deine Autoversicherung;payMoney;1000

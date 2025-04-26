@@ -1,3 +1,4 @@
+from math import ceil
 from square import Square
 from gui import *
 
@@ -14,6 +15,7 @@ class Property(Square):
         self.__cost=cost      
         self.__mortgage=False  # Startwert: keine Hypothek
         self.__owner=None      # Startwert: kein Besitzer
+        self.__houseCost = ceil(position / 10) * 1000       # Kosten für Haus: Bereich des Spielfeldes [1;4] * 1000 $ 
         self.__game=game
         
     def __str__(self):
@@ -48,12 +50,47 @@ class Property(Square):
         else:
             return self.__rent                  # Es gibt einen Besitzer -> Standardmiete oder Miete mit Häusern
 
-    def buildHouse(self): 
+    def isHouseActionPossible(self, build = True) -> bool:
         """
-        Prozedur zum Erichten von Häusern auf einem Grundstück - Erhöt die Anzahl der Häuser auf einem Grundstück
+        Ermittelt ob auf dem Grundstück ein Haus gebaut / verkauft werden kann.
         """
-        if (not self.__owner is None) and self.__houses < 5:        #Haus bauen nur, wenn es Besitzer gibt und noch nicht 5 Häuser gebaut sind
+        return (#self.__owner == self.__game.getCurrentPlayer() and      # Besitzer ist am Zug
+                self.__owner.completeGroup(self.__group) and            # Besitzer besitzt alle Grundstücke der Gruppe
+                not self.__mortgage and                                 # keine Hypothek
+                ((build and self.__houses < 5 and                       # Es soll gebaut werden und es ist noch kein Hotel gebaut
+                 self.__owner.getMoney() >= self.__houseCost and            # und Spieler hat genug Geld zum kaufen
+                 self.groupHouseRange()[0] == self.__houses) or             # und Hausanzahl in der Gruppe weicht nicht zu stark ab
+                (not build and self.__houses > 0 and                   # Es soll verkauft werden und es gibt Häuser auf dem Grundstück
+                self.groupHouseRange()[1] == self.__houses)))                # und Hausanzahl in der Gruppe weicht nicht zu stark ab
+        
+    def groupHouseRange(self) -> tuple:
+        """
+        Gibt die höchste und niedrigste Hausanzahl der eigenen Gruppe zurück, wobei eine Hypothek wie -1 gewertet wird.
+        """
+        minHouses = 5
+        maxHouses = -1
+        for property in self.__game.getProperties():
+            if property.getGroup() == self.__group:
+                houses = -1 if property.getMortgage() else property.getHouses()
+                minHouses = min(minHouses, houses)
+                maxHouses = max(maxHouses, houses)
+        return (minHouses, maxHouses)
+                
+    def buildHouse(self):
+        """
+        Prozedur zum Erichten von Häusern auf einem Grundstück - Erhöt die Anzahl der Häuser auf einem Grundstück zieht Spieler entsprechendes Geld ab
+        """
+        if self.isHouseActionPossible(True):
+            self.__owner.payBank(self.__houseCost, False)
             self.__houses +=1
+    
+    def sellHouse(self):
+        """
+        Prozedur zum VErkaufen von Häusern auf einem Grundstück - VErringert die Anzahl der Häuser auf einem Grundstück gibt Spieler entsprechendes Geld
+        """
+        if self.isHouseActionPossible(False):
+            self.__owner.giveMoney(round(self.__houseCost * 0.5))
+            self.__houses -=1
 
     def getHouses(self):
         return self.__houses
@@ -70,12 +107,32 @@ class Property(Square):
     
     def getCost(self):
         return self.__cost
+    
+    def getHouseCost(self):
+        return self.__houseCost
 
     def getGroup(self):
         return self.__group
 
     def getMortgage(self):
         return self.__mortgage
+    
+    def getBaseRent(self):
+        return self.__baseRent
 
-    def setMortgage(self, boolean):
+    def setMortgage(self, boolean: bool):
         self.__mortgage = boolean
+        
+    def raiseMortgage(self):
+        """
+        Nimmt Hypothek auf und gibt entsprechend Geld aus.
+        """
+        self.__owner.giveMoney(int(self.__cost * 0.5))
+        self.__mortgage = True
+    
+    def cancelMortgage(self):
+        """
+        Löscht Hypothek und nimmt dementsprechend das Geld.
+        """
+        self.__owner.payBank(int(self.__cost * 0.55), False)
+        self.__mortgage = False

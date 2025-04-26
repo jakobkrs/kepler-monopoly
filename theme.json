@@ -30,92 +30,114 @@
         }
     },
 
-    "debug": {
+    "#debug": {
         "colours": {
             "normal_text": "#a0a0a0"
         }
     },
 
-    "centerLabel": {
+    "@centerLabel": {
         "misc": {
             "text_horiz_alignment": "center"
         }
     },
 
-    "cardPanel": {
+    "#cardPanel": {
         "colours": {
             "dark_bg": "#a0a0a0"
         }
     },
 
-    "groupA": {
+    "@whitePanel": {
         "colours": {
-            "normal_bg": "#845035",
-            "hovered_bg": "#845035",
-            "active_bg": "#99644C"
+            "dark_bg": "#ffffff"
         }
     },
-    "groupB": {
+
+    "#groupA": {
+        "colours": {
+            "normal_bg": "#845035",
+            "dark_bg": "#845035",
+            "hovered_bg": "#845035",
+            "active_bg": "#99644C",
+            "normal_text": "#ffffff"
+        }
+    },
+    "#groupB": {
         "colours": {
             "normal_bg": "#C1DFF7",
+            "dark_bg": "#C1DFF7",
             "hovered_bg": "#C1DFF7",
             "active_bg": "#D3EBFA"
         }
     },
-    "groupC": {
+    "#groupC": {
         "colours": {
             "normal_bg": "#B83685",
+            "dark_bg": "#B83685",
             "hovered_bg": "#B83685",
-            "active_bg": "#CE5A9E"
+            "active_bg": "#CE5A9E",
+            "normal_text": "#ffffff"
         }
     },
-    "groupD": {
+    "#groupD": {
         "colours": {
             "normal_bg": "#DD8E24",
+            "dark_bg": "#DD8E24",
             "hovered_bg": "#DD8E24",
             "active_bg": "#E7A54F"
         }
     },
-    "groupE": {
+    "#groupE": {
         "colours": {
             "normal_bg": "#C4131B",
+            "dark_bg": "#C4131B",
             "hovered_bg": "#C4131B",
-            "active_bg": "#D3343B"
+            "active_bg": "#D3343B",
+            "normal_text": "#ffffff"
         }
     },
-    "groupF": {
+    "#groupF": {
         "colours": {
             "normal_bg": "#FEEC02",
+            "dark_bg": "#FEEC02",
             "hovered_bg": "#FEEC02",
             "active_bg": "#FFF23F"
         }
     },
-    "groupG": {
+    "#groupG": {
         "colours": {
             "normal_bg": "#5AA856",
+            "dark_bg": "#5AA856",
             "hovered_bg": "#5AA856",
             "active_bg": "#78BF74"
         }
     },
-    "groupH": {
+    "#groupH": {
         "colours": {
             "normal_bg": "#1368AD",
+            "dark_bg": "#1368AD",
             "hovered_bg": "#1368AD",
-            "active_bg": "#3B85C1"
+            "active_bg": "#3B85C1",
+            "normal_text": "#ffffff"
         }
     },
-    "groupSP": {
+    "#groupSP": {
         "colours": {
             "normal_bg": "#808080",
+            "dark_bg": "#808080",
             "hovered_bg": "#808080",
-            "active_bg": "#999999"
+            "active_bg": "#999999",
+            "normal_text": "#ffffff"
         }
     },
-    "groupTS": {
+    "#groupTS": {
         "colours": {
             "normal_bg": "#000000",
+            "dark_bg": "#000000",
             "hovered_bg": "#000000",
-            "active_bg": "#1A1A1A"
+            "active_bg": "#1A1A1A",
+            "normal_text": "#ffffff"
         }
     }
 }

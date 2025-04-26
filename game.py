@@ -124,6 +124,7 @@ class Game():
             self.__currentPlayerId + 1) % self.__playerCount
         self.__currentPlayer = self.__players[self.__playerOrder[self.__currentPlayerId]]       # aktualisiere currentPlayer auf aktuelles Spieler Objekt
 
+        self.setSelectedPropertyById(-1)
         self.__currentPlayer.startTurn()
         setScreen(SCREEN_ROLLDICE)
 

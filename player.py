@@ -95,12 +95,10 @@ class Player():
         """
         Überprüft ob ein Spieler alle Grundstücke einer Gruppe besitzt
         """
-        properties = self.__game.getProperties()
-
         owners = []
-        for property in properties:
-            if property.group == id:
-                owners.append(property.owner)
+        for property in self.__game.getProperties():
+            if property.getGroup() == id and not property.getMortgage():
+                owners.append(property.getOwner())
         
         return all(x==owners[0] for x in owners)
     
@@ -124,7 +122,7 @@ class Player():
     
     def __pay(self, amount: int):
         """
-        Spieler muss Geld bezahlen, wobei überprüft wird ob der Spieler bezahlen kann und gegebenenfalls die OPtion für Hypotheken oder Bankrott gehen gegeben werden. Sie gibt ob der Spieler Zahlungsfähig ist.
+        Spieler muss Geld bezahlen, wobei überprüft wird ob der Spieler bezahlen kann und gegebenenfalls die Option für Hypotheken oder Bankrott gehen gegeben werden. Sie gibt ob der Spieler Zahlungsfähig ist.
         """
         if self.__money >= amount:
             self.__money -= amount

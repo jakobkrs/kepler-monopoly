@@ -1,16 +1,16 @@
 text;action;value
-Du erhältst auf Aktien Dividende: 1.000 M.;earnMoney;1000
-Die Bank zahlt dir eine Gutschrift über 2.000 M.;earnMoney;2000
-Du erbst 2.000 M.;earnMoney;2000
-Krankenhausgebühren: 1.000 M. zahlen;payMoney;1000
-Zahle Schulgeld: 1.500 M.;payMoney;1500
-Zahle deine Versicherung: 1.000 M.;payMoney;1000
-Arzt-Kosten: Zahle 1.000 M.;payMoney;1000
+Du erhältst auf Aktien Dividende: 1.000 $;earnMoney;1000
+Die Bank zahlt dir eine Gutschrift über 2.000 $;earnMoney;2000
+Du erbst 2.000 $;earnMoney;2000
+Krankenhausgebühren: 1.000 $ zahlen;payMoney;1000
+Zahle Schulgeld: 1.500 $;payMoney;1500
+Zahle deine Versicherung: 1.000 $;payMoney;1000
+Arzt-Kosten: Zahle 1.000 $;payMoney;1000
 Rücken Sie vor bis LOS;moveTo;0
-Du bist zum Vorstand gewählt worden. Zahle jedem Spieler 500 M.;payPlayers;500
-Du hast Geburtstag. Jeder Spieler schenkt dir 500 M.;earnFromPlayers;500
-Du erhältst eine Rückzahlung deiner Einkommenssteuer in Höhe von 1.000 M.;earnMoney;1000
-Für deine Lebensversicherung erhältst du 1.000 M.;earnMoney;1000
-Die Bank zahlt dir Zinsen in Höhe von 700 M.;earnMoney;700
-Zahle 500 M. je Haus und 2.000 M. je Hotel, das du besitzt;renovate;500
-Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 M. ein.;goToJail;0
+Du bist zum Vorstand gewählt worden. Zahle jedem Spieler 500 $;payPlayers;500
+Du hast Geburtstag. Jeder Spieler schenkt dir 500 $;earnFromPlayers;500
+Du erhältst eine Rückzahlung deiner Einkommenssteuer in Höhe von 1.000 $;earnMoney;1000
+Für deine Lebensversicherung erhältst du 1.000 $;earnMoney;1000
+Die Bank zahlt dir Zinsen in Höhe von 700 $;earnMoney;700
+Zahle 500 $ je Haus und 2.000 $ je Hotel, das du besitzt;renovate;500
+Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 $ ein.;goToJail;0

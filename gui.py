@@ -57,9 +57,11 @@ class Label(createGuiElementClass(pygame_gui.elements.UILabel)):
             self.updateElement = lambda: self.set_text(str(textFunction()))
 
 class Button(createGuiElementClass(pygame_gui.elements.UIButton)):
-    def __init__(self, onClickMethod, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, onClickMethod, text='', textFunction=None, *args, **kwargs):
+        super().__init__(text=text, *args, **kwargs)
         self.__onCLickMethod = onClickMethod
+        if not textFunction is None:
+            self.updateElement = lambda: self.set_text(str(textFunction()))
     
     def executeClick(self):
         """
@@ -153,16 +155,16 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(100, 0, guiContainer.relative_rect.width, 0),
         screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_CARD, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT],
-        object_id = "playerInfoContainer",
+        object_id = "#playerInfoContainer",
         container = guiContainer
     )
     
     # debug
     Label(  # zeigt den aktuellen Screen an
-        relative_rect = pygame.Rect(-350, 0, -1, -1),
-        textFunction = lambda: f"Debug: {currentScreen}, selectedCard: {'' if game.getSelectedProperty() is None else game.getSelectedProperty().getName()}",
-        anchors = {'right': 'right', 'top': 'top'},
-        object_id = 'debug',
+        relative_rect = pygame.Rect(-200, -20, -1, -1),
+        textFunction = lambda: f"Debug: {currentScreen}",
+        anchors = {'right': 'right', 'bottom': 'bottom'},
+        object_id = '#debug',
         container = guiContainer
     )
     
@@ -176,7 +178,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     yOffset = 0
     for player in game.getPlayers():
         Label(      # Label um ungemischte Spielernamen anzuzeigen
-            relative_rect = pygame.Rect(0, yOffset, container.relative_rect.width, -1),
+            relative_rect = pygame.Rect(100, yOffset, container.relative_rect.width, -1),
             text = player.getName(),
             screenList = [SCREEN_STARTGAME],
             manager = manager,
@@ -217,7 +219,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         onClickMethod = lambda: game.getCurrentPlayer().turn(),
         anchors = {'centerx': 'centerx', 'top': 'top'},
         container = guiContainer
-    )
+    )   
     
     
     diceResultContainer = Container (   # Container der Würfelergebnis und neues Feld anzeigt
@@ -236,13 +238,13 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Label(      # Zeigt Würfelergebnis
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         textFunction = setDiceTextMethod,
-        object_id = "centerLabel",
+        object_id = "@centerLabel",
         container = diceResultContainer
     )
     Label(      # Zeigt Feld auf dem Spieler gelandet ist.
         relative_rect = pygame.Rect(0, 30, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Du bist auf dem Feld {game.getCurrentPlayer().getCurrentSquare().getName()} gelandet.",
-        object_id = "centerLabel",
+        object_id = "@centerLabel",
         container = diceResultContainer
     )
     
@@ -256,7 +258,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Label(
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Das Grundstück gehört bereits {game.getCurrentPlayer().getCurrentSquare().getOwner().getName()}. Du musst {game.getCurrentPlayer().getCurrentSquare().getRent()} $ Miete zahlen.",
-        object_id = 'centerLabel',
+        object_id = "@centerLabel",
         container = payRentContainer
     )
     Button(
@@ -276,7 +278,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Label(
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         textFunction = lambda: f"Dieses Grundstück gehört noch niemanden. Du kannst es für {game.getCurrentPlayer().getCurrentSquare().getCost()} $ kaufen.",
-        object_id = "centerLabel",
+        object_id = "@centerLabel",
         container = buyPropertyContainer
     )
     Button(
@@ -298,19 +300,19 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         relative_rect = pygame.Rect(0, yOffset + 120, 400, 160),
         screenList = [SCREEN_CARD],
         anchors = {'centerx': 'centerx', 'top': 'top'},
-        object_id = "cardPanel",
+        object_id = "#cardPanel",
         container = guiContainer
     )
     Label(  # Zeigt Typ der Karte
         relative_rect = pygame.Rect(0, 0, cardPanel.relative_rect.width, -1),
         textFunction = lambda: f"{'Gemeinschafts' if game.getLastDrawnCard()['type'] == 'community' else 'Ereignis'}karte",
-        object_id = "centerLabel",
+        object_id = "@centerLabel",
         container = cardPanel
     )
     Label(
         relative_rect = pygame.Rect(0, 30, cardPanel.relative_rect.width, -1),
         textFunction = lambda: game.getLastDrawnCard()["text"],
-        object_id = "centerLabel",
+        object_id = "@centerLabel",
         container = cardPanel
     )
     Button(     # Button um Karte auszuführen
@@ -332,7 +334,193 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = guiContainer
     )
 
-        
+    
+    propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
+        relative_rect = pygame.Rect(-200, 10, 200, -1),
+        screenList = ['*'],
+        anchors = {'right': 'right', 'top': 'top'},
+        visibilityCondition = lambda: not game.getSelectedProperty() is None,
+        container = guiContainer
+    )
+    for group in ["A","B","C","D","E","F","G","H","SP","TS"]:
+        namePanel = Panel(      # Hintergrund der Leiste des selektierten Grundstücks
+            relative_rect = pygame.Rect(0, 0, 200, 50),
+            object_id = f"#group{group}",
+            visibilityCondition = lambda group=group: not game.getSelectedProperty() is None and game.getSelectedProperty().getGroup() == group,
+            container = propertyCardContainer
+        )
+        Label(
+            relative_rect = pygame.Rect(0,0,namePanel.relative_rect.width,50),
+            textFunction = lambda: game.getSelectedProperty().getName(),
+            object_id = pygame_gui.core.ObjectID(class_id='@centerLabel', object_id = f"#group{group}"),
+            container = namePanel
+        )
+    propertyCardBottomPanel = Panel(      # Hintergrund der Daten des Selektierten Grundstücks
+        relative_rect = pygame.Rect(0, 50-5, 200, 310),
+        object_id = "@whitePanel",
+        container = propertyCardContainer
+    )
+    Label(      # Grundstückswert
+        relative_rect = pygame.Rect(10,10,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"Grundstückswert: {game.getSelectedProperty().getCost()} $",
+        container = propertyCardBottomPanel
+    )
+    Label(      # Hypothekenwert
+        relative_rect = pygame.Rect(10,30,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"Hypothekenwert: {int(game.getSelectedProperty().getCost() * 0.5)} $",
+        container = propertyCardBottomPanel
+    )
+    
+    propertyRentContainer = Container(      # Container für Mieten einer normalen Property
+        relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,210),
+        visibilityCondition = lambda: game.getSelectedProperty().getType() == "property",
+        container = propertyCardBottomPanel
+    )
+    Label(
+        relative_rect = pygame.Rect(10,0,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"Basis-Miete: {game.getSelectedProperty().getBaseRent()} $",
+        container = propertyRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,20,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"1 Haus: {game.getSelectedProperty().getBaseRent() * 5} $",
+        container = propertyRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,40,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"2 Häuser: {game.getSelectedProperty().getBaseRent() * 15} $",
+        container = propertyRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,60,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"3 Häuser: {game.getSelectedProperty().getBaseRent() * 45} $",
+        container = propertyRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,80,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"4 Häuser: {game.getSelectedProperty().getBaseRent() * 70} $",
+        container = propertyRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,100,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"   Hotel: {game.getSelectedProperty().getBaseRent() * 100} $",
+        container = propertyRentContainer
+    )
+    propertyHousePanel = Panel(     # Container für Häuseranzahl und Hauskauf
+        relative_rect = pygame.Rect(-5, 130-5, namePanel.relative_rect.width+5, 80),
+        object_id = "@whitePanel",
+        visibilityCondition = lambda: (not game.getSelectedProperty().getOwner() is None and                                            # hat Besitzer
+                                       game.getSelectedProperty().getOwner().completeGroup(game.getSelectedProperty().getGroup())),     # Besitzer besitzt alle Grundstücke der Gruppe
+        container = propertyRentContainer
+    )
+    for i in range(6):
+        Image(      
+            relative_rect = pygame.Rect(5, 5, 25 * ((i-1) % 4 + 1), 25),
+            image_surface = pygame.image.load(f"images/houses/{i}.png").convert_alpha(),
+            visibilityCondition = lambda i=i: game.getSelectedProperty().getHouses() == i,
+            container = propertyHousePanel,
+        )
+    Button(
+        relative_rect = pygame.Rect(5, 35, -1, 20),
+        textFunction = lambda: f" Bauen {game.getSelectedProperty().getHouseCost()} $",
+        onClickMethod = lambda: game.getSelectedProperty().buildHouse(),
+        visibilityCondition = lambda: game.getSelectedProperty().isHouseActionPossible(True),
+        container = propertyHousePanel
+    )
+    Button(
+        relative_rect = pygame.Rect(5, 55, -1, 20),
+        textFunction = lambda: f" Verkaufen {int(game.getSelectedProperty().getHouseCost() * 0.5)} $",
+        onClickMethod = lambda: game.getSelectedProperty().sellHouse(),
+        visibilityCondition = lambda: game.getSelectedProperty().isHouseActionPossible(False),
+        container = propertyHousePanel
+    )
+    # Bahnhof
+    trainStationRentContainer = Container(      # Container für Mieten eines Bahnhofs
+        relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,-1),
+        visibilityCondition = lambda: game.getSelectedProperty().getType() == "trainStation",
+        container = propertyCardBottomPanel
+    )
+    Label(
+        relative_rect = pygame.Rect(10,0,namePanel.relative_rect.width-10,-1),
+        text = "Miete mit...",
+        container = trainStationRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,20,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"1 Bahnhof: {game.getSelectedProperty().getBaseRent()} $",
+        container = trainStationRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,40,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"2 Bahnhöfen: {game.getSelectedProperty().getBaseRent() * 2} $",
+        container = trainStationRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,60,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"3 Bahnhöfen: {game.getSelectedProperty().getBaseRent() * 4} $",
+        container = trainStationRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,80,namePanel.relative_rect.width-10,-1),
+        textFunction = lambda: f"4 Bahnhöfen: {game.getSelectedProperty().getBaseRent() * 8} $",
+        container = trainStationRentContainer
+    )
+    # Versorgungswerk
+    supplyPlantRentContainer = Container(      # Container für Mieten eines Bahnhofs
+        relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,-1),
+        visibilityCondition = lambda: game.getSelectedProperty().getType() == "supplyPlant",
+        container = propertyCardBottomPanel
+    )
+    Label(
+        relative_rect = pygame.Rect(10,0,namePanel.relative_rect.width-10,-1),
+        text = "Miete mit...",
+        container = supplyPlantRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,20,namePanel.relative_rect.width-10,-1),
+        text = "1 Werk: 80-fache",
+        container = supplyPlantRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(20,40,namePanel.relative_rect.width-10,-1),
+        text = "2 Werken: 200-fache",
+        container = supplyPlantRentContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(10,60,namePanel.relative_rect.width-10,-1),
+        text = "Augensumme der Würfel",
+        container = supplyPlantRentContainer
+    )
+    
+    propertyCardMortgagePanel = Panel(      # Panel mit Hypothek Aktionen
+        relative_rect = pygame.Rect(-5, 260, 200+5, 50),
+        object_id = "@whitePanel",
+        visibilityCondition = lambda: not game.getSelectedProperty().getOwner() is None,
+        container = propertyCardBottomPanel
+    )
+    Label(
+        relative_rect = pygame.Rect(10, 0, 200, 20),
+        textFunction = lambda: f"Hypothek: {"bestehend" if game.getSelectedProperty().getMortgage() else "nicht bestehend"}",
+        container = propertyCardMortgagePanel
+    )
+    Button(     # Hypothek aufnehmen
+        relative_rect = pygame.Rect(10,20,-1,20),
+        textFunction = lambda: f" Aufnehmen {int(game.getSelectedProperty().getCost() * 0.5)} $",
+        onClickMethod = lambda: game.getSelectedProperty().raiseMortgage(),
+        visibilityCondition = lambda: (not game.getSelectedProperty().getMortgage() and             # keine Hypothek aufgenommen
+                                       game.getSelectedProperty().groupHouseRange()[1] == 0),       # keine Häuser in Gruppe
+        container = propertyCardMortgagePanel
+    )
+    Button(     # Hypothek löschen
+        relative_rect = pygame.Rect(10,20,-1,20),
+        textFunction = lambda: f" Aufheben {int(game.getSelectedProperty().getCost() * 0.55)} $",
+        onClickMethod = lambda: game.getSelectedProperty().cancelMortgage(),
+        visibilityCondition = lambda: (game.getSelectedProperty().getMortgage() and                                                                 # Hypothek aufgenommen
+                                       game.getSelectedProperty().getOwner().getMoney() >= int(game.getSelectedProperty().getCost() * 0.55)),       # ausreichend Geld
+        container = propertyCardMortgagePanel
+    )
+    
+
 
 
     def initPlayerInformationContainer():
@@ -372,7 +560,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             )
             Label(      # Zeigt Geld / bankrott an
                 relative_rect = pygame.Rect(5, 20, containerWidth, -1),
-                textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} €'}",
+                textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} $'}",
                 container = playerContainer,
             )
             
@@ -390,7 +578,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
                             text = '',
                             onClickMethod = lambda id=id: game.setSelectedPropertyById(id),     # füge Methode hinzu
                             visibilityCondition = lambda property = property, player = player: property in player.getProperties(),
-                            object_id = f"group{property.getGroup()}",
+                            object_id = f"#group{property.getGroup()}",
                             container = propertyCardContainer
                         )
 

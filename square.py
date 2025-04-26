@@ -20,7 +20,8 @@ class Square():
         """ 
         setScreen(SCREEN_CONTINUE)
         match self.__type:
-            case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren Feldern
+            case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren 
+                self.__game.setSelectedPropertyById(self.__game.getProperties().index(self))
                 owner = self.getOwner()
                 if owner is None:
                     setScreen(SCREEN_BUYOPTION)

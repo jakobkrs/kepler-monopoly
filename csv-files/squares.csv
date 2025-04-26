@@ -1,41 +1,41 @@
 position;name;type
 0;LOS;start
-1;Badstraße;property
+1;Schulhof;property
 2;Gemeinschaftsfeld;community
-3;Turmstraße;property
-4;Einkommenssteuer;taxes1
-5;Südbahnhof;trainStation
-6;Chausseestraße;property
+3;Kunstzimmer;property
+4;Kunstgeld;taxes1
+5;Astronomie-Bahnhof;trainStation
+6;Schulklo;property
 7;Ereignisfeld;event
-8;Elisenstraße;property
-9;Poststraße;property
-10;Gefängnis;jail
-11;Seestraße;property
-12;Elektrizitätswerk;supplyPlant
-13;Hafenstraße;property
-14;Neue Straße;property
-15;Westbahnhof;trainStation
-16;Münchner Straße;property
+8;Dachboden;property
+9;Keller;property
+10;Bei Frau Frigge;jail
+11;Aula;property
+12;Mensa;supplyPlant
+13;Jahnbaude;property
+14;Foucultsches Pendel;property
+15;Physik-Bahnhof;trainStation
+16;Weil-der-Städter Straße;property
 17;Gemeinschaftsfeld;community
-18;Wiener Straße;property
-19;Berliner Straße;property
+18;Grazer Straße;property
+19;Prager Straße;property
 20;Frei Parken;freeParking
-21;Theaterstraße;property
+21;Inverness;property
 22;Ereignisfeld;event
-23;Museumstraße;property
-24;Opernplatz;property
-25;Nordbahnhof;trainStation
-26;Lessingstraße;property
-27;Schillerstraße;property
-28;Wasserwerk;supplyPlant
-29;Goethestraße;property
-30;Gehe ins Gefängnis;goToJail
-31;Rathausplatz;property
-32;Hauptstraße;property
+23;Cumberland;property
+24;Wald von Birnam;property
+25;Mathematik-Bahnhof;trainStation
+26;Newtonstraße;property
+27;Einsteinstraße;property
+28;PENNY;supplyPlant
+29;Kepler Boulevard;property
+30;Gehen sie zu Frau Frigge;goToJail
+31;Scheunis Garten;property
+32;Polsters Raucherecke;property
 33;Gemeinschaftsfeld;community
-34;Bahnhofstraße;property
-35;Hauptbahnhof;trainStation
+34;Via Cicero;property
+35;Informatik-Bahnhof;trainStation
 36;Ereignisfeld;event
-37;Parkstraße;property
-38;Zusatzsteuer;taxes2
-39;Schlossallee;property
+37;Raum 203;property
+38;Känguru-Gebür;taxes2
+39;Raum 202;property
