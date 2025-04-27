@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 import tkinter as tk
 from gui import *
+from collections import Counter, defaultdict
 
 
 def startDialog():
@@ -66,11 +67,56 @@ def startDialog():
     tk._default_root = None
     return finalPlayers
 
+def drawPlayerSymbols(game, screen):
+    """
+    Zeichnet die Spielerfiguren auf dem Spielfeld.
+    """
+    players = game.getPlayers()
+    gameboard = game.getGameBoard()
+    playerPositions = [p.getPosition() for p in players]
+    playerCounterPerField = Counter(playerPositions)
+    drawnPlayersPerField = defaultdict(int)
+
+    for player in players:
+        playerPos = player.getPosition()
+        symbolName = player.getSymbol()
+        currentPlayerIndex = drawnPlayersPerField[playerPos]
+        totalPlayersOnField = playerCounterPerField[playerPos]
+
+        field = gameboard[playerPos]
+        fieldX = field.getFieldCoord("x")
+        fieldY = field.getFieldCoord("y")
+        fieldWidth = field.getFieldCoord("width")
+        fieldHeight = field.getFieldCoord("height")
+
+        symbolPath = f"images/playerSymbols/{symbolName}.png"
+        playerSymbol = pygame.image.load(symbolPath).convert_alpha()
+
+        # Berechnung des zugeteilten Bereichs pro Spieler
+        allocatedWidth = fieldWidth / totalPlayersOnField
+        allocatedHeight = fieldHeight
+        symbolSize = min(allocatedWidth, allocatedHeight)
+
+        # Sonderfall bei Eckfeldern für gleiche Maximalgröße
+        if fieldWidth == fieldHeight:  
+            symbolSize = fieldHeight * 0.62
+        
+        scaledSymbol = pygame.transform.scale(playerSymbol, (int(symbolSize), int(symbolSize)))
+
+        # Zentriere das Symbol im zugeteilten Bereich
+        symbolX = fieldX + currentPlayerIndex * allocatedWidth + (allocatedWidth - symbolSize) / 2
+        symbolY = fieldY + (allocatedHeight - symbolSize) / 2
+
+        screen.blit(scaledSymbol, (symbolX, symbolY))
+
+        drawnPlayersPerField[playerPos] += 1
+
+
 def initDraw(game):
     # pygame initialisieren
     pygame.init()
 
-    boardImage = pygame.image.load("images/board1.png")
+    boardImage = pygame.image.load("images/board2.png")
     
     # Standardfenstergröße setzen
     screenWidth, screenHeight = 1920, 1080  # Sichere Standardwerte
@@ -134,8 +180,6 @@ def initDraw(game):
             gameboard[i + 20].setFieldCoord(boardX + cornerSize + (i-1) * fieldWidth, boardY, fieldWidth, fieldLenght)
             # Spielfelder rechts
             gameboard[i + 30].setFieldCoord(boardX + boardWidth - cornerSize, boardY + cornerSize + (i-1) * fieldWidth, fieldLenght, fieldWidth)
-        
-
   
     # Farben
     white = (255, 255, 255)
@@ -195,8 +239,11 @@ def initDraw(game):
         
         drawCurrentScreen()
 
+        drawPlayerSymbols(game, screen)
+
         manager.update(timeDelta)
         manager.draw_ui(screen)
         pygame.display.update()
 
     pygame.quit()
+
