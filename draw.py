@@ -67,7 +67,7 @@ def startDialog():
     tk._default_root = None
     return finalPlayers
 
-def drawPlayerSymbols(game, screen):
+def drawPlayerSymbols(game, screen, imagesCache):
     """
     Zeichnet die Spielerfiguren auf dem Spielfeld.
     """
@@ -89,8 +89,8 @@ def drawPlayerSymbols(game, screen):
         fieldWidth = field.getFieldCoord("width")
         fieldHeight = field.getFieldCoord("height")
 
-        symbolPath = f"images/playerSymbols/{symbolName}.png"
-        playerSymbol = pygame.image.load(symbolPath).convert_alpha()
+        playerSymbol = imagesCache.get(symbolName)
+    
 
         # Berechnung des zugeteilten Bereichs pro Spieler
         allocatedWidth = fieldWidth / totalPlayersOnField
@@ -200,6 +200,12 @@ def initDraw(game):
     # initialisiert Gui-Element System
     initGUI(manager, game, scrollContainer)
 
+    symbolImages = {}
+    for player in game.getPlayers():
+        symbolName = player.getSymbol()
+        symbolPath = f"images/playerSymbols/{symbolName}.png"
+        symbolImages[symbolName] = pygame.image.load(symbolPath).convert_alpha()
+
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
@@ -239,7 +245,8 @@ def initDraw(game):
         
         drawCurrentScreen()
 
-        drawPlayerSymbols(game, screen)
+
+        drawPlayerSymbols(game, screen, symbolImages)
 
         manager.update(timeDelta)
         manager.draw_ui(screen)
