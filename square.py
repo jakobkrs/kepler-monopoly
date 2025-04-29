@@ -19,7 +19,7 @@ class Square():
         Führt bei Betreten eine Feldes entsprechende Aktion aus.
         """ 
         match self.__type:
-            case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren 
+            case 'property' | 'trainStation' | 'supplyPlant':           # Spielfeld ist eine Art kaufbares Grundstück
                 self.__game.setSelectedPropertyById(self.__game.getProperties().index(self))
                 owner = self.getOwner()
                 if owner is None:
@@ -28,16 +28,16 @@ class Square():
                     setScreen(SCREEN_PAYRENT)
                 else:
                     setScreen(SCREEN_OWNPROPERTY)
-            case 'community' | 'event':
+            case 'community' | 'event':             # Spielfeld ist ein Aktionskartenfeld
                 self.__game.drawCard(self.__type)
                 setScreen(SCREEN_CARD)
-            case 'taxes1' | 'taxes2':
+            case 'taxes1' | 'taxes2':               # Spielfeld ist eines der Felder für Steuern
                 setScreen(SCREEN_TAXES)
             case 'freeParking':
                 setScreen(SCREEN_FREEPARKING)
             case 'goToPrison':
                 setScreen(SCREEN_GOTOPRISON)
-            case 'start' | 'prison':      # hier muss nichts besonderes im GUI passieren
+            case 'start' | 'prison':                # hier muss nichts besonderes (im GUI und Hintergrund) passieren
                 setScreen(SCREEN_CONTINUE)
 
     def executeCard(self):

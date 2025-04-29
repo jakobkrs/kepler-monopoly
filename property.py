@@ -35,14 +35,10 @@ class Property(Square):
     
     def payRent(self, player):
         """
-        Führt Mietzahlung vom Spieler an Besitzer aus und ändert Screens. 
+        Führt Mietzahlung vom Spieler an Besitzer aus und wechselt zum nächsten Screen. 
         """
         if player.payPlayer(self.__owner, self.getRent()):
-            roll = self.__game.getCurrentPlayer().getLastDiceRoll()
-            if roll[0] != roll[1]:
-                setScreen(SCREEN_CONTINUE)
-            else:
-                setScreen(SCREEN_ROLLDICEAGAIN)
+            nextScreen()
 
     def getRent(self):
         if self.__owner is None: # Kein Besitzer 
@@ -54,14 +50,14 @@ class Property(Square):
         """
         Ermittelt ob auf dem Grundstück ein Haus gebaut / verkauft werden kann.
         """
-        return (#self.__owner == self.__game.getCurrentPlayer() and      # Besitzer ist am Zug
+        return (#self.__owner == self.__game.getCurrentPlayer() and     # Besitzer ist am Zug
                 self.__owner.completeGroup(self.__group) and            # Besitzer besitzt alle Grundstücke der Gruppe
                 not self.__mortgage and                                 # keine Hypothek
                 ((build and self.__houses < 5 and                       # Es soll gebaut werden und es ist noch kein Hotel gebaut
-                 self.__owner.getMoney() >= self.__houseCost and            # und Spieler hat genug Geld zum kaufen
-                 self.groupHouseRange()[0] == self.__houses) or             # und Hausanzahl in der Gruppe weicht nicht zu stark ab
-                (not build and self.__houses > 0 and                   # Es soll verkauft werden und es gibt Häuser auf dem Grundstück
-                self.groupHouseRange()[1] == self.__houses)))                # und Hausanzahl in der Gruppe weicht nicht zu stark ab
+                 self.__owner.getMoney() >= self.__houseCost and        # und Spieler hat genug Geld zum kaufen
+                 self.groupHouseRange()[0] == self.__houses) or         # und Hausanzahl in der Gruppe weicht nicht zu stark ab
+                (not build and self.__houses > 0 and                    # Es soll verkauft werden und es gibt Häuser auf dem Grundstück
+                self.groupHouseRange()[1] == self.__houses)))           # und Hausanzahl in der Gruppe weicht nicht zu stark ab
         
     def groupHouseRange(self) -> tuple:
         """
