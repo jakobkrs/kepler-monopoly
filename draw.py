@@ -111,6 +111,56 @@ def drawPlayerSymbols(game, screen, imagesCache):
 
         drawnPlayersPerField[playerPos] += 1
 
+def drawHouses(game, screen, houseImages):
+    """
+    Zeichnet die Häuser auf dem Spielfeld.
+    """
+    gameboard = game.getGameBoard()
+    for field in gameboard:
+        if field.getType() == "property":
+            houses = field.getHouses()
+            fieldX = field.getFieldCoord("x")
+            fieldY = field.getFieldCoord("y")
+            fieldWidth = field.getFieldCoord("width")
+            fieldHeight = field.getFieldCoord("height")
+            if houses > 0:
+                for i in range(houses):
+                    if 0 < field.getPosition() < 10 and houses > 0:
+                        house = houseImages[houses]
+                        origWidth, origHeight = houseImages[houses].get_size()
+                        houseHeight = fieldWidth * 0.25
+                        houseWidth = houseHeight * (origWidth / origHeight)
+                        houseImageScaled = pygame.transform.scale(house, (int(houseWidth), int(houseHeight)))
+                        houseX = fieldX + fieldWidth * 0.5 - houseWidth * 0.5
+                        houseY = fieldY + fieldHeight*0.03
+                        screen.blit(houseImageScaled, (houseX, houseY))
+                    elif 10 < field.getPosition() < 20 and houses > 0:
+                        house = houseImages[houses+5]
+                        origWidth, origHeight = houseImages[houses+5].get_size()
+                        houseWidth = fieldHeight * 0.25
+                        houseHeight = houseWidth * (origHeight / origWidth)
+                        houseImageScaled = pygame.transform.scale(house, (int(houseWidth), int(houseHeight)))
+                        houseY = fieldY + fieldHeight * 0.5 - houseHeight * 0.5
+                        houseX = fieldX + fieldWidth - fieldWidth*0.03 - houseWidth
+                        screen.blit(houseImageScaled, (houseX, houseY))
+                    elif 20 < field.getPosition() < 30 and houses > 0:
+                        house = houseImages[houses]
+                        origWidth, origHeight = houseImages[houses].get_size()
+                        houseHeight = fieldWidth * 0.25
+                        houseWidth = houseHeight * (origWidth / origHeight)
+                        houseImageScaled = pygame.transform.scale(house, (int(houseWidth), int(houseHeight)))
+                        houseX = fieldX + fieldWidth * 0.5 - houseWidth * 0.5
+                        houseY = fieldY + fieldHeight - fieldHeight*0.03 - houseHeight
+                        screen.blit(houseImageScaled, (houseX, houseY))
+                    elif 30 < field.getPosition() < 40 and houses > 0:
+                        house = houseImages[houses+5]
+                        origWidth, origHeight = houseImages[houses+5].get_size()
+                        houseWidth = fieldHeight * 0.25
+                        houseHeight = houseWidth * (origHeight / origWidth)
+                        houseImageScaled = pygame.transform.scale(house, (int(houseWidth), int(houseHeight)))
+                        houseY = fieldY + fieldHeight * 0.5 - houseHeight * 0.5
+                        houseX = fieldX + fieldWidth*0.03
+                        screen.blit(houseImageScaled, (houseX, houseY))
 
 def initDraw(game):
     # pygame initialisieren
@@ -206,6 +256,12 @@ def initDraw(game):
         symbolPath = f"images/playerSymbols/{symbolName}.png"
         symbolImages[symbolName] = pygame.image.load(symbolPath).convert_alpha()
 
+    houseImages = {}
+    for i in range(1,6):
+        houseImages[i] = pygame.image.load(f"images/houses/{i}.png").convert_alpha()
+        houseImages[i+5] = pygame.image.load(f"images/houses/{i}v.png").convert_alpha()
+    
+
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
@@ -245,8 +301,9 @@ def initDraw(game):
         
         drawCurrentScreen()
 
-
         drawPlayerSymbols(game, screen, symbolImages)
+
+        drawHouses(game, screen, houseImages)
 
         manager.update(timeDelta)
         manager.draw_ui(screen)
