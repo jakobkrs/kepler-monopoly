@@ -27,6 +27,9 @@ class Square():
                     setScreen(SCREEN_BUYOPTION)
                 elif owner != player:
                     setScreen(SCREEN_PAYRENT)
+                else:
+                    pass
+                    #setScreen()
             case 'community' | 'event':
                 self.__game.drawCard(self.__type)
                 setScreen(SCREEN_CARD)

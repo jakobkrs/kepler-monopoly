@@ -16,7 +16,7 @@ class Player():
         self.__prison=False
         #self.__prisoncardCommunity=False           # Budget spar Maßnahme
         #self.__prisoncardEvent=False
-        self.__bankrupt=True if name == 'Spieler 3' else False      # zu Test Zwecken
+        self.__bankrupt=False
         self.__lastDiceRoll = []
         self.__game=game
     

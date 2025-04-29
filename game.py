@@ -9,7 +9,7 @@ from gui import *
 class Game():
     def __init__(self):
         """
-        Initialisation of the Game class. Set start values of class instance.
+        Initialisierung der Game Klasse. Setzt Startwerte der Klasseninstanz.
         """
         self.__currentPlayerId = 0
         self.__currentPlayer = None
