@@ -10,7 +10,7 @@ Gehe 3 Felder zurück;moveBack;3
 Du hast den 2. Preis im Schönheitswettbewerb gewonnen. Ziehe 1.000 $ ein.;earnMoney;1000
 Bank-Irrtum zu deinen Gunsten. Ziehe 2.000 $ ein.;earnMoney;2000
 Zahle eine Strafe von 1.000 $ oder ziehe eine Ereigniskarte;payMoney;1000
-Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 $ ein.;goToJail;0
+Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 $ ein.;goToPrison;0
 Mieteinnahmen aus Immobilien: Ziehe 2.500 $ ein;earnMoney;2500
 Zahle 1.500 $ für deine Urlaubsreise;payMoney;1500
 Zahle 1.000 $ für deine Autoversicherung;payMoney;1000

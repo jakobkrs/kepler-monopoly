@@ -87,9 +87,9 @@ class Player():
         """
         num1= random.randint(1,6)
         num2= random.randint(1,6)
-        num=num1+num2
+        sum=num1+num2
         self.__lastDiceRoll = [num1, num2]
-        return num1,num2,num
+        return num1,num2,sum
 
     def completeGroup(self,id: str):
         """
@@ -158,32 +158,30 @@ class Player():
         self.__money += amount
     
     
-    def getName(self):
+    def getName(self) -> str:
         return self.__name
     
-    def getMoney(self):
+    def getMoney(self) -> int:
         return self.__money
     
-    def getPosition(self):
+    def getPosition(self) -> int:
         return self.__position
     
-    def getProperties(self):
+    def getProperties(self) -> Property:
         return self.__properties
     
-    def getSymbol(self):
+    def getSymbol(self) -> str:
         return self.__symbol
     
-    def getCurrentSquare(self):
+    def getCurrentSquare(self) -> Square:
         return self.__currentSquare
     
-    def getBankrupt(self):
+    def getBankrupt(self) -> bool:
         return self.__bankrupt
     
-    def getLastDiceRoll(self):
+    def getPrison(self) -> bool:
+        return self.__prison
+    
+    def getLastDiceRoll(self) -> tuple:
         return self.__lastDiceRoll
 
-    
-    def choose_mortgage(self, amount):
-        """
-        Methode zum Auswählen einer Hypothek
-        """

@@ -35,7 +35,7 @@ if __name__ == "__main__":
     for i in range (playerCount):
         game.addPlayer(gameSettings[i][0], gameSettings[i][1])  # Spieler mit Namen und Figur hinzufügen
 
-    #for property in game.getProperties():
-    #    property.setOwner(game.getPlayers()[0])
+    for property in game.getProperties():
+        property.setOwner(game.getPlayers()[0])
     # Stellt initDraw game zur Verfügung und führt initDraw aus
     initDraw(game)

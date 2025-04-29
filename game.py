@@ -179,6 +179,9 @@ class Game():
     def getLastDrawnCard(self) -> object:
         return self.__lastDrawnCard
     
+    def getFreeParkingMoney(self) -> int:
+        return self.__freeParkingMoney
+    
     def getSelectedProperty(self) -> Property:
         return self.__selectedProperty
     

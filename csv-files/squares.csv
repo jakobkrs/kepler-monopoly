@@ -9,7 +9,7 @@ position;name;type
 7;Ereignisfeld;event
 8;Dachboden;property
 9;Keller;property
-10;Bei Frau Frigge;jail
+10;Bei Frau Frigge;prison
 11;Aula;property
 12;Mensa;supplyPlant
 13;Jahnbaude;property
@@ -29,7 +29,7 @@ position;name;type
 27;Einsteinstraße;property
 28;PENNY;supplyPlant
 29;Kepler Boulevard;property
-30;Gehen sie zu Frau Frigge;goToJail
+30;Gehen sie zu Frau Frigge;goToPrison
 31;Scheunis Garten;property
 32;Polsters Raucherecke;property
 33;Gemeinschaftsfeld;community

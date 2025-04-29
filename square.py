@@ -18,7 +18,6 @@ class Square():
         """
         Führt bei Betreten eine Feldes entsprechende Aktion aus.
         """ 
-        setScreen(SCREEN_CONTINUE)
         match self.__type:
             case 'property' | 'trainStation' | 'supplyPlant':           # square ist ein Art von kaufbaren 
                 self.__game.setSelectedPropertyById(self.__game.getProperties().index(self))
@@ -28,22 +27,18 @@ class Square():
                 elif owner != player:
                     setScreen(SCREEN_PAYRENT)
                 else:
-                    pass
-                    #setScreen()
+                    setScreen(SCREEN_OWNPROPERTY)
             case 'community' | 'event':
                 self.__game.drawCard(self.__type)
                 setScreen(SCREEN_CARD)
-            case 'taxes1':
-                player.payBank(4000)
-            case 'taxes2':
-                player.payBank(2000)
+            case 'taxes1' | 'taxes2':
+                setScreen(SCREEN_TAXES)
             case 'freeParking':
-                money = self.__game.resetFreeParkingMoney()     # Seit Frei Parken Geld auf 0 zurück und speichert den Betrag in money
-                player.giveMoney(money)
-            case 'goToJail':
-                player.goToPrison()
-            case 'start' | 'jail':      # hier muss nichts passieren
-                pass
+                setScreen(SCREEN_FREEPARKING)
+            case 'goToPrison':
+                setScreen(SCREEN_GOTOPRISON)
+            case 'start' | 'prison':      # hier muss nichts besonderes im GUI passieren
+                setScreen(SCREEN_CONTINUE)
 
     def executeCard(self):
         """
@@ -59,7 +54,7 @@ class Square():
                 self.moveToNearest(player, "supplyPlant")
             case "moveToNearestTrainStation":
                 self.moveToNearest(player, "trainStation")
-            case "goToJail":
+            case "goToPrison":
                 player.goToPrison()
             case "renovate":
                 sum = 0
@@ -72,7 +67,7 @@ class Square():
                 player.giveMoney(card["value"])
             case "payMoney":
                 player.payBank(card["value"])
-            #case "getOutOfJail":
+            #case "getOutOfPrison":
                 #pass
             case "earnFromPlayers":
                 for opponent in self.__game.getPlayers():

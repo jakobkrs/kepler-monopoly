@@ -10,7 +10,11 @@ SCREEN_ROLLDICE = 'roll-dice'
 SCREEN_ROLLDICEAGAIN = 'roll-dice-again'
 SCREEN_PAYRENT = 'pay-rent'
 SCREEN_BUYOPTION = 'player-can-buy-property'
+SCREEN_OWNPROPERTY = 'own-property'
 SCREEN_CARD = 'draw-card'
+SCREEN_FREEPARKING = 'free-parking'
+SCREEN_TAXES = 'taxes'
+SCREEN_GOTOPRISON = 'go-to-prison'
 SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
 
@@ -128,7 +132,7 @@ def addScreenToQueue(screen: str):
     global nextScreens
     nextScreens.append(screen)
 
-def nextScreen() -> str:
+def nextScreen():
     """
     Setzt den Screen auf den nächsten aus der Queue
     """
@@ -186,19 +190,10 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_CARD, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
-    
-    # debug
-    #Label(  # zeigt den aktuellen Screen an
-    #    relative_rect = pygame.Rect(0, -20, -1, -1),
-    #    textFunction = lambda: f"Debug: {currentScreen}",
-    #    anchors = {'left': 'left', 'bottom': 'bottom'},
-    #    object_id = '#debug',
-    #    container = guiContainer
-    #)
     
     # Spieler Liste
     playerListContainer = Container(    # Container der Liste aller Spieler enthält
@@ -247,7 +242,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
         dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
-        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_CARD, SCREEN_BUYOPTION, SCREEN_CONTINUE],
+        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE],
         container = guiContainer
     )
     def setDiceTextMethod() -> str:
@@ -312,7 +307,15 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = squareActionContainer
     )
     # Spieler ist bereits Besitzer
-    
+    Label(      # Label um Grundstücksbesitzer anzuzeigen
+        relative_rect = pygame.Rect(0, 0, 0, -1),
+        useContainerWidth = True,
+        text = "Das Grundstück gehört dir.",
+        screenList = [SCREEN_OWNPROPERTY],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+     # Als Knopf wird der Standard "Fortfahren"-Knopf verwendet
     # Grundstück kaufen
     Label(
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
@@ -368,16 +371,73 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = cardPanel
     )
     
+    # Frei Parken
+    Label(
+        relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
+        useContainerWidth = True,
+        textFunction = lambda: f"Auf Frei Parken liegen {game.getFreeParkingMoney()} $.",
+        screenList = [SCREEN_FREEPARKING],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    def freeParkingButtonMethod():
+        """
+        Gibt Spieler Frei Parken Geld und fährt mit nächstem Screen fort. 
+        """
+        game.getCurrentPlayer().giveMoney(game.resetFreeParkingMoney())     # Seit Frei Parken Geld auf 0 zurück gibt den Betrag dem Spieler
+        nextScreen()
+    Button(     # Knopf zum Einsammeln des Frei Parken Geldes
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        textFunction = lambda: f" Geld Annehmen {game.getFreeParkingMoney()} $ ",
+        onClickMethod = freeParkingButtonMethod,
+        screenList = [SCREEN_FREEPARKING],
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
+    
+    # Steuern
+    def taxesButtonMethod():
+        """
+        Lässt Spieler Steuern bezahlen und fährt mit nächstem Screen fort.
+        """
+        if game.getCurrentPlayer().getCurrentSquare().getType() == "taxes1":  amount = 4000
+        else: amount = 2000
+        game.getCurrentPlayer().payBank(amount, False)
+        nextScreen()
+    Button(     # Knopf zum Bezahlen der Steuern
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        textFunction = lambda: f" Zahlung durchführen {4000 if game.getCurrentPlayer().getCurrentSquare().getType() == "taxes1" else 2000} $ ",
+        onClickMethod = taxesButtonMethod,
+        screenList = [SCREEN_TAXES],
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
+    
+    # Gehe ins Gefängnis
+    def goToPrisonButtonMethod():
+        """
+        Setzt den aktuellen Spieler ins Gefängnis und bricht dessen laufenden Zug ab.
+        """
+        game.getCurrentPlayer().goToPrison()
+        setScreen(SCREEN_CONTINUE)
+    Button(     # Knopf zum Bestätigen, dass der Spieler ins Gefängnis geht.
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        text = " Zu Frau Frigge gehen ",
+        onClickMethod = goToPrisonButtonMethod,
+        screenList = [SCREEN_GOTOPRISON],
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
+    
+
     Button(     # Button um mit nächstem Spieler fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = ' Fortfahren ',
-        screenList = [SCREEN_CONTINUE],
+        screenList = [SCREEN_OWNPROPERTY, SCREEN_CONTINUE],
         onClickMethod = lambda: game.nextPlayersTurn(),
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-
-    
 
 
     def initSelectedPropertyCard():
@@ -575,7 +635,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         """
         Erstellt die Spielerinformations-Elemente
         """
-        propertyCardGrid = [                # deklariert an welcher Position welche Grundstückskarte angezeigt werden soll
+        propertyCardGrid = [                # deklariert an welcher Position welche Grundstückskarte angezeigt werden soll; -1 steht für keine Nutzung des Platzes
             [0,3,6,11,14,18,22,26,2,17],
             [1,4,8,12,15,19,23,27,10,25],
             [-1,5,9,13,16,21,24,-1,7,20]
@@ -604,7 +664,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             Label(      # Zeigt Spieler Name (und Position) an
                 relative_rect = pygame.Rect(0, 0, 0, -1),
                 useContainerWidth = True,
-                textFunction = lambda player=player: f"{player.getName()}: Pos {player.getPosition()}",
+                textFunction = lambda player=player: f"{player.getName()}: Pos {player.getPosition()}{" - bei Frau Frigge" if player.getPrison() else ""}",
                 container = playerContainer,
             )
             Label(      # Zeigt Geld / bankrott an
