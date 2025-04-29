@@ -102,6 +102,16 @@ class Player():
         
         return all(x==owners[0] for x in owners)
     
+    def propertyCount(self, id: str):
+        """
+        Gibt die Anzahl der Grundstücke einer Gruppe zurück, die der Spieler besitzt
+        """
+        count = 0
+        for property in self.__game.getProperties():
+            if property.getGroup() == id and property.getOwner() == self:
+                count += 1
+        return count
+    
     def buyProperty(self, property):
         """
         Erwerben des Grundstücks.

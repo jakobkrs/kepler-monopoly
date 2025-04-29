@@ -10,8 +10,7 @@ class Property(Square):
         super().__init__(game, position, name, type)
         self.__group=group
         self.__houses=0
-        self.__baseRent=baseRent
-        self.__rent=self.__baseRent     
+        self.__baseRent=baseRent   
         self.__cost=cost      
         self.__mortgage=False  # Startwert: keine Hypothek
         self.__owner=None      # Startwert: kein Besitzer
@@ -22,16 +21,29 @@ class Property(Square):
         return 'Property-Object{' + f'name: {super().getName()}, position: {super().getPosition()}, type: {super().getType()}, group: {self.__group}, rent: {self.__baseRent}, cost: {self.__cost}, owner: {(not (self.__owner is None) and self.__owner.getName()) or self.__owner}, mortgage: {self.__mortgage}' + '}'
 
     
-    def calculateRent(self):
+    def __calculateRent(self):
         """
         Mietpreis neu Berechnen
         """
-        if self.__owner and self.__owner.completeGroup(self.__group) and self.__houses == 0:       # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
-            self.__rent = 2 * self.__baseRent
+        print(self.getType())
+        if self.__owner is None: # Kein Besitzer 
+            return 0
         elif self.__mortgage:
-            self.__rent = 0
+            return 0
+        elif self.getType() == "supplyPlant":
+            if self.__owner.completeGroup(self.__group):
+                return 200 * (self.__game.getCurrentPlayer().getLastDiceRoll()[0]+self.__game.getCurrentPlayer().getLastDiceRoll()[1])
+            else:
+                return 80 * (self.__game.getCurrentPlayer().getLastDiceRoll()[0]+self.__game.getCurrentPlayer().getLastDiceRoll()[1])
+        elif self.getType() == "trainStation":                                      # wenn ein owner existiert und das Grundstück ein Bahnhof ist, wird je nach Anzahl der besitzten Bahnhöfe die Miete berechnet
+            print("1")
+            return self.__baseRent * (2 ** (self.__owner.propertyCount("TS") - 1))
         else:
-            self.__rent = [1,5,15,45,70,100][self.__houses] * self.__baseRent          # Liste enthält Faktoren für verschiedene Anzahlen an Häusern 
+            if self.__owner.completeGroup(self.__group) and self.__houses == 0:      # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
+                return 2 * self.__baseRent
+            else:
+                return [1,5,15,45,70,100][self.__houses] * self.__baseRent          # Liste enthält Faktoren für verschiedene Anzahlen an Häusern 
+    
     
     def payRent(self, player):
         """
@@ -41,10 +53,7 @@ class Property(Square):
             nextScreen()
 
     def getRent(self):
-        if self.__owner is None: # Kein Besitzer 
-            return 0
-        else:
-            return self.__rent                  # Es gibt einen Besitzer -> Standardmiete oder Miete mit Häusern
+        return self.__calculateRent()
 
     def isHouseActionPossible(self, build = True) -> bool:
         """
