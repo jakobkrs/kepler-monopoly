@@ -17,6 +17,7 @@ SCREEN_TAXES = 'taxes'
 SCREEN_GOTOPRISON = 'go-to-prison'
 SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
+SCREEN_BANCRUPTCY = 'player-can-not-pay'
 
 class BaseGuiElement:
     def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition, useContainerWidth: bool, positionFunction, dimensionsFunction):
@@ -190,7 +191,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
@@ -440,6 +441,54 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
 
 
+    # Bankrott
+    bankruptcyContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
+        relative_rect = pygame.Rect(70, yOffset, 0, -1),
+        dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
+        screenList = [SCREEN_BANCRUPTCY],
+        container = guiContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(0, 0, 0, -1),
+        useContainerWidth = True,
+        textFunction = lambda: f"Du musst {game.getBankruptcyData()["amount"]} $ zahlen, doch hast zu wenig Geld.",
+        object_id = "@centerLabel",
+        container = bankruptcyContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(0, 30, 0, -1),
+        useContainerWidth = True,
+        text = "Verkaufe Häuser oder nehme Hypotheken auf um das Geld aufzubringen.",
+        object_id = "@centerLabel",
+        container = bankruptcyContainer
+    )
+    def payDebtButtonMethod():
+        """
+        Bezahlt die Schulden des Spielers.
+        """
+        data = game.getBankruptcyData()
+        if data["target"] == 0:                # Geld wird Bank geschuldet
+            data["player"].payBank(True)
+        else:
+            data["player"].payPlayer(data["target"])
+        nextScreen()
+    Button(
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        textFunction = lambda: f" Schulden bezahlen {game.getBankruptcyData()["amount"]} $ ",
+        onClickMethod = payDebtButtonMethod,
+        anchors = {'centerx': 'centerx'},
+        visibilityCondition = lambda: game.getBankruptcyData()["amount"] <= game.getCurrentPlayer().getMoney(),
+        container = bankruptcyContainer
+    )
+    Button(
+        relative_rect = pygame.Rect(0, 90, -1, -1),
+        text = ' Bankrott ',
+        onClickMethod = lambda: (),
+        anchors = {'centerx': 'centerx'},
+        container = bankruptcyContainer
+    )
+
+
     def initSelectedPropertyCard():
         """
         Erstellt die Besitzrechtskartenelemente.
@@ -447,7 +496,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
             relative_rect = pygame.Rect(450, 10, 200, -1),
             #positionFunction = lambda: (guiContainer.relative_rect.width - 200, -1),
-            screenList = ['*'],
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             container = guiContainer
         )
@@ -533,14 +582,16 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             relative_rect = pygame.Rect(5, 35, -1, 20),
             textFunction = lambda: f" Bauen {game.getSelectedProperty().getHouseCost()} $",
             onClickMethod = lambda: game.getSelectedProperty().buildHouse(),
-            visibilityCondition = lambda: game.getSelectedProperty().isHouseActionPossible(True),
+            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(True) and           # Haus Aktion 'Bauen' ist möglich
+                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),        # Besitzer ist aktueller Spieler oder Bankrott
             container = propertyHousePanel
         )
         Button(     # Knopf zum Haus verkaufen
             relative_rect = pygame.Rect(5, 55, -1, 20),
             textFunction = lambda: f" Verkaufen {int(game.getSelectedProperty().getHouseCost() * 0.5)} $",
             onClickMethod = lambda: game.getSelectedProperty().sellHouse(),
-            visibilityCondition = lambda: game.getSelectedProperty().isHouseActionPossible(False),
+            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(False) and          # Haus Aktion 'Verkaufen' ist möglich
+                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),        # Besitzer ist aktueller Spieler oder Bankrott
             container = propertyHousePanel
         )
         # Bahnhof
@@ -616,8 +667,9 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             relative_rect = pygame.Rect(10,20,-1,20),
             textFunction = lambda: f" Aufnehmen {int(game.getSelectedProperty().getCost() * 0.5)} $",
             onClickMethod = lambda: game.getSelectedProperty().raiseMortgage(),
-            visibilityCondition = lambda: (not game.getSelectedProperty().getMortgage() and             # keine Hypothek aufgenommen
-                                        game.getSelectedProperty().groupHouseRange()[1] == 0),       # keine Häuser in Gruppe
+            visibilityCondition = lambda: (not game.getSelectedProperty().getMortgage() and                                                         # keine Hypothek aufgenommen
+                                        game.getSelectedProperty().groupHouseRange()[1] == 0 and                                                    # keine Häuser in Gruppe
+                                        game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),    # Besitzer ist aktueller Spieler oder Bankrott
             container = propertyCardMortgagePanel
         )
         Button(     # Knopf zum Hypothek löschen
@@ -625,7 +677,8 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             textFunction = lambda: f" Aufheben {int(game.getSelectedProperty().getCost() * 0.55)} $",
             onClickMethod = lambda: game.getSelectedProperty().cancelMortgage(),
             visibilityCondition = lambda: (game.getSelectedProperty().getMortgage() and                                                                 # Hypothek aufgenommen
-                                        game.getSelectedProperty().getOwner().getMoney() >= int(game.getSelectedProperty().getCost() * 0.55)),       # ausreichend Geld
+                                        game.getSelectedProperty().getOwner().getMoney() >= int(game.getSelectedProperty().getCost() * 0.55) and        # ausreichend Geld
+                                        game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),        # Besitzer ist aktueller Spieler oder Bankrott
             container = propertyCardMortgagePanel
         )
     

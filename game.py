@@ -23,6 +23,7 @@ class Game():
         self.__freeParkingMoney = 0
         self.__lastDrawnCard = None
         self.__selectedProperty = None
+        self.__bankruptcyData = {"player": None, "target": None, "amount": 0}
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
@@ -193,13 +194,9 @@ class Game():
             self.__selectedProperty = self.__properties[id]
         else:
             self.__selectedProperty = None
+    
+    def getBankruptcyData(self) -> tuple:
+        return self.__bankruptcyData
 
-
-if __name__ == "__main__":
-    game = Game()
-    for i in range(4): game.addPlayer(chr(65 + i), "")
-    game.startGame()
-
-    #game.getPlayers()[0].goToPosition(35)
-    #game.getGameBoard()[2].playerLandedOn(game.getPlayers()[0])
-    #print(game.getPlayers()[0])
+    def setBankruptcyData(self, data: object):      # Wenn Spieler der Bank Geld schuldet, dann wird
+        self.__bankruptcyData = data

@@ -25,7 +25,6 @@ class Property(Square):
         """
         Mietpreis neu Berechnen
         """
-        print(self.getType())
         if self.__owner is None: # Kein Besitzer 
             return 0
         elif self.__mortgage:
@@ -36,7 +35,6 @@ class Property(Square):
             else:
                 return 80 * (self.__game.getCurrentPlayer().getLastDiceRoll()[0]+self.__game.getCurrentPlayer().getLastDiceRoll()[1])
         elif self.getType() == "trainStation":                                      # wenn ein owner existiert und das Grundstück ein Bahnhof ist, wird je nach Anzahl der besitzten Bahnhöfe die Miete berechnet
-            print("1")
             return self.__baseRent * (2 ** (self.__owner.propertyCount("TS") - 1))
         else:
             if self.__owner.completeGroup(self.__group) and self.__houses == 0:      # wenn ein owner existiert und dieser alle Grundstücke einer Gruppe besitzt, auf denen keine Häuser gebaut wurden
@@ -59,8 +57,7 @@ class Property(Square):
         """
         Ermittelt ob auf dem Grundstück ein Haus gebaut / verkauft werden kann.
         """
-        return (#self.__owner == self.__game.getCurrentPlayer() and     # Besitzer ist am Zug
-                self.__owner.completeGroup(self.__group) and            # Besitzer besitzt alle Grundstücke der Gruppe
+        return (self.__owner.completeGroup(self.__group) and            # Besitzer besitzt alle Grundstücke der Gruppe
                 not self.__mortgage and                                 # keine Hypothek
                 ((build and self.__houses < 5 and                       # Es soll gebaut werden und es ist noch kein Hotel gebaut
                  self.__owner.getMoney() >= self.__houseCost and        # und Spieler hat genug Geld zum kaufen
