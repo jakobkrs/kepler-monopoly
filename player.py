@@ -212,6 +212,24 @@ class Player():
         self.__money += amount
     
     
+    # Bankrott
+    def executeBankruptcy(self, target):
+        """
+        Spieler ist Bankrott und übergibt gesamten Besitz an Zielspieler / die Bank.
+        """
+        for property in self.__properties:
+            if target == 0:     # Ziel ist die Bank
+                property.setOwner(None)
+            else:
+                property.setOwner(target)
+        if target != 0: target.giveMoney(self.__money)      # Gibt Spieler alles Geld
+        self.__properties = []      # Spieler besitzt keine Properties mehr
+        self.__money = 0            # Spielr besitzt kein geld mehr
+        self.__bankrupt = True
+        setScreen(SCREEN_CONTINUE)
+    
+    
+    
     def getName(self) -> str:
         return self.__name
     

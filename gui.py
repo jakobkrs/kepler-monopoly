@@ -484,7 +484,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Button(
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = ' Bankrott ',
-        onClickMethod = lambda: (),
+        onClickMethod = lambda: game.getCurrentPlayer().executeBankruptcy(game.getBankruptcyData()["target"]),
         anchors = {'centerx': 'centerx'},
         container = bankruptcyContainer
     )
