@@ -48,7 +48,7 @@ class Player():
         gehe ins Gefängnis
         """
         self.__prison=True
-        self.goToPosition(10)
+        self.goToPosition(10, False)
         self.__game.nextPlayersTurn()
 
     def turn(self):
@@ -70,13 +70,14 @@ class Player():
             self.__doubleCount += 1
             addScreenToQueue(SCREEN_ROLLDICEAGAIN)
 
-    def goToPosition(self, position: int):
+    def goToPosition(self, position: int, moneyForExceedingStart : bool = True):
         """
         setzt Spieler auf richtige Position
         """
-        self.__position=position % len(self.__game.getGameBoard())          # aktualisiere Postion und handelt das überschreiten von Los in der Positions-Variable
-        if position > 39:
-            self.giveMoney(4000)                                            # Geld erhalten bei Überschreiten von Los
+        position = position % len(self.__game.getGameBoard())               # Überschreiten von Los
+        if position < self.__position and not moneyForExceedingStart:       # Geld erhalten bei Überschreiten von Los
+            self.giveMoney(4000)                                            
+        self.__position=position                                            # aktualisiere Postion
         self.__currentSquare=self.__game.getGameBoard()[self.__position]
         self.__currentSquare.playerLandedOn(self)                             # behandelt landen des Spielers auf Feld
 
