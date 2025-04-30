@@ -19,6 +19,8 @@ class Player():
         self.__bankrupt=False
         self.__lastDiceRoll = []
         self.__game=game
+        self.__roundsInPrison=0
+
     
     def __str__(self):
         propertyStr = 'properties: ['
@@ -50,25 +52,66 @@ class Player():
         self.__prison=True
         self.goToPosition(10, False)
         self.__game.nextPlayersTurn()
+        
+    def instandFreePrison(self):
+        """
+        Sofortige Freilassung aus dem Gefängnis
+        """
+        self.__prison=False
+        self.__money -= 1000
+        setScreen(SCREEN_CONTINUE)
+
+    def tryFreePrison(self, num1: int, num2: int):
+        """
+        Spieler versucht aus dem Gefängnis zu kommen
+        """
+        self.__roundsInPrison += 1
+        num1, num2 = self.__lastDiceRoll()
+        if self.__roundsInPrison == 3:
+            if num1 != num2:
+                self.instandFreePrison()
+            else:
+                self.__prison=False
+                self.goToPosition(self.__position+num1+num2)
+                setScreen(SCREEN_CONTINUE)
+        else:
+            if num1 == num2:
+                self.__prison=False
+                self.goToPosition(self.__position+num1+num2)
+                setScreen(SCREEN_CONTINUE)
+            else:
+                setScreen(SCREEN_CONTINUE)
+                
+        self.__roundsInPrison = 0
+                
+        
+
 
     def turn(self):
         """
         Einmal würfeln
         """
         num1,num2,num=self.rollDice()
+    
+        if self.__prison:
+            setScreen(SCREEN_CONTINUE) #damit programm erstmal funktioniert bis wir prison screen haben
+            #setScreen(SCREEN_PRISON)
+            #self.tryFreePrison() Auslösen durch Button für Würfelversuch
+            #self.instandFreePrison() Auslösen durch Button für Sofortige Freilassung
 
-        if num1 == num2 and self.__doubleCount >= 2:
-            self.goToPrison()
-            return
-        
-        self.goToPosition(self.__position+num)
-        # sonstiges
-
-        if num1 != num2:
-            addScreenToQueue(SCREEN_CONTINUE)
         else:
-            self.__doubleCount += 1
-            addScreenToQueue(SCREEN_ROLLDICEAGAIN)
+            if num1 == num2 and self.__doubleCount >= 2:
+                self.goToPrison()
+                return
+            
+            self.goToPosition(self.__position+num)
+            # sonstiges
+
+            if num1 != num2:
+                addScreenToQueue(SCREEN_CONTINUE)
+            else:
+                self.__doubleCount += 1
+                addScreenToQueue(SCREEN_ROLLDICEAGAIN)
 
     def goToPosition(self, position: int, moneyForExceedingStart : bool = True):
         """
@@ -139,7 +182,7 @@ class Player():
             self.__money -= amount
             return True     # Spieler kann zahlen
         else:
-            return False    # Spieler hat zu wenig Geld.
+            return False    # Spieler hat zu wenig Geld. Option zum Hypotheken eingehen, oder Bankrott gehen muss hinzugefügt werden und entsprechend der Rückgabewert angepasst werden.
     
     def payPlayer(self, player, amount: int):
         """
@@ -149,8 +192,8 @@ class Player():
             player.giveMoney(amount)
             return True
         else:
-            self.__game.setBankruptcyData({"player": self, "target": player, "amount": amount})
-            setScreen(SCREEN_BANCRUPTCY)
+            self.choose_mortgage(amount)
+            pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler abgeben
         
     def payBank(self, amount: int, freeParking = True):
         """
@@ -160,8 +203,7 @@ class Player():
             if freeParking:
                 self.__game.addFreeParkingMoney(amount)     # Geld wird zu Frei Parken hinzugefügt
         else:
-            self.__game.setBankruptcyData({"player": self, "target": 0, "amount": amount})      # 0 steht für Bank
-            setScreen(SCREEN_BANCRUPTCY)
+            pass # Spieler ist Bankrott und muss allen Besitz wieder zur freien Verfügbarkeit freigeben
     
     def giveMoney(self, amount: int):
         """
@@ -196,4 +238,5 @@ class Player():
     
     def getLastDiceRoll(self) -> tuple:
         return self.__lastDiceRoll
+
 

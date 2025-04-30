@@ -18,6 +18,7 @@ SCREEN_GOTOPRISON = 'go-to-prison'
 SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
 SCREEN_BANCRUPTCY = 'player-can-not-pay'
+SCREEN_PRISON = "player-in-prison"
 
 class BaseGuiElement:
     def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition, useContainerWidth: bool, positionFunction, dimensionsFunction):
