@@ -19,6 +19,7 @@ class Player():
         self.__bankrupt=False
         self.__lastDiceRoll = []
         self.__game=game
+        self.__doubleCount = 0
         self.__roundsInPrison=0
 
     
@@ -38,51 +39,46 @@ class Player():
     def startTurn(self):
         if self.__bankrupt:
             self.__game.nextPlayersTurn()
+        elif self.__prison:
+            setScreen(SCREEN_PRISON)
         else:
             self.__doubleCount = 0
             self.__lastDiceRoll = []
             setScreen(SCREEN_ROLLDICE)
-                
             
 
     def goToPrison(self):
         """
         gehe ins Gefängnis
         """
+        global nextScreens
         self.__prison=True
+        self.__roundsInPrison = 0
         self.goToPosition(10, False)
-        self.__game.nextPlayersTurn()
+        if len(nextScreens) > 0: nextScreens = []   # löscht alle möglicherweise bestehenden Screens 
+        setScreen(SCREEN_CONTINUE)      # setzt nächsten Screen direkt wieder
         
-    def instandFreePrison(self):
+    def instantPrisonEscape(self):
         """
         Sofortige Freilassung aus dem Gefängnis
         """
+        self.payBank(1000, False)
         self.__prison=False
-        self.__money -= 1000
-        setScreen(SCREEN_CONTINUE)
+        setScreen(SCREEN_PRISONESCAPED)
 
-    def tryFreePrison(self, num1: int, num2: int):
+    def tryPrisonEscape(self):
         """
         Spieler versucht aus dem Gefängnis zu kommen
         """
         self.__roundsInPrison += 1
-        num1, num2 = self.__lastDiceRoll()
-        if self.__roundsInPrison == 3:
-            if num1 != num2:
-                self.instandFreePrison()
-            else:
-                self.__prison=False
-                self.goToPosition(self.__position+num1+num2)
-                setScreen(SCREEN_CONTINUE)
+        num1, num2, _ = self.__rollDice()
+        if num1 == num2:
+            self.__prison=False
+            setScreen(SCREEN_PRISONESCAPED)
+        elif self.__roundsInPrison >= 3:
+            setScreen(SCREEN_FAILEDPRISONESCAPE)
         else:
-            if num1 == num2:
-                self.__prison=False
-                self.goToPosition(self.__position+num1+num2)
-                setScreen(SCREEN_CONTINUE)
-            else:
-                setScreen(SCREEN_CONTINUE)
-                
-        self.__roundsInPrison = 0
+            setScreen(SCREEN_CONTINUE)
                 
         
 
@@ -91,27 +87,19 @@ class Player():
         """
         Einmal würfeln
         """
-        num1,num2,num=self.rollDice()
+        num1,num2,num=self.__rollDice()
     
-        if self.__prison:
-            setScreen(SCREEN_CONTINUE) #damit programm erstmal funktioniert bis wir prison screen haben
-            #setScreen(SCREEN_PRISON)
-            #self.tryFreePrison() Auslösen durch Button für Würfelversuch
-            #self.instandFreePrison() Auslösen durch Button für Sofortige Freilassung
+        if num1 == num2 and self.__doubleCount >= 2:
+            self.goToPrison()
+            return
+        
+        self.goToPosition(self.__position+num)
 
+        if num1 != num2:
+            addScreenToQueue(SCREEN_CONTINUE)       # kein Pasch. normales fortfahren
         else:
-            if num1 == num2 and self.__doubleCount >= 2:
-                self.goToPrison()
-                return
-            
-            self.goToPosition(self.__position+num)
-            # sonstiges
-
-            if num1 != num2:
-                addScreenToQueue(SCREEN_CONTINUE)
-            else:
-                self.__doubleCount += 1
-                addScreenToQueue(SCREEN_ROLLDICEAGAIN)
+            self.__doubleCount += 1
+            addScreenToQueue(SCREEN_ROLLDICEAGAIN)  # Pasch, es wird nochmal gewürfelt
 
     def goToPosition(self, position: int, moneyForExceedingStart : bool = True):
         """
@@ -125,7 +113,7 @@ class Player():
         self.__currentSquare.playerLandedOn(self)                             # behandelt landen des Spielers auf Feld
 
  
-    def rollDice(self):
+    def __rollDice(self):
         """
         2 zufählige Zahlen von 1-6 generieren, diese anschließend addieren
         """
@@ -133,6 +121,8 @@ class Player():
         num2= random.randint(1,6)
         sum=num1+num2
         self.__lastDiceRoll = [num1, num2]
+        if self.__name == "Spieler 1":
+            sum = 30
         return num1,num2,sum
 
     def completeGroup(self,id: str):
@@ -254,6 +244,9 @@ class Player():
     
     def getPrison(self) -> bool:
         return self.__prison
+    
+    def getRoundsInPrison(self) -> int:
+        return self.__roundsInPrison
     
     def getLastDiceRoll(self) -> tuple:
         return self.__lastDiceRoll

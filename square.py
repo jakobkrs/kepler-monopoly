@@ -62,7 +62,7 @@ class Square():
                     sum += 500 * min(property.getHouses(),4)
                 player.payBank(sum)
             case "moveBack":
-                player.goToPosition(player.getPosition() - card["value"])
+                player.goToPosition(player.getPosition() - card["value"], False)
             case "earnMoney":
                 player.giveMoney(card["value"])
             case "payMoney":

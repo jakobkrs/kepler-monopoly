@@ -113,10 +113,6 @@ class Game():
         return table
 
 
-    def trade(self, player1: Player, player2: Player):
-        pass
-
-
     def nextPlayersTurn(self):
         """
         Der nächste Spieler kommt zum Zug.
@@ -127,7 +123,6 @@ class Game():
 
         self.setSelectedPropertyById(-1)
         self.__currentPlayer.startTurn()
-        setScreen(SCREEN_ROLLDICE)
 
 
     def resetFreeParkingMoney(self):

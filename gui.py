@@ -19,6 +19,8 @@ SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
 SCREEN_BANCRUPTCY = 'player-can-not-pay'
 SCREEN_PRISON = "player-in-prison"
+SCREEN_PRISONESCAPED = "player-escaped-prison"
+SCREEN_FAILEDPRISONESCAPE = "player-failed-to-escape-prison"
 
 class BaseGuiElement:
     def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition, useContainerWidth: bool, positionFunction, dimensionsFunction):
@@ -89,8 +91,8 @@ def createGuiElementClass(pygameGuiElementClass):
 
 # definieren der speziellen guiElementKlassen
 class Label(createGuiElementClass(pygame_gui.elements.UILabel)):
-    def __init__(self, text='', textFunction=None, *args, **kwargs):
-        super().__init__(text=text, *args, **kwargs)
+    def __init__(self, text='', textFunction=None, useContainerWidth=True, *args, **kwargs):
+        super().__init__(text=text, useContainerWidth=useContainerWidth, *args, **kwargs)
         if not textFunction is None:
             self.updateElement = lambda: self.set_text(str(textFunction()))
 
@@ -189,10 +191,19 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     managerInstance = manager
     guiContainer = container    
     
+    # debug
+    Label(  # zeigt den aktuellen Screen an
+        relative_rect = pygame.Rect(0, -20, -1, 20),
+        textFunction = lambda: f"Debug: {currentScreen}",
+        object_id = 'debug',
+        anchors = {'bottom': 'bottom'},
+        container = guiContainer
+    )
+    
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
@@ -244,7 +255,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
         dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
-        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE],
+        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_CONTINUE],
         container = guiContainer
     )
     def setDiceTextMethod() -> str:
@@ -266,6 +277,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         useContainerWidth = True,
         textFunction = lambda: f"Du bist auf dem Feld {game.getCurrentPlayer().getCurrentSquare().getName()} gelandet.",
         object_id = "@centerLabel",
+        visibilityCondition = lambda: not (game.getCurrentPlayer().getPrison() or currentScreen == SCREEN_PRISONESCAPED),      # Spieler ist nicht im Gefängnis
         container = diceResultContainer
     )
     
@@ -360,6 +372,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
     Label(      # Text der Karte
         relative_rect = pygame.Rect(0, 30, cardPanel.relative_rect.width, -1),
+        useContainerWidth = False,
         textFunction = lambda: game.getLastDrawnCard()["text"],
         object_id = "@centerLabel",
         container = cardPanel
@@ -431,15 +444,81 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = squareActionContainer
     )
     
+    # Gefängnis
+    Label(
+        relative_rect = pygame.Rect(0, 0, 0, -1),
+        text = "Du bist bei Frau Frigge. Versuche einen Pasch zu würfeln oder besteche sie um zu entkommen.",
+        screenList = [SCREEN_PRISON],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(0, 30, 0, -1),
+        textFunction = lambda: f"Es verbleiben dir noch {3 - game.getCurrentPlayer().getRoundsInPrison()} Versuche, um einen Pasch zu würfeln, bevor du zahlen musst.",
+        screenList = [SCREEN_PRISON],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    Button(
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        textFunction = lambda: f" Besteche Frau Frigge mit 1000 $ ",
+        onClickMethod = lambda: game.getCurrentPlayer().instantPrisonEscape(),
+        anchors = {'centerx': 'centerx'},
+        screenList = [SCREEN_PRISON],
+        visibilityCondition = lambda: 1000 <= game.getCurrentPlayer().getMoney(),
+        container = squareActionContainer
+    )
+    Button(
+        relative_rect = pygame.Rect(0, 90, -1, -1),
+        text = " Versuche dein Glück, wähle Gambling ",
+        onClickMethod = lambda: game.getCurrentPlayer().tryPrisonEscape(),
+        screenList = [SCREEN_PRISON],
+        visibilityCondition = lambda: (game.getCurrentPlayer().getRoundsInPrison() < 3),
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
+    # aus Gefängnis frei gekommen
+    Label(
+        relative_rect = pygame.Rect(0, 0, 0, -1),
+        text = "Du bist aus dem Gefängnis frei freigekommen.",
+        screenList = [SCREEN_PRISONESCAPED],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    # fehlgeschlagener Gefängnis Ausbruchversuch (3 Runden kein Pasch)
+    Label(
+        relative_rect = pygame.Rect(0, 0, 0, -1),
+        text = "Du hast es dreimal nicht geschafft eine Pasch zu würfeln.",
+        screenList = [SCREEN_FAILEDPRISONESCAPE],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(0, 30, 0, -1),
+        text = "Zahle 1000 $ und komme aus dem Gefängnis raus.",
+        screenList = [SCREEN_FAILEDPRISONESCAPE],
+        object_id = "@centerLabel",
+        container = squareActionContainer
+    )
+    Button(
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        text = " Zahle 1000 $ ",
+        onClickMethod = lambda: game.getCurrentPlayer().instantPrisonEscape(),
+        anchors = {'centerx': 'centerx'},
+        screenList = [SCREEN_FAILEDPRISONESCAPE],
+        container = squareActionContainer
+    )
+    
 
     Button(     # Button um mit nächstem Spieler fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = ' Fortfahren ',
-        screenList = [SCREEN_OWNPROPERTY, SCREEN_CONTINUE],
+        screenList = [SCREEN_OWNPROPERTY, SCREEN_PRISONESCAPED, SCREEN_CONTINUE],
         onClickMethod = lambda: game.nextPlayersTurn(),
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
+
 
 
     # Bankrott
@@ -497,7 +576,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
             relative_rect = pygame.Rect(450, 10, 200, -1),
             #positionFunction = lambda: (guiContainer.relative_rect.width - 200, -1),
-            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             container = guiContainer
         )

@@ -37,5 +37,6 @@ if __name__ == "__main__":
 
     for property in game.getProperties():
         property.setOwner(game.getPlayers()[0])
+    
     # Stellt initDraw game zur Verfügung und führt initDraw aus
     initDraw(game)
