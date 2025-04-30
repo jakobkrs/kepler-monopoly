@@ -182,7 +182,7 @@ class Player():
             self.__money -= amount
             return True     # Spieler kann zahlen
         else:
-            return False    # Spieler hat zu wenig Geld. Option zum Hypotheken eingehen, oder Bankrott gehen muss hinzugefügt werden und entsprechend der Rückgabewert angepasst werden.
+            return False    # Spieler hat zu wenig Geld.
     
     def payPlayer(self, player, amount: int):
         """
@@ -192,8 +192,8 @@ class Player():
             player.giveMoney(amount)
             return True
         else:
-            self.choose_mortgage(amount)
-            pass # Spieler ist Bankrott und muss allen Besitz an neuen Spieler abgeben
+            self.__game.setBankruptcyData({"player": self, "target": player, "amount": amount})
+            setScreen(SCREEN_BANCRUPTCY)
         
     def payBank(self, amount: int, freeParking = True):
         """
@@ -203,7 +203,8 @@ class Player():
             if freeParking:
                 self.__game.addFreeParkingMoney(amount)     # Geld wird zu Frei Parken hinzugefügt
         else:
-            pass # Spieler ist Bankrott und muss allen Besitz wieder zur freien Verfügbarkeit freigeben
+            self.__game.setBankruptcyData({"player": self, "target": 0, "amount": amount})      # 0 steht für Bank
+            setScreen(SCREEN_BANCRUPTCY)
     
     def giveMoney(self, amount: int):
         """
