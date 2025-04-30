@@ -1,16 +1,16 @@
 text;action;value
-Du erhältst auf Aktien Dividende: 1.000 $;earnMoney;1000
-Die Bank zahlt dir eine Gutschrift über 2.000 $;earnMoney;2000
-Du erbst 2.000 $;earnMoney;2000
-Krankenhausgebühren: 1.000 $ zahlen;payMoney;1000
-Zahle Schulgeld: 1.500 $;payMoney;1500
-Zahle deine Versicherung: 1.000 $;payMoney;1000
-Arzt-Kosten: Zahle 1.000 $;payMoney;1000
-Rücken Sie vor bis LOS;moveTo;0
-Du bist zum Vorstand gewählt worden. Zahle jedem Spieler 500 $;payPlayers;500
-Du hast Geburtstag. Jeder Spieler schenkt dir 500 $;earnFromPlayers;500
-Du erhältst eine Rückzahlung deiner Einkommenssteuer in Höhe von 1.000 $;earnMoney;1000
-Für deine Lebensversicherung erhältst du 1.000 $;earnMoney;1000
-Die Bank zahlt dir Zinsen in Höhe von 700 $;earnMoney;700
-Zahle 500 $ je Haus und 2.000 $ je Hotel, das du besitzt;renovate;500
-Gehe direkt ins Gefängnis. Gehe nicht über LOS. Ziehe keine 4.000 $ ein.;goToPrison;0
+Du hast das Dartsturnier des Schulclubs gewonnen und erhälst 1.000 $.;earnMoney;1000
+Während der Klassenfahrt muss der Besuch des jüdischen Viertels ausfallen, da jüdischer Feiertag ist. Du erhälst eine Entschädigung von 2.000 $.;earnMoney;2000
+Du bekommst die arbeit des letzten Jahres und schreibst 15 Punkte. Deine Oma gibt dir als Belohnung 2.000 $.;earnMoney;2000
+Du läufst beim Spendenlauf 10 Runden und musst 1.000 $ an den Schulclub spenden.;payMoney;1000
+Das Kepler Gymnasium ist zu einer Privatschule geworden, weshalb du Schulgeld von 1.500 $ bezahlen musst.;payMoney;1500
+Deine jährliche Spende 1.000 $ für den Förderverein ist fällig.;payMoney;1000
+Deine Rechnung von DLS über 1.000 $ ist fällig.;payMoney;1000
+Frau Frigge hat dich so sehr auseinander genommen, dass du sitzen bleibst. Rücke vor bis LOS und starte das Schuljahr von Neuem.;moveTo;0
+Du hast alle deiener Mitspieler mit 500 $, um Klassensprecher zu werden.;payPlayers;500
+Du hast Geburtstag und bekommst von jedem Spieler 500 $;earnFromPlayers;500
+Du wirst 4. im Schachturnier und gewinnst 1.000 $.;earnMoney;1000
+Für die Hausaufgabenbetreuung erhältst du 1.000 $.;earnMoney;1000
+zu deinem fünfjährigen Jubiläum als Fördermitglied erhälst du 700 $.;earnMoney;700
+Dein Architekt hat die Flure so hässlich geplant, sodass diese nun erneuert werden müssen. Zahle 500 $ je Haus und 2.000 $ je Hotel, das du besitzt.;renovate;500
+Du hast vergessen deine Abwesenheitsbescheinigung rechtzeitig abzugeben. Gehe zu Frau Frigge.;goToPrison;0
