@@ -121,8 +121,6 @@ class Player():
         num2= random.randint(1,6)
         sum=num1+num2
         self.__lastDiceRoll = [num1, num2]
-        if self.__name == "Spieler 1":
-            sum = 30
         return num1,num2,sum
 
     def completeGroup(self,id: str):
