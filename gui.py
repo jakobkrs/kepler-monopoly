@@ -15,7 +15,6 @@ SCREEN_CARD = 'draw-card'
 SCREEN_FREEPARKING = 'free-parking'
 SCREEN_TAXES = 'taxes'
 SCREEN_GOTOPRISON = 'go-to-prison'
-SCREEN_PLAYERMANAGMENT = 'player-management'
 SCREEN_CONTINUE = 'player-continue-with-management'
 SCREEN_BANCRUPTCY = 'player-can-not-pay'
 SCREEN_PRISON = "player-in-prison"
@@ -57,7 +56,6 @@ class BaseGuiElement:
             if useContainerWidth:
                 dimensions = (self.ui_container.relative_rect.width, dimensions[1])
             self.set_dimensions(dimensions)
-            self.relative_rect.width    # maybe update
             
     
     def updateVisibility(self):
@@ -155,8 +153,8 @@ def drawCurrentScreen():
         if element.isInCurrentScreen():
             if hasattr(element, 'updateElement'):
                 element.updateElement()
-        if hasattr(element, 'updatePosition'):
-            element.updatePosition()
+        #if hasattr(element, 'updatePosition'):         # nicht benutzt
+        #    element.updatePosition()
         if hasattr(element, 'updateDimensions'):        # es ist notwendig das Update unabhängig der visibilität umzusetzen, da sonst komische update Reihenfolgen Fehler entstehen
             element.updateDimensions()
 
@@ -203,21 +201,21 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
     
     # Spieler Liste
     playerListContainer = Container(    # Container der Liste aller Spieler enthält
-        relative_rect = pygame.Rect(0, 0, 0, 0),
+        relative_rect = pygame.Rect(guiContainer.relative_rect.width / 2 - 100, 0, -1, -1),
         screenList = [SCREEN_STARTGAME],
         container = guiContainer
     )
     yOffset = 0
     for player in game.getPlayers():
         Label(      # Label um ungemischte Spielernamen anzuzeigen
-            relative_rect = pygame.Rect(50, yOffset, playerListContainer.relative_rect.width, -1),
+            relative_rect = pygame.Rect(0, yOffset, -1, -1),
             text = player.getName(),
             screenList = [SCREEN_STARTGAME],
             manager = manager,
@@ -254,7 +252,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
-        dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
+        dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
         screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_CONTINUE],
         container = guiContainer
     )
@@ -283,7 +281,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     squareActionContainer = Container(
         relative_rect = pygame.Rect(70, yOffset + 60, 0, -1),
-        dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
+        dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
         container = guiContainer
     )
     Button(     # Button um Würfel Aktion auszulösen
@@ -512,7 +510,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
 
     Button(     # Button um mit nächstem Spieler fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
-        text = ' Fortfahren ',
+        text = ' Mit nächstem Spieler Fortfahren ',
         screenList = [SCREEN_OWNPROPERTY, SCREEN_PRISONESCAPED, SCREEN_CONTINUE],
         onClickMethod = lambda: game.nextPlayersTurn(),
         anchors = {'centerx': 'centerx'},
@@ -524,7 +522,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     # Bankrott
     bankruptcyContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
-        dimensionsFunction = lambda: (guiContainer.relative_rect.width-170, -1),
+        dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
         screenList = [SCREEN_BANCRUPTCY],
         container = guiContainer
     )
@@ -574,10 +572,10 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         Erstellt die Besitzrechtskartenelemente.
         """
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
-            relative_rect = pygame.Rect(450, 10, 200, -1),
-            #positionFunction = lambda: (guiContainer.relative_rect.width - 200, -1),
-            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_PLAYERMANAGMENT, SCREEN_BANCRUPTCY],
+            relative_rect = pygame.Rect(-200, 10, 200, -1),
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
+            anchors = {"right": "right"},
             container = guiContainer
         )
         for group in ["A","B","C","D","E","F","G","H","SP","TS"]:

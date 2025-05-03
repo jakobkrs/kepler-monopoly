@@ -279,6 +279,7 @@ def initDraw(game):
                     recalculateSizes()
                     scrollContainer.set_relative_position((panelX, panelY))
                     scrollContainer.set_dimensions((panelWidth, panelHeight))
+                    scrollContainer.set_scrollable_area_dimensions((max(650, panelWidth - 30), len(game.getPlayers()) * 140 + 500))
                 case pygame_gui.UI_BUTTON_PRESSED:
                     executeButtonPress(event)
                 case pygame.MOUSEBUTTONDOWN:
