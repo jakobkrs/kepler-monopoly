@@ -60,7 +60,8 @@ class Game():
         self.__playerCount += 1
         self.__playerOrder.append(self.__playerCount - 1)       # fügt neuen Spieler an letzter Position der Reihenfolge hinzu
         if self.__currentPlayer == None:
-            self.__currentPlayer = player       # fill in value before its properly setup in startGame
+            self.__currentPlayer = player       # setzt den Wert, bevor diese in startGame richtig initialisiert wird
+            self.__winner = player              # setzt den Wert, bevor er am Ende des Spiel richtig gesetzt wird
     
     
     def startGame(self, shufflePlayerOrder = True):
@@ -251,6 +252,22 @@ class Game():
         setScreen(SCREEN_CONTINUE)
     
 
+    def checkWin(self):
+        """
+        Überprüft, ob nur noch ein Spieler nicht bankrott ist und demnach gewonnen hat und geht zum Gewinnerscreen.
+        """
+        winner = None
+        for player in self.__players:
+            if not player.getBankrupt():
+                if winner is None:
+                    winner = player
+                else:
+                    return      # Mehrere Spieler sind nicht bankrott. Es gibt keinen Gewinner.
+        if winner is not None:      # Es gibt einen Gewinner, Sicherheitüberprüfung, die nicht notwendig sein sollte
+            self.__winner = winner
+            setScreen(SCREEN_WIN)
+            
+    
     def getPlayers(self) -> list[Player]:
         return self.__players
 
@@ -265,6 +282,9 @@ class Game():
     
     def getCurrentPlayer(self) -> Player:
         return self.__currentPlayer
+
+    def getWinner(self) -> Player:
+        return self.__winner
     
     def getLastDrawnCard(self) -> object:
         return self.__lastDrawnCard

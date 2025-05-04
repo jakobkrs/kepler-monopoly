@@ -14,8 +14,6 @@ class Player():
         self.__position=0
         self.__currentSquare=game.getGameBoard()[self.__position]
         self.__prison=False
-        #self.__prisoncardCommunity=False           # Budget spar Maßnahme
-        #self.__prisoncardEvent=False
         self.__bankrupt=False
         self.__lastDiceRoll = []
         self.__game=game
@@ -167,8 +165,8 @@ class Player():
             self.__properties.remove(property)
 
     # Geldbezogene Methoden
-    
-    def __pay(self, amount: int):
+
+    def __pay(self, amount: int) -> bool:
         """
         Spieler muss Geld bezahlen, wobei überprüft wird ob der Spieler bezahlen kann und gegebenenfalls die Option für Hypotheken oder Bankrott gehen gegeben werden. Sie gibt ob der Spieler Zahlungsfähig ist.
         """
@@ -178,7 +176,7 @@ class Player():
         else:
             return False    # Spieler hat zu wenig Geld.
     
-    def payPlayer(self, player, amount: int):
+    def payPlayer(self, player, amount: int) -> bool:
         """
         Transferiert Geld von diesem Spieler zum angegebenen
         """
@@ -188,17 +186,20 @@ class Player():
         else:
             self.__game.setBankruptcyData({"player": self, "target": player, "amount": amount})
             setScreen(SCREEN_BANCRUPTCY)
+            return False
         
-    def payBank(self, amount: int, freeParking = True):
+    def payBank(self, amount: int, freeParking = True) -> bool:
         """
         Spieler zahlt Geld an Bank bzw. in den Frei Parken Pot 
         """
         if self.__pay(amount):
             if freeParking:
                 self.__game.addFreeParkingMoney(amount)     # Geld wird zu Frei Parken hinzugefügt
+            return True
         else:
             self.__game.setBankruptcyData({"player": self, "target": 0, "amount": amount})      # 0 steht für Bank
             setScreen(SCREEN_BANCRUPTCY)
+            return False
     
     def giveMoney(self, amount: int):
         """
@@ -208,7 +209,7 @@ class Player():
     
     
     # Bankrott
-    def executeBankruptcy(self, target):
+    def executeBankruptcy(self, target = 0):
         """
         Spieler ist Bankrott und übergibt gesamten Besitz an Zielspieler / die Bank.
         """
@@ -222,6 +223,7 @@ class Player():
         self.__money = 0            # Spielr besitzt kein geld mehr
         self.__bankrupt = True
         setScreen(SCREEN_CONTINUE)
+        self.__game.checkWin()
     
     
     

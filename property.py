@@ -105,7 +105,8 @@ class Property(Square):
         Setzt Besitzer des Grundstücks und fügt Grundstück zur Besitzliste des Besitzers hinzu
         """
         self.__owner = owner
-        owner.addProperty(self)
+        if owner is not None:
+            owner.addProperty(self)
     
     def getCost(self):
         return self.__cost

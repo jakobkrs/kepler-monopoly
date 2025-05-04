@@ -268,10 +268,9 @@ def initDraw(game):
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
 
-    # Prüft dauerhaft auf Ereignisse
     while running:
         for event in pygame.event.get():
-            match event.type:
+            match event.type:       # überprüft auf auftretende events
                 case pygame.QUIT:
                     running = False
                 case pygame.VIDEORESIZE:
