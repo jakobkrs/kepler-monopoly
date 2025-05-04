@@ -54,7 +54,7 @@ class Player():
         self.__roundsInPrison = 0
         self.goToPosition(10, False)
         if len(nextScreens) > 0: nextScreens = []   # löscht alle möglicherweise bestehenden Screens 
-        setScreen(SCREEN_CONTINUE)      # setzt nächsten Screen direkt wieder
+        setScreen(SCREEN_MANAGEMENT)      # setzt nächsten Screen direkt wieder
         
     def instantPrisonEscape(self):
         """
@@ -76,7 +76,7 @@ class Player():
         elif self.__roundsInPrison >= 3:
             setScreen(SCREEN_FAILEDPRISONESCAPE)
         else:
-            setScreen(SCREEN_CONTINUE)
+            setScreen(SCREEN_MANAGEMENT)
                 
         
 
@@ -94,7 +94,7 @@ class Player():
         self.goToPosition(self.__position+num)
 
         if num1 != num2:
-            addScreenToQueue(SCREEN_CONTINUE)       # kein Pasch. normales fortfahren
+            addScreenToQueue(SCREEN_MANAGEMENT)       # kein Pasch. normales fortfahren
         else:
             self.__doubleCount += 1
             addScreenToQueue(SCREEN_ROLLDICEAGAIN)  # Pasch, es wird nochmal gewürfelt
@@ -222,7 +222,7 @@ class Player():
         self.__properties = []      # Spieler besitzt keine Properties mehr
         self.__money = 0            # Spielr besitzt kein geld mehr
         self.__bankrupt = True
-        setScreen(SCREEN_CONTINUE)
+        setScreen(SCREEN_MANAGEMENT)
         self.__game.checkWin()
     
     

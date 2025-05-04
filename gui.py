@@ -16,6 +16,7 @@ SCREEN_FREEPARKING = 'free-parking'
 SCREEN_TAXES = 'taxes'
 SCREEN_GOTOPRISON = 'go-to-prison'
 SCREEN_CONTINUE = 'continue'
+SCREEN_MANAGEMENT = 'player-management'
 SCREEN_BANCRUPTCY = 'player-can-not-pay'
 SCREEN_PRISON = "player-in-prison"
 SCREEN_PRISONESCAPED = "escaped-prison"
@@ -230,7 +231,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY, SCREEN_TRADE],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANCRUPTCY, SCREEN_TRADE],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
@@ -282,7 +283,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
         dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
-        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_CONTINUE],
+        screenList = [SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT],
         container = guiContainer
     )
     def setDiceTextMethod() -> str:
@@ -461,12 +462,22 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         Setzt den aktuellen Spieler ins Gefängnis und bricht dessen laufenden Zug ab.
         """
         game.getCurrentPlayer().goToPrison()
-        setScreen(SCREEN_CONTINUE)
+        setScreen(SCREEN_MANAGEMENT)
     Button(     # Knopf zum Bestätigen, dass der Spieler ins Gefängnis geht.
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = " Zu Frau Frigge gehen ",
         onClickMethod = goToPrisonButtonMethod,
         screenList = [SCREEN_GOTOPRISON],
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
+    
+    # Spieler ist bereits Besitzer, Startfeld, Gefängnis nur zu Besuch
+    Button(     # Button mit nächstem Screen fortzufahren
+        relative_rect = pygame.Rect(0, 60, -1, -1),
+        text = ' Fortfahren ',
+        screenList = [SCREEN_OWNPROPERTY, SCREEN_CONTINUE],
+        onClickMethod = nextScreen,
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
@@ -540,7 +551,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Button(     # Button um mit nächstem Spieler fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = ' Mit nächstem Spieler Fortfahren ',
-        screenList = [SCREEN_OWNPROPERTY, SCREEN_PRISONESCAPED, SCREEN_CONTINUE],
+        screenList = [SCREEN_PRISONESCAPED, SCREEN_MANAGEMENT],
         onClickMethod = lambda: game.nextPlayersTurn(),
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
@@ -565,7 +576,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     Button(     # Button um Handel mit anderem Spieler auszuführen
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = ' Mit anderem Spieler handeln ',
-        screenList = [SCREEN_OWNPROPERTY, SCREEN_PRISONESCAPED, SCREEN_CONTINUE],
+        screenList = [SCREEN_PRISONESCAPED, SCREEN_MANAGEMENT],
         onClickMethod = openTradeMenu,
         visibilityCondition = lambda: not game.getCurrentPlayer().getBankrupt(),
         anchors = {'centerx': 'centerx'},
@@ -695,7 +706,6 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     for side in range(2):       # Wiederholung für beide Seiten
         sideContainer = tradeLeftPlayerContainer if side == 0 else tradeRightPlayerContainer
-        
         tradeMoneyContainer = Container(        # Container um Geld hinzuzufügen und anzuzeigen
             relative_rect = pygame.Rect(0,40,-1,-1),
             visibilityCondition = lambda side=side: game.getTradeData()[side] is not None,
@@ -780,7 +790,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         """
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
             relative_rect = pygame.Rect(-200, 10, 200, -1),
-            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY, SCREEN_TRADE],
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANCRUPTCY, SCREEN_TRADE],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             anchors = {"right": "right"},
             container = guiContainer

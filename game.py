@@ -249,7 +249,7 @@ class Game():
         """
         self.selectPlayerForTrade(0, "")
         self.selectPlayerForTrade(1, "")
-        setScreen(SCREEN_CONTINUE)
+        setScreen(SCREEN_MANAGEMENT)
     
 
     def checkWin(self):

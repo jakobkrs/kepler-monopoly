@@ -46,7 +46,6 @@ class Square():
         """
         card = self.__game.getLastDrawnCard()
         player = self.__game.getCurrentPlayer()
-        nextScreen()
         match card["action"]:
             case "moveTo":
                 player.goToPosition(card["value"])
@@ -60,23 +59,30 @@ class Square():
                 sum = 0
                 for property in player.getProperties():
                     sum += 500 * min(property.getHouses(),4)
-                player.payBank(sum)
+                if player.payBank(sum):
+                    nextScreen()
             case "moveBack":
                 player.goToPosition(player.getPosition() - card["value"], False)
             case "earnMoney":
                 player.giveMoney(card["value"])
+                nextScreen()
             case "payMoney":
-                player.payBank(card["value"])
-            #case "getOutOfPrison":
-                #pass
+                if player.payBank(card["value"]):
+                    nextScreen()
             case "earnFromPlayers":
+                allCanPay = True
                 for opponent in self.__game.getPlayers():
                     if opponent != player:
-                        opponent.payPlayer(player, card["value"])    
+                        allCanPay = allCanPay and opponent.payPlayer(player, card["value"])  
+                if allCanPay:
+                    nextScreen()  
             case "payPlayers":
+                canPayAll = True
                 for opponent in self.__game.getPlayers():
                     if opponent != player:
-                        player.payPlayer(opponent, card["value"])
+                        canPayAll = canPayAll and player.payPlayer(opponent, card["value"])
+                if canPayAll:
+                    nextScreen()
 
             
     def moveToNearest(self, player, type: str):
