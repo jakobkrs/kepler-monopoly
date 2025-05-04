@@ -24,6 +24,7 @@ class Game():
         self.__lastDrawnCard = None
         self.__selectedProperty = None
         self.__bankruptcyData = {"player": None, "target": None, "amount": 0}
+        self.__tradeData = [None, None]
 
         csvDirPath = os.path.dirname(os.path.abspath(__file__)) + "/CSV-files/"         # funktioniert hoffentlich auf windows, mac und linux
         
@@ -155,6 +156,99 @@ class Game():
         return card
 
 
+    # Handelsmethoden
+    def selectPlayerForTrade(self, side: int, player: Player):
+        """
+        Wählt einen Spieler als Handelspartner aus, und weist diesem die entsprechende Seite zu. Wenn player den Wert "" hat, wird die Seite keinem Spieler zugewiesen.
+        """
+        if player == "":
+            self.__tradeData[side] = None
+        else:
+            self.__tradeData[side] = {"player": player, "properties": [], "money": 0}       # Initialisierung des Handelspartners 
+        
+        print(self.__tradeData)
+    
+    def canPropertyBeAddedToTrade(self) -> bool:
+        """
+        Gibt zurück, ob das selektierte Grundstück zum Handel auf eine der beiden Seiten hinzugefügt werden kann.
+        """
+        if self.__selectedProperty is None:
+            return False
+        ownerAInTrade = self.__tradeData[0] is not None and self.__selectedProperty.getOwner() == self.__tradeData[0]["player"]
+        ownerBInTrade = self.__tradeData[1] is not None and self.__selectedProperty.getOwner() == self.__tradeData[1]["player"]
+        noHouseInGroup = self.__selectedProperty.groupHouseRange()[1] == 0          # kein Grundstück der Gruppe hat Haus
+        return (ownerAInTrade or ownerBInTrade) and noHouseInGroup and not self.isPropertyInTrade()
+        
+    def isPropertyInTrade(self) -> bool:
+        """
+        Überprüft, ob das selektierte Grundstück bereits im Handel enthalten ist.
+        """
+        properties = []
+        if self.__tradeData[0] is not None:
+            properties += self.__tradeData[0]["properties"]
+        if self.__tradeData[1] is not None:
+            properties += self.__tradeData[1]["properties"]
+        return self.__selectedProperty in properties
+    
+    def addPropertyToTrade(self):
+        """
+        Fügt das selektierte Grundstück zum Handel auf der entsprechende Seite des Besitzers hinzu.
+        """
+        if self.canPropertyBeAddedToTrade():    # zur Sicherheit, falls Nutzer zu schnell auf Knopf drückt, damit Grundstück nur einaml hinzugefügt wird
+            property = self.__selectedProperty
+            side = int(property.getOwner() != self.__tradeData[0]["player"])        # muss umgekehrt werden, da linke Seite 0 entspricht
+            self.__tradeData[side]["properties"].append(property)
+    
+    def removePropertyFromTrade(self):
+        """
+        Entfernt das selektierte Grundstück vom Handel auf der entsprechende Seite des Besitzers.
+        """
+        if self.isPropertyInTrade():      # zur Sicherheit, falls Nutzer zu schnell auf Knopf drückt, damit Grundstück nicht mehrfach versucht wird zu entfernen, was einen Fehler verursacht
+            property = self.__selectedProperty
+            side = int(property.getOwner() != self.__tradeData[0]["player"])        # muss umgekehrt werden, da linke Seite 0 entspricht
+            self.__tradeData[side]["properties"].remove(property)
+    
+    def addTradeMoney(self, side: int, amount: int):
+        """
+        Fügt Geld zu einer Seite des Handels hinzu, bzw. zieht der anderen Seite entsprechendes Geld ab,
+        damit eine immer bei null bleibt.
+        """
+        money = [0,0]
+        for i in range(2):                              # Initialisierung mit bereits existierenden Geldwerten, unter Beachtung, dass eines noch nicht initialisiert sein kann 
+            if self.__tradeData[i] is not None:
+                money[i] += self.__tradeData[i]["money"]
+
+        money[side] += amount       # Fügt Geldbetrag hinzu
+        doubleMoney = min(money)    # Speichert Betrag, der auf beiden Seiten abgezogen werden muss, um eine Seite auf 0 zu halten.
+        
+        for i in range(2):
+            money[i] -= doubleMoney
+            money[i] = max(0, money[i])
+            if self.__tradeData[i] is not None:
+                money[i] = min(money[i], self.__tradeData[i]["player"].getMoney())
+                self.__tradeData[i]["money"] = money[i]
+        
+    def trade(self):
+        """
+        Führt Handel durch.
+        """
+        if not None in self.getTradeData():     # Sicherheitsüberprüfung, falls nicht beide Handelspartner selektiert wurden
+            for i in range(2):
+                side = self.__tradeData[i]
+                player = side["player"]
+                otherPlayer = self.__tradeData[1-i]["player"]
+                for property in side["properties"]:                 # Grundstücke übertragen
+                    player.givePropertyToOtherPlayer(property, otherPlayer)
+                player.payPlayer(otherPlayer, side["money"])        # Geld bezahlen
+            self.resetTrade()
+    
+    def resetTrade(self):
+        """
+        Bricht den Handel ab und setzt Handelsdaten zurück.
+        """
+        self.selectPlayerForTrade(0, "")
+        self.selectPlayerForTrade(1, "")
+        setScreen(SCREEN_CONTINUE)
     
 
     def getPlayers(self) -> list[Player]:
@@ -183,7 +277,7 @@ class Game():
     
     def setSelectedPropertyById(self, id: int):
         """
-        Setzt selectedProperty ausgehend von der Property-Id
+        Setzt selectedProperty ausgehend vom Property-Index
         """
         if id >= 0:
             self.__selectedProperty = self.__properties[id]
@@ -195,3 +289,6 @@ class Game():
 
     def setBankruptcyData(self, data: object):      # Wenn Spieler der Bank Geld schuldet, dann wird
         self.__bankruptcyData = data
+    
+    def getTradeData(self) -> list:
+        return self.__tradeData

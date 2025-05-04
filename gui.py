@@ -20,6 +20,7 @@ SCREEN_BANCRUPTCY = 'player-can-not-pay'
 SCREEN_PRISON = "player-in-prison"
 SCREEN_PRISONESCAPED = "player-escaped-prison"
 SCREEN_FAILEDPRISONESCAPE = "player-failed-to-escape-prison"
+SCREEN_TRADE = "trading"
 
 class BaseGuiElement:
     def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition, useContainerWidth: bool, positionFunction, dimensionsFunction):
@@ -103,7 +104,7 @@ class Button(createGuiElementClass(pygame_gui.elements.UIButton)):
     
     def executeClick(self):
         """
-        Führt die entsprechende Methode aus, wenn das Element angclickt wird.
+        Führt die entsprechende Methode aus, wenn das Element angeklickt wird.
         """
         self.__onCLickMethod()
 
@@ -119,6 +120,24 @@ class Image(createGuiElementClass(pygame_gui.elements.UIImage)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+class Input(createGuiElementClass(pygame_gui.elements.UITextEntryLine)):
+    def __init__(self, allowed_characters = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if allowed_characters is not None:
+            self.set_allowed_characters(allowed_characters)
+
+class DropDownMenu(createGuiElementClass(pygame_gui.elements.UIDropDownMenu)):
+    def __init__(self, onValueSelectionMethod, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__onValueSelectionMethod = onValueSelectionMethod
+    
+    def executeValueSelection(self, text: str):
+        """
+        Führt die entsprechende Methode aus, wenn ein Wert selektiert wurde.
+        """
+        self.__onValueSelectionMethod(text)
+        
+
 
 def setScreen(screen: str):
     """
@@ -126,6 +145,7 @@ def setScreen(screen: str):
     """
     global currentScreen
     currentScreen = screen
+    drawCurrentScreen(True)
 
 def addScreenToQueue(screen: str):
     """
@@ -142,7 +162,7 @@ def nextScreen():
     setScreen(nextScreens.pop(0))
 
 
-def drawCurrentScreen():
+def drawCurrentScreen(sizeUpdate: bool = False):
     """
     Zeichnet den aktuellen Screen
     """
@@ -155,16 +175,24 @@ def drawCurrentScreen():
                 element.updateElement()
         #if hasattr(element, 'updatePosition'):         # nicht benutzt
         #    element.updatePosition()
-        if hasattr(element, 'updateDimensions'):        # es ist notwendig das Update unabhängig der visibilität umzusetzen, da sonst komische update Reihenfolgen Fehler entstehen
+        if sizeUpdate and hasattr(element, 'updateDimensions'):        # es ist notwendig das Update unabhängig der visibilität umzusetzen, da sonst unerwartete Fehler aufgrund der Aktualisierungsreihenfolge auftreten
             element.updateDimensions()
 
 def executeButtonPress(event):
     """
-    Sucht Knopf auf den geklickt wurde und führt verknüpfte Funktion aus.
+    Sucht Knopf auf den geklickt wurde und führt verknüpfte Methode aus.
     """
     for element in guiElementList:
         if type(element) == Button and event.ui_element == element:
             element.executeClick()
+
+def dropDownMenuSelect(event):
+    """
+    Sucht Dropdownmenü, dessen Wert Selektiert wurde und führt die verknüpfte Methode aus.
+    """
+    for element in guiElementList:
+        if type(element) == DropDownMenu and event.ui_element == element:
+            element.executeValueSelection(event.text)
 
 def getClickedField(clickedPos, game):
     """
@@ -187,7 +215,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     currentScreen = SCREEN_STARTGAME
     guiElementList = []
     managerInstance = manager
-    guiContainer = container    
+    guiContainer = container
     
     # debug
     Label(  # zeigt den aktuellen Screen an
@@ -201,7 +229,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY, SCREEN_TRADE],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
@@ -249,7 +277,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     yOffset = len(game.getPlayers()) * 140 + 30
 
-    
+
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
         dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
@@ -516,7 +544,29 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-
+    
+    def openTradeMenu():
+        """
+        Initialisiert und öffnet das Handelsmenu.
+        """
+        game.selectPlayerForTrade(0, game.getCurrentPlayer())     # Wählt aktuellen Spieler als ersten Handelspartner 
+        
+        playerNames = [player.getName() for player in game.getPlayers()]
+        filteredPlayerNames = list(filter(lambda a: (a != game.getCurrentPlayer().getName()), playerNames))
+        
+        tradePlayerDropDown.remove_options(playerNames)         # Entfernen aller Optionen
+        tradePlayerDropDown.add_options(filteredPlayerNames)    # Hinzufügen der neuen Optionen
+        tradePlayerDropDown.selected_option = ("","")
+        
+        setScreen(SCREEN_TRADE)
+    Button(     # Button um Handel mit anderem Spieler auszuführen
+        relative_rect = pygame.Rect(0, 90, -1, -1),
+        text = ' Mit anderem Spieler handeln ',
+        screenList = [SCREEN_OWNPROPERTY, SCREEN_PRISONESCAPED, SCREEN_CONTINUE],
+        onClickMethod = openTradeMenu,
+        anchors = {'centerx': 'centerx'},
+        container = squareActionContainer
+    )
 
 
     # Bankrott
@@ -567,13 +617,144 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
 
 
+    # Handelmenu
+    tradeContainer = Container (        # Container, der alle Elemente zum Handeln enthält
+        relative_rect = pygame.Rect(70, yOffset, 0, -1),
+        dimensionsFunction = lambda: (max(500,guiContainer.relative_rect.width-170), -1),
+        screenList = [SCREEN_TRADE],
+        container = guiContainer
+    )
+    
+    tradeLeftPlayerContainer = Container(       # Container für ersten Handelspartner (Initiator des Handels)
+        relative_rect = pygame.Rect(0, 0, 200, -1),
+        container = tradeContainer
+    )
+    Label(
+        relative_rect = pygame.Rect(0,0,-1,-1),
+        textFunction = lambda: game.getCurrentPlayer().getName(),
+        container = tradeLeftPlayerContainer
+    )
+    
+    tradeCenterContainer = Container(       # Container für die Knöpfe in der Mitte zwischen den Handelspartnern
+        relative_rect = pygame.Rect(210, 10, 80, -1),
+        container = tradeContainer
+    )
+    Button(     # Knopf um Handel durchzuführen
+        relative_rect = pygame.Rect(0,0,-1,-1),
+        text = " Handel ",
+        onClickMethod = game.trade,
+        visibilityCondition = lambda: not None in game.getTradeData(),      # ausgeblendet, wenn nicht beide Spieler selektiert wurden
+        anchors = {"centerx": "centerx"},
+        container = tradeCenterContainer
+    )
+    Button(     # Knopf um Handel abzubrechen
+        relative_rect = pygame.Rect(0,30,-1,-1),
+        text = " Abbruch ",
+        onClickMethod = game.resetTrade,
+        anchors = {"centerx": "centerx"},
+        container = tradeCenterContainer
+    )
+    
+    tradeRightPlayerContainer = Container(      # Container für zweiten Handelspartner
+        relative_rect = pygame.Rect(300, 0, 200, -1),
+        container = tradeContainer
+    )
+    def selectTradePartner(playerName: str):
+        """
+        Sucht das Player-Objekt abhängig vom Namen und selektiert den Handelspartner.
+        """
+        if playerName == "":
+            game.selectPlayerForTrade(1, "")
+        else:
+            players = game.getPlayers()
+            playerNames = [player.getName() for player in players]
+            player = players[playerNames.index(playerName)]
+            game.selectPlayerForTrade(1, player)
+    tradePlayerDropDown = DropDownMenu(     # Auswahl Dropdownmenü für Handelspartner
+        relative_rect = pygame.Rect(0,0,200,30),
+        options_list = [""],            # leere Zeichenkette muss als Standard-Auswahloption existieren, um grafische Fehler zu VErmeiden
+        starting_option = "",
+        expansion_height_limit = 1000,
+        onValueSelectionMethod = selectTradePartner,
+        container = tradeRightPlayerContainer
+    )
+
+    def tradePropertyLabelTextFunction(propertyIndex: int, side: int) -> str:
+        """
+        Ermittelt den Textinhalt der Label für die Anzeige der selektierten Grundstücke für das Handeln
+        """
+        tradeSideData = game.getTradeData()[side]
+        if tradeSideData is None or propertyIndex >= len(tradeSideData["properties"]):
+            return ""
+        else:
+            return "- " + tradeSideData["properties"][propertyIndex].getName()
+    
+    for side in range(2):       # Wiederholung für beide Seiten
+        sideContainer = tradeLeftPlayerContainer if side == 0 else tradeRightPlayerContainer
+        
+        tradeMoneyContainer = Container(        # Container um Geld hinzuzufügen und anzuzeigen
+            relative_rect = pygame.Rect(0,40,-1,-1),
+            visibilityCondition = lambda side=side: game.getTradeData()[side] is not None,
+            container = sideContainer
+        )
+        moneyInput = Input(      # Eingabe für Geldbetrag, der dem Handel hinzugefügt werden soll
+            relative_rect = pygame.Rect(0,0,150,25),
+            initial_text = "0",
+            allowed_characters = "numbers",
+            container = tradeMoneyContainer
+        )
+        Button(     # Knopf um Geld zum Handel hinzuzufügen
+            relative_rect = pygame.Rect(0,30,-1,-1),
+            text = " Geld hinzufügen ",
+            onClickMethod = lambda side=side, moneyInput=moneyInput: game.addTradeMoney(side, int(moneyInput.get_text())),
+            container = tradeMoneyContainer
+        )
+        Label(
+            relative_rect = pygame.Rect(0,60,-1,-1),
+            textFunction = lambda side=side: f"Geld: {game.getTradeData()[side]["money"] if game.getTradeData()[side] is not None else ""} $",
+            container = tradeMoneyContainer
+        )
+        
+        for i in range(len(game.getProperties())):
+            Label(      # Label für Grundstücke, die zum Handeln ausgewählt wurden
+                relative_rect = pygame.Rect(10, 100 + 25 * i, -1, -1),
+                textFunction = lambda i=i: tradePropertyLabelTextFunction(i, 0),
+                visibilityCondition = lambda i=i, side=side: (game.getTradeData()[side] is not None and i < len(game.getTradeData()[side]["properties"])),
+                container = sideContainer
+            )
+
+
+    propertyTradeActionContainer = Container(       # Container für die Knöpfe um Grundstück zu Handel hinzuzufügen oder zu entfernen.
+        relative_rect = pygame.Rect(-200,380,200,-1),
+        screenList = [SCREEN_TRADE],
+        anchors = {"right": "right"},
+        container = guiContainer
+    )
+    Button(     # Knopf um Grundstück zum Handel hinzuzufügen.
+        relative_rect = pygame.Rect(0,0,-1,-1),
+        text = " Zum Handel hinzufügen ",
+        onClickMethod = game.addPropertyToTrade,
+        visibilityCondition = game.canPropertyBeAddedToTrade,
+        anchors = {"centerx": "centerx"},
+        container = propertyTradeActionContainer
+    )
+    Button(     # Knopf um Grundstück aus Handel zu entfernen.
+        relative_rect = pygame.Rect(0,0,-1,-1),
+        text = " Aus Handel entfernen ",
+        onClickMethod = game.removePropertyFromTrade,
+        visibilityCondition = game.isPropertyInTrade,
+        anchors = {"centerx": "centerx"},
+        container = propertyTradeActionContainer
+    )
+    
+
     def initSelectedPropertyCard():
         """
         Erstellt die Besitzrechtskartenelemente.
         """
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
             relative_rect = pygame.Rect(-200, 10, 200, -1),
-            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY],
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_BANCRUPTCY, SCREEN_TRADE],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             anchors = {"right": "right"},
             container = guiContainer
@@ -661,7 +842,8 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             textFunction = lambda: f" Bauen {game.getSelectedProperty().getHouseCost()} $",
             onClickMethod = lambda: game.getSelectedProperty().buildHouse(),
             visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(True) and           # Haus Aktion 'Bauen' ist möglich
-                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),        # Besitzer ist aktueller Spieler oder Bankrott
+                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]] and        # Besitzer ist aktueller Spieler oder Bankrott
+                                          not game.isPropertyInTrade()),        # Grundstück befindet sich nicht in Handelsauswahl. Verhindert, dass Spieler Grundstücke mit Häusern handeln kann
             container = propertyHousePanel
         )
         Button(     # Knopf zum Haus verkaufen
@@ -777,13 +959,11 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             
             playerContainer = Container(      # enthält gesamten Eintrag für einen Spieler
                 relative_rect = pygame.Rect(0, 10 + 140 * game.getPlayerOrder().index(i), 0, -1),
-                useContainerWidth = True,
                 container = playerInfoContainer
             )
             
             Label(      # Zeigt an ob Spieler am Zug ist
-                relative_rect = pygame.Rect(-65, 0, 0, -1),
-                useContainerWidth = True,
+                relative_rect = pygame.Rect(-65, 0, -1, -1),
                 textFunction = lambda player=player: '>' if player == game.getCurrentPlayer() else '',
                 container = playerContainer
             )
@@ -793,14 +973,12 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
                 container = playerContainer,
             )
             Label(      # Zeigt Spieler Name (und Position) an
-                relative_rect = pygame.Rect(0, 0, 0, -1),
-                useContainerWidth = True,
+                relative_rect = pygame.Rect(0, 0, -1, -1),
                 textFunction = lambda player=player: f"{player.getName()}: Pos {player.getPosition()}{" - bei Frau Frigge" if player.getPrison() else ""}",
                 container = playerContainer,
             )
             Label(      # Zeigt Geld / bankrott an
-                relative_rect = pygame.Rect(5, 20, 0, -1),
-                useContainerWidth = True,
+                relative_rect = pygame.Rect(5, 20, -1, -1),
                 textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} $'}",
                 container = playerContainer,
             )

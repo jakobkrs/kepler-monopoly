@@ -158,7 +158,13 @@ class Player():
         """
         self.__properties.append(property)
 
-
+    def givePropertyToOtherPlayer(self, property, player):
+        """
+        Überträgt ein Grundstück von diesem Spieler auf einen Anderen.
+        """
+        if property in self.__properties:       # Sicherheitsüberrüfung, ob Spieler das Grundstück wirklich besitzt
+            property.setOwner(player)
+            self.__properties.remove(property)
 
     # Geldbezogene Methoden
     

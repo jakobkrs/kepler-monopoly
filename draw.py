@@ -262,6 +262,8 @@ def initDraw(game):
         houseImages[i+5] = pygame.image.load(f"images/houses/{i}v.png").convert_alpha()
     
 
+    sizeUpdate = True       # Initiales Update der Größe aller Elemente, die Größenfunktionen besitzen
+
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
@@ -280,8 +282,11 @@ def initDraw(game):
                     scrollContainer.set_relative_position((panelX, panelY))
                     scrollContainer.set_dimensions((panelWidth, panelHeight))
                     scrollContainer.set_scrollable_area_dimensions((max(650, panelWidth - 30), len(game.getPlayers()) * 140 + 500))
+                    sizeUpdate = True
                 case pygame_gui.UI_BUTTON_PRESSED:
                     executeButtonPress(event)
+                case pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                    dropDownMenuSelect(event)
                 case pygame.MOUSEBUTTONDOWN:
                     mousePos = event.pos
                     clickedFieldIndex = getClickedField(mousePos, game)
@@ -300,7 +305,7 @@ def initDraw(game):
         # Spielfeldbild
         screen.blit(scaledBoardImage, (boardX, boardY))
         
-        drawCurrentScreen()
+        drawCurrentScreen(sizeUpdate)
 
         drawPlayerSymbols(game, screen, symbolImages)
 
@@ -309,6 +314,8 @@ def initDraw(game):
         manager.update(timeDelta)
         manager.draw_ui(screen)
         pygame.display.update()
+        
+        sizeUpdate = False
 
     pygame.quit()
 

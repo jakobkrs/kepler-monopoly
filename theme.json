@@ -3,7 +3,8 @@
         "colours": {
             "normal_text":"#000000",
             "hovered_text":"#000000",
-            "active_text":"#000000"
+            "active_text":"#000000",
+            "dark_bg":"#cccccc"
         }
      },
     
