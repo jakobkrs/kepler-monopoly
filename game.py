@@ -166,8 +166,6 @@ class Game():
             self.__tradeData[side] = None
         else:
             self.__tradeData[side] = {"player": player, "properties": [], "money": 0}       # Initialisierung des Handelspartners 
-        
-        print(self.__tradeData)
     
     def canPropertyBeAddedToTrade(self) -> bool:
         """

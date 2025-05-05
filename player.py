@@ -59,7 +59,7 @@ class Player():
         self.__prison=True
         self.__roundsInPrison = 0
         self.goToPosition(10, False)
-        if len(nextScreens) > 0: nextScreens = []   # löscht alle möglicherweise bestehenden Screens 
+        resetNextScreenList()
         setScreen(SCREEN_MANAGEMENT)      # setzt nächsten Screen direkt wieder
         
     def instantPrisonEscape(self):
@@ -192,7 +192,8 @@ class Player():
             return True
         else:
             self.__game.setBankruptcyData({"player": self, "target": player, "amount": amount})
-            setScreen(SCREEN_BANCRUPTCY)
+            resetNextScreenList()
+            setScreen(SCREEN_BANKRUPTCY)
             return False
         
     def payBank(self, amount: int, freeParking = True) -> bool:
@@ -205,7 +206,8 @@ class Player():
             return True
         else:
             self.__game.setBankruptcyData({"player": self, "target": 0, "amount": amount})      # 0 steht für Bank
-            setScreen(SCREEN_BANCRUPTCY)
+            resetNextScreenList()
+            setScreen(SCREEN_BANKRUPTCY)
             return False
     
     def giveMoney(self, amount: int):

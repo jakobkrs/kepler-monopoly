@@ -17,7 +17,7 @@ SCREEN_TAXES = 'taxes'
 SCREEN_GOTOPRISON = 'go-to-prison'
 SCREEN_CONTINUE = 'continue'
 SCREEN_MANAGEMENT = 'player-management'
-SCREEN_BANCRUPTCY = 'player-can-not-pay'
+SCREEN_BANKRUPTCY = 'player-can-not-pay'
 SCREEN_PRISON = "player-in-prison"
 SCREEN_PRISONESCAPED = "escaped-prison"
 SCREEN_FAILEDPRISONESCAPE = "failed-to-escape-prison"
@@ -65,7 +65,7 @@ class BaseGuiElement:
         """
         Aktualisiert die Visibilität eines Elements abhängig vom aktuellen Screen
         """
-        if self.isInCurrentScreen() and self.__visibilityCondition():          # Element ist sichtbar, wenn es beim aktuellen screen sichtbar sein soll und die zusätzliche Bedingung (standard True) wahr ist
+        if self.isVisible():
             self.show()
         else:
             self.hide()
@@ -78,6 +78,12 @@ class BaseGuiElement:
         a = currentScreen in self.__screenList                          # Element soll bei aktuellem Screen direkt gezeigt werden
         b = '*' in self.__screenList and self.ui_container.visible      # '*' ist eine Wildcard. Element wird immer angezeigt, wenn Container angezeigt wird
         return a or b
+    
+    def isVisible(self):
+        """
+        Gibt Wahrheitswert zurück, ob Element aktuell sichtbar sein sollte.
+        """
+        return self.isInCurrentScreen() and self.__visibilityCondition()    # Element ist sichtbar, wenn es beim aktuellen screen sichtbar sein soll und die zusätzliche Bedingung (standard True) wahr ist
 
 def createGuiElementClass(pygameGuiElementClass):
     """
@@ -158,11 +164,18 @@ def addScreenToQueue(screen: str):
 
 def nextScreen():
     """
-    Setzt den Screen auf den nächsten aus der Queue
+    Setzt den Screen auf den nächsten aus der Queue.
     """
     global nextScreens
     setScreen(nextScreens.pop(0))
 
+def resetNextScreenList():
+    """
+    Löscht die Schlange der nächsten Screens.
+    """
+    global nextScreens
+    nextScreens = []
+    
 
 def drawCurrentScreen(sizeUpdate: bool = False):
     """
@@ -172,7 +185,7 @@ def drawCurrentScreen(sizeUpdate: bool = False):
     
     for element in guiElementList:
         element.updateVisibility()
-        if element.isInCurrentScreen():
+        if element.isVisible():
             if hasattr(element, 'updateElement'):
                 element.updateElement()
         #if hasattr(element, 'updatePosition'):         # nicht benutzt
@@ -184,17 +197,17 @@ def executeButtonPress(event):
     """
     Sucht Knopf auf den geklickt wurde und führt verknüpfte Methode aus.
     """
-    for element in guiElementList:
-        if type(element) == Button and event.ui_element == element:
-            element.executeClick()
+    element = event.ui_element      # GUI-Element, von dem Event ausgelöst wurde
+    if type(element) == Button and element.isVisible():     # Element ist ein Objekt der Button-Klasse und aktuell sichtbar. Die Sichtbarkeitsüberprüfung dient dazu bei zu langsamen Aktualisierungsraten des Fensters unerwünschte Aktivierungen zu verhindern. 
+        element.executeClick()
 
 def dropDownMenuSelect(event):
     """
     Sucht Dropdownmenü, dessen Wert Selektiert wurde und führt die verknüpfte Methode aus.
     """
-    for element in guiElementList:
-        if type(element) == DropDownMenu and event.ui_element == element:
-            element.executeValueSelection(event.text)
+    element = event.ui_element      # GUI-Element, von dem Event ausgelöst wurde
+    if type(element) == DropDownMenu and element.isVisible():   # Element ist ein Objekt der DropDownMenu-Klasse und aktuell sichtbar. Die Sichtbarkeitsüberprüfung dient dazu bei zu langsamen Aktualisierungsraten des Fensters unerwünschte Aktivierungen zu verhindern.
+        element.executeValueSelection(event.text)
 
 def getClickedField(clickedPos, game):
     """
@@ -231,7 +244,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
-        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANCRUPTCY, SCREEN_TRADE],
+        screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANKRUPTCY, SCREEN_TRADE],
         object_id = "#playerInfoContainer",
         container = guiContainer
     )
@@ -588,7 +601,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     bankruptcyContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
         dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
-        screenList = [SCREEN_BANCRUPTCY],
+        screenList = [SCREEN_BANKRUPTCY],
         container = guiContainer
     )
     Label(
@@ -611,9 +624,9 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         """
         data = game.getBankruptcyData()
         if data["target"] == 0:                # Geld wird Bank geschuldet
-            data["player"].payBank(True)
+            data["player"].payBank(data["amount"],True)
         else:
-            data["player"].payPlayer(data["target"])
+            data["player"].payPlayer(data["target"], data["amount"])
         nextScreen()
     Button(
         relative_rect = pygame.Rect(0, 60, -1, -1),
@@ -790,7 +803,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         """
         propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
             relative_rect = pygame.Rect(-200, 10, 200, -1),
-            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANCRUPTCY, SCREEN_TRADE],
+            screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANKRUPTCY, SCREEN_TRADE],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             anchors = {"right": "right"},
             container = guiContainer
