@@ -22,6 +22,9 @@ class Player():
 
     
     def __str__(self):
+        """
+        Strukturierte Ausgabe der Spielerinformationen
+        """
         propertyStr = 'properties: ['
         for property in self.__properties:
             propertyStr += f'\n\t\t{property}'
@@ -35,6 +38,9 @@ class Player():
 
 
     def startTurn(self):
+        """
+        Startet den Zug des Spielers, überprüft ob der Spieler Bankrott ist oder im Gefängnis sitzt.
+        """
         if self.__bankrupt:
             self.__game.nextPlayersTurn()
         elif self.__prison:
@@ -47,7 +53,7 @@ class Player():
 
     def goToPrison(self):
         """
-        gehe ins Gefängnis
+        Spieler geht ins Gefängnis, wird auf das Gefängnisfeld gesetzt und der nächste Screen wird gesetzt.
         """
         global nextScreens
         self.__prison=True
@@ -98,6 +104,7 @@ class Player():
         else:
             self.__doubleCount += 1
             addScreenToQueue(SCREEN_ROLLDICEAGAIN)  # Pasch, es wird nochmal gewürfelt
+        
 
     def goToPosition(self, position: int, moneyForExceedingStart : bool = True):
         """

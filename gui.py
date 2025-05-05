@@ -201,10 +201,10 @@ def getClickedField(clickedPos, game):
     Gibt das Spielfeld zurück, auf das geklickt wurde.
     """
     for square in game.getProperties():
-        x = square.getFieldCoord("x")
-        y = square.getFieldCoord("y")
-        width = square.getFieldCoord("width")
-        height = square.getFieldCoord("height")
+        x = square.getFieldX()
+        y = square.getFieldY()
+        width = square.getFieldWidth()
+        height = square.getFieldHeight()
         if x <= clickedPos[0] <= x + width and y <= clickedPos[1] <= y + height:
             return square.getPosition()
 

@@ -6,7 +6,14 @@ from collections import Counter, defaultdict
 
 
 def startDialog():
+    """
+    Startet den Dialog zur Eingabe der Spielerinformationen.
+    Gibt eine Liste mit den Spielernamen und -figuren zurück.
+    """
     def submitPlayerCount():
+        """
+        Überprüft die Eingabe der Spieleranzahl und übergibt diese an showPlayerSetup.
+        """
         try:
             count = int(playerCountEntry.get())
             if count < 2 or count > len(figures):
@@ -16,15 +23,22 @@ def startDialog():
             return
 
     def showPlayerSetup(count):
+        """
+        Erstellt das Fenster zur Festlegung der Spielernamen und -figuren.
+        Gibt die Spielerinformationen (Spielername und -figur) zurück.
+        """
         setupWindow = tk.Toplevel(root)
         setupWindow.title("Spielereinstellungen")
         playerEntries = []
         figureVars = []
 
         def submitPlayers():
+            """
+            Speichert die Spielerinformationen in finalPlayers und schließt das Fenster.
+            """
             selectedFigures = [var.get() for var in figureVars]
             if len(set(selectedFigures)) != len(selectedFigures):
-                return  # Doppelte Figur
+                return
             result = []
             for i in range(count):
                 result.append((
@@ -34,7 +48,7 @@ def startDialog():
             nonlocal finalPlayers
             finalPlayers = result
             setupWindow.destroy()
-            root.quit()  # beendet mainloop
+            root.quit()
 
         for i in range(count):
             tk.Label(setupWindow, text=f"Spieler {i+1} Name:").grid(row=i, column=0)
@@ -51,7 +65,7 @@ def startDialog():
             figureVars.append(figureVar)
 
         tk.Button(setupWindow, text="Start", command=submitPlayers).grid(row=count, column=1)
-        root.wait_window(setupWindow)  # wartet, bis setupWindow zerstört wird
+        root.wait_window(setupWindow) # Warten bis das Setup-Fenster geschlossen wird
 
     figures = ["Hund", "Auto", "Pinguin", "Fingerhut", "Schiff", "Katze", "Ente", "Hut"]
     finalPlayers = []
@@ -62,7 +76,7 @@ def startDialog():
     playerCountEntry = tk.Entry(root)
     playerCountEntry.pack()
     tk.Button(root, text="Weiter", command=submitPlayerCount).pack()
-    root.mainloop()  # Hauptloop startet, wartet bis root.quit() aufgerufen wird
+    root.mainloop()
     root.destroy()
     tk._default_root = None
     return finalPlayers
@@ -84,10 +98,10 @@ def drawPlayerSymbols(game, screen, imagesCache):
         totalPlayersOnField = playerCounterPerField[playerPos]
 
         field = gameboard[playerPos]
-        fieldX = field.getFieldCoord("x")
-        fieldY = field.getFieldCoord("y")
-        fieldWidth = field.getFieldCoord("width")
-        fieldHeight = field.getFieldCoord("height")
+        fieldX = field.getFieldX()
+        fieldY = field.getFieldY()
+        fieldWidth = field.getFieldWidth()
+        fieldHeight = field.getFieldHeight()
 
         playerSymbol = imagesCache.get(symbolName)
     
@@ -119,12 +133,13 @@ def drawHouses(game, screen, houseImages):
     for field in gameboard:
         if field.getType() == "property":
             houses = field.getHouses()
-            fieldX = field.getFieldCoord("x")
-            fieldY = field.getFieldCoord("y")
-            fieldWidth = field.getFieldCoord("width")
-            fieldHeight = field.getFieldCoord("height")
+            fieldX = field.getFieldX()
+            fieldY = field.getFieldY()
+            fieldWidth = field.getFieldWidth()
+            fieldHeight = field.getFieldHeight()
             if houses > 0:
                 for i in range(houses):
+                    # Untere Reihe Grundstücke --> 0 - 10
                     if 0 < field.getPosition() < 10 and houses > 0:
                         house = houseImages[houses]
                         origWidth, origHeight = houseImages[houses].get_size()
@@ -134,6 +149,7 @@ def drawHouses(game, screen, houseImages):
                         houseX = fieldX + fieldWidth * 0.5 - houseWidth * 0.5
                         houseY = fieldY + fieldHeight*0.03
                         screen.blit(houseImageScaled, (houseX, houseY))
+                    # Linke Reihe Grundstücke --> 10 - 20
                     elif 10 < field.getPosition() < 20 and houses > 0:
                         house = houseImages[houses+5]
                         origWidth, origHeight = houseImages[houses+5].get_size()
@@ -143,6 +159,7 @@ def drawHouses(game, screen, houseImages):
                         houseY = fieldY + fieldHeight * 0.5 - houseHeight * 0.5
                         houseX = fieldX + fieldWidth - fieldWidth*0.03 - houseWidth
                         screen.blit(houseImageScaled, (houseX, houseY))
+                    # Obere Reihe Grundstücke --> 20 - 30
                     elif 20 < field.getPosition() < 30 and houses > 0:
                         house = houseImages[houses]
                         origWidth, origHeight = houseImages[houses].get_size()
@@ -152,6 +169,7 @@ def drawHouses(game, screen, houseImages):
                         houseX = fieldX + fieldWidth * 0.5 - houseWidth * 0.5
                         houseY = fieldY + fieldHeight - fieldHeight*0.03 - houseHeight
                         screen.blit(houseImageScaled, (houseX, houseY))
+                    # Rechte Reihe Grundstücke --> 30 - 40
                     elif 30 < field.getPosition() < 40 and houses > 0:
                         house = houseImages[houses+5]
                         origWidth, origHeight = houseImages[houses+5].get_size()
@@ -163,6 +181,9 @@ def drawHouses(game, screen, houseImages):
                         screen.blit(houseImageScaled, (houseX, houseY))
 
 def initDraw(game):
+    """
+    
+    """
     # pygame initialisieren
     pygame.init()
 
@@ -176,8 +197,10 @@ def initDraw(game):
     # Manager für pygame_gui
     manager = pygame_gui.UIManager((screenWidth, screenHeight), 'theme.json')
     
-    # Spielfeldgrößen berechnen
     def recalculateSizes():
+        """
+        Berechnet jegliche Größen, welche mit der Fenstergröße zusammenhängen.
+        """
         global margin, boardWidth, boardHeight, boardX, boardY, scaledBoardImage
         global cornerSize, fieldWidth, fieldLenght, panelHeight, panelWidth, panelX, panelY
         margin = min(screenWidth, screenHeight) / 20  # 5% Rand
@@ -191,8 +214,8 @@ def initDraw(game):
             boardWidth = boardHeight
 
         # Berechnung der Startkoordinaten für das Spielfeld
-        boardX = margin  # Linker Rand
-        boardY = (screenHeight - boardHeight) / 2  # Oberer Rand
+        boardX = margin
+        boardY = (screenHeight - boardHeight) / 2
 
         # Berechnung der Bildgröße passend zum Spielfeld
         scaledBoardImage = pygame.transform.scale(boardImage, (boardHeight, boardWidth))
@@ -261,9 +284,6 @@ def initDraw(game):
         houseImages[i] = pygame.image.load(f"images/houses/{i}.png").convert_alpha()
         houseImages[i+5] = pygame.image.load(f"images/houses/{i}v.png").convert_alpha()
     
-
-    sizeUpdate = True       # Initiales Update der Größe aller Elemente, die Größenfunktionen besitzen
-
     clock = pygame.time.Clock()
     timeDelta = clock.tick(60)  # Zeitdifferenz für die Aktualisierung der GUI
     running = True
@@ -281,7 +301,7 @@ def initDraw(game):
                     scrollContainer.set_relative_position((panelX, panelY))
                     scrollContainer.set_dimensions((panelWidth, panelHeight))
                     scrollContainer.set_scrollable_area_dimensions((max(650, panelWidth - 30), len(game.getPlayers()) * 140 + 500))
-                    sizeUpdate = True
+                    drawCurrentScreen(True) # Upadate des UI inkl. Größenupdate der Elemente
                 case pygame_gui.UI_BUTTON_PRESSED:
                     executeButtonPress(event)
                 case pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
@@ -297,24 +317,23 @@ def initDraw(game):
             manager.process_events(event) 
         
         screen.fill(white)
-
-        # Spielfeld zeichnen
-        pygame.draw.rect(screen, lightGray, (boardX, boardY, boardWidth, boardHeight))
         
-        # Spielfeldbild
+        # Spielfeldbild zeichnen
         screen.blit(scaledBoardImage, (boardX, boardY))
         
-        drawCurrentScreen(sizeUpdate)
+        # Update des UI ohne Gröpßenupdate der Elemente
+        drawCurrentScreen(False)
 
+        # Anzeige der Spielersymbole
         drawPlayerSymbols(game, screen, symbolImages)
 
+        # Anzeige der Häuser
         drawHouses(game, screen, houseImages)
 
         manager.update(timeDelta)
         manager.draw_ui(screen)
         pygame.display.update()
         
-        sizeUpdate = False
 
     pygame.quit()
 

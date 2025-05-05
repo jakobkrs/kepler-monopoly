@@ -105,22 +105,20 @@ class Square():
         self.__fieldWidth = width
         self.__fieldHeight = height
         
-    def getFieldCoord(self, whichInfo):
-        """
-        Gibt die Position und Maße des Feldes zurück
-        "x" ==> x-Koordinate
-        "y" ==> y-Koordinate
-        "width" ==> Breite
-        "height" ==> Höhe
-        """
-        if whichInfo == "x":
-            return self.__fieldX
-        elif whichInfo == "y":
-            return self.__fieldY
-        elif whichInfo == "width":
-            return self.__fieldWidth
-        elif whichInfo == "height":
-            return self.__fieldHeight
+
+        
+        
+    def getFieldX(self):
+        return self.__fieldX
+    
+    def getFieldY(self):
+        return self.__fieldY
+    
+    def getFieldWidth(self):
+        return self.__fieldWidth
+    
+    def getFieldHeight(self):
+        return self.__fieldHeight
 
     def getName(self):
         return self.__name
