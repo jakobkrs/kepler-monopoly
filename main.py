@@ -7,8 +7,8 @@ def runDialog(queue):
     """
     Funktion für den Dialog, der die Spielerinformationen abfragt.
     """
-    #result = startDialog()
-    result = [('Spieler 1', 'Hund'), ('Spieler 2', 'Auto'), ('Spieler 3', 'Schiff')]
+    result = startDialog()
+    #result = [('Spieler 1', 'Hund'), ('Spieler 2', 'Auto'), ('Spieler 3', 'Schiff')]
     queue.put(result)  # Ergebnisse in die Queue setzen
 
 if __name__ == "__main__":
@@ -34,9 +34,6 @@ if __name__ == "__main__":
 
     for i in range (playerCount):
         game.addPlayer(gameSettings[i][0], gameSettings[i][1])  # Spieler mit Namen und Figur hinzufügen
-
-    for property in game.getProperties():
-        property.setOwner(game.getPlayers()[0])
     
     # Stellt initDraw game zur Verfügung und führt initDraw aus
     initDraw(game)

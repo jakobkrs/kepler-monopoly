@@ -1,40 +1,42 @@
 import pygame
 import pygame_gui
 
-managerInstance = None
-guiContainer = None
-currentScreen = ''
-nextScreens = []
-SCREEN_STARTGAME = 'start-game'
-SCREEN_ROLLDICE = 'roll-dice'
-SCREEN_ROLLDICEAGAIN = 'roll-dice-again'
-SCREEN_PAYRENT = 'pay-rent'
-SCREEN_BUYOPTION = 'buy-property'
-SCREEN_OWNPROPERTY = 'own-property'
-SCREEN_CARD = 'draw-card'
-SCREEN_FREEPARKING = 'free-parking'
-SCREEN_TAXES = 'taxes'
-SCREEN_GOTOPRISON = 'go-to-prison'
-SCREEN_CONTINUE = 'continue'
-SCREEN_MANAGEMENT = 'player-management'
-SCREEN_BANKRUPTCY = 'player-can-not-pay'
+# globale Variablen, die einen Startwert benötigen
+managerInstance: pygame_gui.UIManager = None
+
+# Konstante Variablen, zur Identifikation der Screen.
+SCREEN_STARTGAME = "start-game"
+SCREEN_ROLLDICE = "roll-dice"
+SCREEN_ROLLDICEAGAIN = "roll-dice-again"
+SCREEN_PAYRENT = "pay-rent"
+SCREEN_BUYOPTION = "buy-property"
+SCREEN_OWNPROPERTY = "own-property"
+SCREEN_CARD = "draw-card"
+SCREEN_FREEPARKING = "free-parking"
+SCREEN_TAXES = "taxes"
+SCREEN_GOTOPRISON = "go-to-prison"
+SCREEN_CONTINUE = "continue"
+SCREEN_MANAGEMENT = "player-management"
+SCREEN_BANKRUPTCY = "player-can-not-pay"
 SCREEN_PRISON = "player-in-prison"
 SCREEN_PRISONESCAPED = "escaped-prison"
 SCREEN_FAILEDPRISONESCAPE = "failed-to-escape-prison"
 SCREEN_TRADE = "trading"
 SCREEN_WIN = "win"
 
+
+# Basis-GUI-Element-Klasse und Methode zur Erstellung der Abgeleiteten Klassen
 class BaseGuiElement:
-    def __init__ (self: pygame_gui.elements, screenList: list[str], visibilityCondition, useContainerWidth: bool, positionFunction, dimensionsFunction):
+    def __init__(self, screenList: list[str] = ['*'], visibilityCondition = lambda: True, useContainerWidth: bool = False, positionFunction = None, dimensionsFunction = None):
         """
-        Die Konstruktor Methode der Grundlegenden GUI-Element-Klasse
+        Die Konstruktor Methode der grundlegenden GUI-Element-Klasse, auf der die Anderen GUI-Element-Klassen basieren.
         """
-        self.__screenList = screenList
-        self.__visibilityCondition = visibilityCondition
-        if not positionFunction is None:
-            self.updatePosition = lambda: updatePosition(positionFunction)
-        if useContainerWidth or not dimensionsFunction is None:
-            self.updateDimensions = lambda: updateDimensions(dimensionsFunction, useContainerWidth)
+        self.__screenList = screenList                      # Liste an Screens auf denen das Element sichtbar sein soll.
+        self.__visibilityCondition : function = visibilityCondition    # Funktion, die einen Wahrheitswertzurückgibt, welcher angibt, ob das Element sichtbar ist.
+        if positionFunction is not None:                                    # Es wurde eine Funktion angegeben, None ist der Standardwert
+            self.updatePosition = lambda: updatePosition(positionFunction)  # Methode self.updatePosition wird erstellt
+        if useContainerWidth or dimensionsFunction is not None:                                         # Es wurde eine Funktion angegeben, None ist der Standardwert
+            self.updateDimensions = lambda: updateDimensions(dimensionsFunction, useContainerWidth)     # Methode self.updateDimensions wird erstellt
         
         guiElementList.append(self)
         
@@ -63,7 +65,7 @@ class BaseGuiElement:
     
     def updateVisibility(self):
         """
-        Aktualisiert die Visibilität eines Elements abhängig vom aktuellen Screen
+        Aktualisiert die Visibilität eines Elements abhängig vom aktuellen Screen und der Visibilitätskondition des Elements.
         """
         if self.isVisible():
             self.show()
@@ -83,84 +85,102 @@ class BaseGuiElement:
         """
         Gibt Wahrheitswert zurück, ob Element aktuell sichtbar sein sollte.
         """
-        return self.isInCurrentScreen() and self.__visibilityCondition()    # Element ist sichtbar, wenn es beim aktuellen screen sichtbar sein soll und die zusätzliche Bedingung (standard True) wahr ist
+        return self.isInCurrentScreen() and self.__visibilityCondition()    # Element ist sichtbar, wenn es beim aktuellen Screen sichtbar sein soll und die zusätzliche Bedingung (Standardfall: True) wahr ist
 
 def createGuiElementClass(pygameGuiElementClass):
     """
-    Erstellt eine neue Klasse, die eine pygame_gui.element-Klasse und die BaseGuiElement Klasse kombiniert.
+    Erstellt eine neue Klasse, die die angegebene pygame_gui.element-Klasse und die BaseGuiElement Klasse kombiniert.
     """
     global managerInstance
     class GuiElement(pygameGuiElementClass, BaseGuiElement):
         def __init__(self, screenList = ['*'], manager=managerInstance, visibilityCondition = lambda: True, useContainerWidth = False, positionFunction = None, dimensionsFunction = None, *args, **kwargs):
+            """
+            Ruft die Konstruktoren der beiden Klassen, aus denen die neue Klasse kombiniert werden soll auf und erzeugt somit eine Instanz der Kombinierten Klasse.
+            """
             pygameGuiElementClass.__init__(self, manager=manager, *args, **kwargs)
             BaseGuiElement.__init__(self, screenList, visibilityCondition, useContainerWidth, positionFunction, dimensionsFunction)
     return GuiElement
 
-# definieren der speziellen guiElementKlassen
+
+# definieren der speziellen GUI-Element-Klassen
 class Label(createGuiElementClass(pygame_gui.elements.UILabel)):
-    def __init__(self, text='', textFunction=None, useContainerWidth=True, *args, **kwargs):
+    def __init__(self, text: str = "", textFunction = None, useContainerWidth: bool = True, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Label, welche von BaseGuiElement und pygame_gui.elements.UILabel erbt 
+        """
         super().__init__(text=text, useContainerWidth=useContainerWidth, *args, **kwargs)
-        if not textFunction is None:
-            self.updateElement = lambda: self.set_text(str(textFunction()))
+        if textFunction is not None:                                            # Es wurde eine Funktion angegeben, None ist der Standardwert
+            self.updateElement = lambda: self.set_text(str(textFunction()))     # Erstellung einer Methode um den Text des Elements zu aktualisieren
 
 class Button(createGuiElementClass(pygame_gui.elements.UIButton)):
-    def __init__(self, onClickMethod, text='', textFunction=None, *args, **kwargs):
+    def __init__(self, onClickMethod, text: str = "", textFunction = None, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Button, welche von BaseGuiElement und pygame_gui.elements.UIButton erbt 
+        """
         super().__init__(text=text, *args, **kwargs)
-        self.__onCLickMethod = onClickMethod
-        if not textFunction is None:
-            self.updateElement = lambda: self.set_text(str(textFunction()))
+        self.__onCLickMethod : function = onClickMethod    # Methode die bei Klick auf Button ausgeführt wird
+        if textFunction is not None:                                            # Es wurde eine Funktion angegeben, None ist der Standardwert
+            self.updateElement = lambda: self.set_text(str(textFunction()))     # Erstellung einer Methode um den Text des Elements zu aktualisieren
     
     def executeClick(self):
         """
-        Führt die entsprechende Methode aus, wenn das Element angeklickt wird.
+        Führt die entsprechende Methode des Elementes aus, wenn das Element angeklickt wird.
         """
         self.__onCLickMethod()
 
 class Container(createGuiElementClass(pygame_gui.elements.UIAutoResizingContainer)):
     def __init__(self, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Container, welche von BaseGuiElement und pygame_gui.elements.UIAutoResizingContainer erbt 
+        """
         super().__init__(*args, **kwargs)
 
 class Panel(createGuiElementClass(pygame_gui.elements.UIPanel)):
     def __init__(self, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Panel, welche von BaseGuiElement und pygame_gui.elements.UIPanel erbt 
+        """
         super().__init__(*args, **kwargs)
 
 class Image(createGuiElementClass(pygame_gui.elements.UIImage)):
     def __init__(self, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Image, welche von BaseGuiElement und pygame_gui.elements.UIImage erbt 
+        """
         super().__init__(*args, **kwargs)
 
 class Input(createGuiElementClass(pygame_gui.elements.UITextEntryLine)):
-    def __init__(self, allowed_characters = None, *args, **kwargs):
+    def __init__(self, allowed_characters: str = None, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse Input, welche von BaseGuiElement und pygame_gui.elements.UITextEntryLine erbt 
+        """
         super().__init__(*args, **kwargs)
-        if allowed_characters is not None:
-            self.set_allowed_characters(allowed_characters)
+        if allowed_characters is not None:                      # Eigenschaft allowed_characters wurde angegeben, None ist der Standardwert
+            self.set_allowed_characters(allowed_characters)     # wendet die Eigenschaft auf Element an, muss auf diesem Weg umgesetzt werden, da allowed_characters nicht im Konstruktor der Klasse pygame_gui.elements.UITextEntryLine zugelassen wird
 
 class DropDownMenu(createGuiElementClass(pygame_gui.elements.UIDropDownMenu)):
     def __init__(self, onValueSelectionMethod, *args, **kwargs):
+        """
+        Erstellt ein Objekt der Klasse DropDownMEnu, welche von BaseGuiElement und pygame_gui.elements.UIDropDownMenu erbt 
+        """
         super().__init__(*args, **kwargs)
-        self.__onValueSelectionMethod = onValueSelectionMethod
+        self.__onValueSelectionMethod : function = onValueSelectionMethod      # Notwendige Methode onValueSelectionMethod, welche ausgeführt wird, wenn sich die Auswahl verändert hat, wird gesetzt
     
     def executeValueSelection(self, text: str):
         """
-        Führt die entsprechende Methode aus, wenn ein Wert selektiert wurde.
+        Führt die entsprechende Methode des Elementes aus, wenn ein Wert selektiert wurde
         """
         self.__onValueSelectionMethod(text)
-        
+   
 
-
+# Methoden um den Screen zu verändern
 def setScreen(screen: str):
     """
-    Ändert den aktuellen Screen auf den angegebenen.
+    Ändert den aktuellen Screen auf den Angegebenen.
     """
     global currentScreen
     currentScreen = screen
-    drawCurrentScreen(True)
-
-def addScreenToQueue(screen: str):
-    """
-    Fügt Screen in Queue hinzu.
-    """
-    global nextScreens
-    nextScreens.append(screen)
+    drawCurrentScreen(True)     # dient dazu die Größen von Elementen anzupassen, falls diese sich verändert hat. 
 
 def nextScreen():
     """
@@ -169,47 +189,56 @@ def nextScreen():
     global nextScreens
     setScreen(nextScreens.pop(0))
 
+# Methoden um die Queue für die nächsten Screens zu verändern
+def addScreenToQueue(screen: str):
+    """
+    Fügt Screen in Queue für die Screens, die später ausgewählt werden müssen hinzu.
+    """
+    global nextScreens
+    nextScreens.append(screen)
+
 def resetNextScreenList():
     """
-    Löscht die Schlange der nächsten Screens.
+    Löscht alle Screens aus der Queue für die nächsten Screens.
     """
     global nextScreens
     nextScreens = []
-    
 
+
+# Methode zur Aktualisierung des GUI-Screens
 def drawCurrentScreen(sizeUpdate: bool = False):
     """
-    Zeichnet den aktuellen Screen
+    Zeichnet den aktuellen Screen und aktualisiert die notwendigen Elemente
     """
     global currentScreen, guiElementList
-    
-    for element in guiElementList:
-        element.updateVisibility()
+    for element in guiElementList:      # Alle Elemente auf notwendige Aktualisierungen überprüft
+        element.updateVisibility()      # notwendige Visibilität des Elements wird bestimmt und demnach aktualisiert 
         if element.isVisible():
-            if hasattr(element, 'updateElement'):
+            if hasattr(element, 'updateElement'):       # Element besitzt Methode zum Aktualisieren und demnach die Notwendigkeit eben jenes zu Aktualisieren
                 element.updateElement()
         #if hasattr(element, 'updatePosition'):         # nicht benutzt
         #    element.updatePosition()
-        if sizeUpdate and hasattr(element, 'updateDimensions'):        # es ist notwendig das Update unabhängig der visibilität umzusetzen, da sonst unerwartete Fehler aufgrund der Aktualisierungsreihenfolge auftreten
-            element.updateDimensions()
+        if sizeUpdate and hasattr(element, 'updateDimensions'):     # Es ist notwendig das Update unabhängig der Visibilität umzusetzen, da sonst unerwartete Fehler aufgrund der Aktualisierungsreihenfolge auftreten
+            element.updateDimensions()                              # Aktualisierung der Größe eines Elementes
 
-def executeButtonPress(event):
+# Methoden für spezielle Element- / GUI-Interaktionen
+def executeButtonPress(event: pygame.Event):
     """
     Sucht Knopf auf den geklickt wurde und führt verknüpfte Methode aus.
     """
-    element = event.ui_element      # GUI-Element, von dem Event ausgelöst wurde
+    element = event.ui_element                              # GUI-Element, von dem Event ausgelöst wurde
     if type(element) == Button and element.isVisible():     # Element ist ein Objekt der Button-Klasse und aktuell sichtbar. Die Sichtbarkeitsüberprüfung dient dazu bei zu langsamen Aktualisierungsraten des Fensters unerwünschte Aktivierungen zu verhindern. 
         element.executeClick()
 
-def dropDownMenuSelect(event):
+def dropDownMenuSelect(event: pygame.Event):
     """
     Sucht Dropdownmenü, dessen Wert Selektiert wurde und führt die verknüpfte Methode aus.
     """
-    element = event.ui_element      # GUI-Element, von dem Event ausgelöst wurde
+    element = event.ui_element                                  # GUI-Element, von dem Event ausgelöst wurde
     if type(element) == DropDownMenu and element.isVisible():   # Element ist ein Objekt der DropDownMenu-Klasse und aktuell sichtbar. Die Sichtbarkeitsüberprüfung dient dazu bei zu langsamen Aktualisierungsraten des Fensters unerwünschte Aktivierungen zu verhindern.
         element.executeValueSelection(event.text)
 
-def getClickedField(clickedPos, game):
+def getClickedField(clickedPos: tuple[int,int], game) -> int:
     """
     Gibt das Spielfeld zurück, auf das geklickt wurde.
     """
@@ -218,29 +247,24 @@ def getClickedField(clickedPos, game):
         y = square.getFieldY()
         width = square.getFieldWidth()
         height = square.getFieldHeight()
-        if x <= clickedPos[0] <= x + width and y <= clickedPos[1] <= y + height:
+        if x <= clickedPos[0] <= x + width and y <= clickedPos[1] <= y + height:    # Überprüft ob sich der Klick innerhalb des Rechtecks des Grundstücks auf dem Spielbrett befindet
             return square.getPosition()
 
 
-def initGUI(manager: pygame_gui.ui_manager, game, container):
+# Methode zur Erstellung des GUIs
+def initGUI(manager: pygame_gui.UIManager, game, container: pygame_gui.elements):
     """
-    Initialisiert und erstellt alle GUI Elemente und Screens
+    Initialisiert und erstellt alle GUI Elemente und Screens.
     """
+    # Initialisierung der global Verfügbaren Variablen
     global currentScreen, guiElementList, managerInstance, guiContainer
     currentScreen = SCREEN_STARTGAME
     guiElementList = []
     managerInstance = manager
     guiContainer = container
+    resetNextScreenList()
     
-    # debug
-    Label(  # zeigt den aktuellen Screen an
-        relative_rect = pygame.Rect(0, -20, -1, 20),
-        textFunction = lambda: f"Debug: {currentScreen}",
-        object_id = 'debug',
-        anchors = {'bottom': 'bottom'},
-        container = guiContainer
-    )
-    
+    # Spieler Informationen
     playerInfoContainer = Container(    # Container der Spieler Informationen enthält
         relative_rect = pygame.Rect(70, 0, 0, 0),
         useContainerWidth = True,
@@ -267,7 +291,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         yOffset += 25 # Abstand zwischen den Labels
     
     
-    def startGameButtonMethod(shufflePlayerOrder=True):
+    def startGameButtonMethod(shufflePlayerOrder : bool = True):
         """
         Startet Spiel und mischt eventuell Spielerreihenfolge.
         """
@@ -290,8 +314,8 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = guiContainer
     )
     
-    yOffset = len(game.getPlayers()) * 140 + 30
 
+    yOffset = len(game.getPlayers()) * 140 + 30     # Höhe des Spieler-Informations-Container + Abstand zum nächstem Container
 
     diceResultContainer = Container (       # Container der Würfelergebnis und neues Feld anzeigt
         relative_rect = pygame.Rect(70, yOffset, 0, -1),
@@ -322,12 +346,14 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = diceResultContainer
     )
     
-    squareActionContainer = Container(
+    
+    squareActionContainer = Container(      # Container, für alle direkt aus der Spielerbewegung ausgelöste Informationsanzeigen und Interaktionen
         relative_rect = pygame.Rect(70, yOffset + 60, 0, -1),
         dimensionsFunction = lambda: (max(400,guiContainer.relative_rect.width-170), -1),
         container = guiContainer
     )
-    Button(     # Button um Würfel Aktion auszulösen
+    # Würfel
+    Button(     # Knopf um Würfel Aktion auszulösen
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = ' Würfeln ',
         onClickMethod = lambda: game.getCurrentPlayer().turn(),
@@ -372,7 +398,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
      # Als Knopf wird der Standard "Fortfahren"-Knopf verwendet
     # Grundstück kaufen
-    Label(
+    Label(      # Label um anzuzeigen, dass das Grundstück keinen Besitzer hat
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         useContainerWidth = True,
         textFunction = lambda: f"Dieses Grundstück gehört noch niemanden.",
@@ -380,7 +406,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         object_id = "@centerLabel",
         container = squareActionContainer
     )
-    Button(
+    Button(     # Knopf um Grundstück zu erwerben
         relative_rect = pygame.Rect(0, 60, -1, -1),
         textFunction = lambda: f" Grundstück kaufen {game.getCurrentPlayer().getCurrentSquare().getCost()} $ ",
         onClickMethod = lambda: game.getCurrentPlayer().buyProperty(game.getCurrentPlayer().getCurrentSquare()),
@@ -389,7 +415,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         visibilityCondition = lambda: game.getCurrentPlayer().getCurrentSquare().getCost() <= game.getCurrentPlayer().getMoney(),
         container = squareActionContainer
     )
-    Button(
+    Button(     # Knopf um Grundstück nicht zu erwerben
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = ' Grundstück nicht kaufen ',
         onClickMethod = nextScreen,
@@ -397,7 +423,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         screenList = [SCREEN_BUYOPTION],
         container = squareActionContainer
     )
-
+    # Aktionskarte (Gemeinschaftskarte oder Ereigniskarte)
     cardPanel = Panel(   # Panel um gezogene Karte anzuzeigen
         relative_rect = pygame.Rect(0, 60, 400, 160),
         screenList = [SCREEN_CARD],
@@ -425,10 +451,9 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         onClickMethod = lambda: game.getCurrentPlayer().getCurrentSquare().executeCard(),
         anchors = {'centerx': 'centerx'},
         container = cardPanel
-    )
-    
+    )  
     # Frei Parken
-    Label(
+    Label(      # Label um Betrag auf Frei Parken anzuzeigen
         relative_rect = pygame.Rect(0, 0, guiContainer.relative_rect.width, -1),
         useContainerWidth = True,
         textFunction = lambda: f"Auf Frei Parken liegen {game.getFreeParkingMoney()} $.",
@@ -438,9 +463,9 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
     def freeParkingButtonMethod():
         """
-        Gibt Spieler Frei Parken Geld und fährt mit nächstem Screen fort. 
+        Gibt Spieler Frei Parken Geld und fährt mit nächstem Screen fort
         """
-        game.getCurrentPlayer().giveMoney(game.resetFreeParkingMoney())     # Seit Frei Parken Geld auf 0 zurück gibt den Betrag dem Spieler
+        game.getCurrentPlayer().giveMoney(game.resetFreeParkingMoney())     # Setzt Frei Parken Geld auf 0 zurück und gibt den Betrag dem Spieler
         nextScreen()
     Button(     # Knopf zum Einsammeln des Frei Parken Geldes
         relative_rect = pygame.Rect(0, 60, -1, -1),
@@ -450,16 +475,15 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-    
     # Steuern
     def taxesButtonMethod():
         """
         Lässt Spieler Steuern bezahlen und fährt mit nächstem Screen fort.
         """
-        if game.getCurrentPlayer().getCurrentSquare().getType() == "taxes1":  amount = 4000
-        else: amount = 2000
+        if game.getCurrentPlayer().getCurrentSquare().getType() == "taxes1":  amount = 4000     # Feld ist teures Steuerfeld
+        else: amount = 2000                                                                     # Feld ist preiswerteres Steuerfeld
         if game.getCurrentPlayer().payBank(amount, False):
-            nextScreen()
+            nextScreen()        # Wird ausgeführt, wenn Spieler zahlungsfähig ist
     Button(     # Knopf zum Bezahlen der Steuern
         relative_rect = pygame.Rect(0, 60, -1, -1),
         textFunction = lambda: f" Zahlung durchführen {4000 if game.getCurrentPlayer().getCurrentSquare().getType() == "taxes1" else 2000} $ ",
@@ -468,14 +492,12 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-    
     # Gehe ins Gefängnis
     def goToPrisonButtonMethod():
         """
         Setzt den aktuellen Spieler ins Gefängnis und bricht dessen laufenden Zug ab.
         """
         game.getCurrentPlayer().goToPrison()
-        setScreen(SCREEN_MANAGEMENT)
     Button(     # Knopf zum Bestätigen, dass der Spieler ins Gefängnis geht.
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = " Zu Frau Frigge gehen ",
@@ -484,7 +506,6 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-    
     # Spieler ist bereits Besitzer, Startfeld, Gefängnis nur zu Besuch
     Button(     # Button mit nächstem Screen fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
@@ -496,21 +517,21 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
     
     # Gefängnis
-    Label(
+    Label(      # Label zur Erklärung der Gefängnisaktionen
         relative_rect = pygame.Rect(0, 0, 0, -1),
         text = "Du bist bei Frau Frigge. Versuche einen Pasch zu würfeln oder besteche sie um zu entkommen.",
         screenList = [SCREEN_PRISON],
         object_id = "@centerLabel",
         container = squareActionContainer
     )
-    Label(
+    Label(      # Label für Verbleibende Pasch-Versuche
         relative_rect = pygame.Rect(0, 30, 0, -1),
         textFunction = lambda: f"Es verbleiben dir noch {3 - game.getCurrentPlayer().getRoundsInPrison()} Versuche, um einen Pasch zu würfeln, bevor du zahlen musst.",
         screenList = [SCREEN_PRISON],
         object_id = "@centerLabel",
         container = squareActionContainer
     )
-    Button(
+    Button(     # Knopf zum Bestechen und somit Zahlen von 1000 $
         relative_rect = pygame.Rect(0, 60, -1, -1),
         textFunction = lambda: f" Besteche Frau Frigge mit 1000 $ ",
         onClickMethod = lambda: game.getCurrentPlayer().instantPrisonEscape(),
@@ -519,7 +540,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         visibilityCondition = lambda: 1000 <= game.getCurrentPlayer().getMoney(),
         container = squareActionContainer
     )
-    Button(
+    Button(     # Knopf zum Versuchen einen Pasch zu würfeln
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = " Versuche dein Glück, wähle Gambling ",
         onClickMethod = lambda: game.getCurrentPlayer().tryPrisonEscape(),
@@ -529,7 +550,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = squareActionContainer
     )
     # aus Gefängnis frei gekommen
-    Label(
+    Label(      # Label zum signalisieren, dass der Spieler aus dem Gefängnis herausgekommen ist
         relative_rect = pygame.Rect(0, 0, 0, -1),
         text = "Du bist aus dem Gefängnis frei freigekommen.",
         screenList = [SCREEN_PRISONESCAPED],
@@ -537,21 +558,21 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = squareActionContainer
     )
     # fehlgeschlagener Gefängnis Ausbruchversuch (3 Runden kein Pasch)
-    Label(
+    Label(      # Label um zu signalisieren, dass der Spieler es nicht mit einem Pasch aus dem Gefängnis geschafft hat
         relative_rect = pygame.Rect(0, 0, 0, -1),
         text = "Du hast es dreimal nicht geschafft eine Pasch zu würfeln.",
         screenList = [SCREEN_FAILEDPRISONESCAPE],
         object_id = "@centerLabel",
         container = squareActionContainer
     )
-    Label(
+    Label(      # Label um zu zeigen, dass der Spieler Zahlen muss 
         relative_rect = pygame.Rect(0, 30, 0, -1),
         text = "Zahle 1000 $ und komme aus dem Gefängnis raus.",
         screenList = [SCREEN_FAILEDPRISONESCAPE],
         object_id = "@centerLabel",
         container = squareActionContainer
     )
-    Button(
+    Button(     # Knopf um Zahlung auszuführen
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = " Zahle 1000 $ ",
         onClickMethod = lambda: game.getCurrentPlayer().instantPrisonEscape(),
@@ -560,8 +581,8 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = squareActionContainer
     )
     
-
-    Button(     # Button um mit nächstem Spieler fortzufahren
+    # Spieler-Verwaltungs-Screen
+    Button(     # Knopf um mit nächstem Spieler fortzufahren
         relative_rect = pygame.Rect(0, 60, -1, -1),
         text = ' Mit nächstem Spieler Fortfahren ',
         screenList = [SCREEN_PRISONESCAPED, SCREEN_MANAGEMENT],
@@ -569,7 +590,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         anchors = {'centerx': 'centerx'},
         container = squareActionContainer
     )
-    
+    # Handelsmenu öffnen
     def openTradeMenu():
         """
         Initialisiert und öffnet das Handelsmenu.
@@ -581,12 +602,12 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         filteredPlayers = list(filter(lambda player: (player != game.getCurrentPlayer()) and not player.getBankrupt(), players))    # Spieler ist nicht der erste Handelspartner und nicht bankrott
         filteredPlayerNames = [player.getName() for player in filteredPlayers]
         
-        tradePlayerDropDown.remove_options(playerNames)         # Entfernen aller Optionen
+        tradePlayerDropDown.remove_options(playerNames)         # Entfernen aller Optionen, die Spielernamen sind ("" bleibt erhalten)
         tradePlayerDropDown.add_options(filteredPlayerNames)    # Hinzufügen der neuen Optionen
-        tradePlayerDropDown.selected_option = ("","")
+        tradePlayerDropDown.selected_option = ("","")           # Zurücksetzen der ausgewählten OPtion
         
         setScreen(SCREEN_TRADE)
-    Button(     # Button um Handel mit anderem Spieler auszuführen
+    Button(     # Knopf Handelsmenu zu öffnen und somit Handel mit anderem Spieler zu beginnen
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = ' Mit anderem Spieler handeln ',
         screenList = [SCREEN_PRISONESCAPED, SCREEN_MANAGEMENT],
@@ -604,14 +625,14 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         screenList = [SCREEN_BANKRUPTCY],
         container = guiContainer
     )
-    Label(
+    Label(      # Label um Schuldenbetrag zu zeigen
         relative_rect = pygame.Rect(0, 0, 0, -1),
         useContainerWidth = True,
         textFunction = lambda: f"Du musst {game.getBankruptcyData()["amount"]} $ zahlen, doch hast zu wenig Geld.",
         object_id = "@centerLabel",
         container = bankruptcyContainer
     )
-    Label(
+    Label(      # Label, das Optionen zur Schuldtilgung erklärt
         relative_rect = pygame.Rect(0, 30, 0, -1),
         useContainerWidth = True,
         text = "Verkaufe Häuser oder nehme Hypotheken auf um das Geld aufzubringen.",
@@ -620,15 +641,15 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     )
     def payDebtButtonMethod():
         """
-        Bezahlt die Schulden des Spielers.
+        Bezahlt die Schulden des Spielers. Sollte nur ausgeführt werden, wenn Spieler die Schulden tilgen kann.
         """
         data = game.getBankruptcyData()
-        if data["target"] == 0:                # Geld wird Bank geschuldet
-            data["player"].payBank(data["amount"],True)
-        else:
+        if data["target"] == 0:         # Geld wird Bank geschuldet
+            data["player"].payBank(data["amount"], True)
+        else:                           # Geld wird einem Spieler geschuldet
             data["player"].payPlayer(data["target"], data["amount"])
         nextScreen()
-    Button(
+    Button(     # Knopf zum Bezahlen der Schulden
         relative_rect = pygame.Rect(0, 60, -1, -1),
         textFunction = lambda: f" Schulden bezahlen {game.getBankruptcyData()["amount"]} $ ",
         onClickMethod = payDebtButtonMethod,
@@ -636,7 +657,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         visibilityCondition = lambda: game.getBankruptcyData()["amount"] <= game.getCurrentPlayer().getMoney(),
         container = bankruptcyContainer
     )
-    Button(
+    Button(     # Knopf um Bankrott zu gehen
         relative_rect = pygame.Rect(0, 90, -1, -1),
         text = ' Bankrott ',
         onClickMethod = lambda: game.getCurrentPlayer().executeBankruptcy(game.getBankruptcyData()["target"]),
@@ -657,7 +678,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         relative_rect = pygame.Rect(0, 0, 200, -1),
         container = tradeContainer
     )
-    Label(
+    Label(      # Label für ersten Handelspartner
         relative_rect = pygame.Rect(0,0,-1,-1),
         textFunction = lambda: game.getCurrentPlayer().getName(),
         container = tradeLeftPlayerContainer
@@ -683,7 +704,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         container = tradeCenterContainer
     )
     
-    tradeRightPlayerContainer = Container(      # Container für zweiten Handelspartner
+    tradeRightPlayerContainer = Container(      # Container für zweiten Handelspartner (ausgewählt durch Drop-Down-Menü)
         relative_rect = pygame.Rect(300, 0, 200, -1),
         container = tradeContainer
     )
@@ -692,7 +713,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         Sucht das Player-Objekt abhängig vom Namen und selektiert den Handelspartner.
         """
         if playerName == "":
-            game.selectPlayerForTrade(1, "")
+            game.selectPlayerForTrade(1, "")    # Zweiter Handelspartner ist nicht mehr ausgewählt
         else:
             players = game.getPlayers()
             playerNames = [player.getName() for player in players]
@@ -717,7 +738,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         else:
             return "- " + tradeSideData["properties"][propertyIndex].getName()
     
-    for side in range(2):       # Wiederholung für beide Seiten
+    for side in range(2):       # Wiederholung für beide Handelsseiten
         sideContainer = tradeLeftPlayerContainer if side == 0 else tradeRightPlayerContainer
         tradeMoneyContainer = Container(        # Container um Geld hinzuzufügen und anzuzeigen
             relative_rect = pygame.Rect(0,40,-1,-1),
@@ -736,7 +757,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             onClickMethod = lambda side=side, moneyInput=moneyInput: game.addTradeMoney(side, int(moneyInput.get_text())),
             container = tradeMoneyContainer
         )
-        Label(
+        Label(      # Label um ausgewählten Geldbetrag anzuzeigen
             relative_rect = pygame.Rect(0,60,-1,-1),
             textFunction = lambda side=side: f"Geld: {game.getTradeData()[side]["money"] if game.getTradeData()[side] is not None else ""} $",
             container = tradeMoneyContainer
@@ -746,7 +767,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             Label(      # Label für Grundstücke, die zum Handeln ausgewählt wurden
                 relative_rect = pygame.Rect(10, 130 + 25 * i, -1, -1),
                 textFunction = lambda i=i: tradePropertyLabelTextFunction(i, 0),
-                visibilityCondition = lambda i=i, side=side: (game.getTradeData()[side] is not None and i < len(game.getTradeData()[side]["properties"])),
+                visibilityCondition = lambda i=i, side=side: (game.getTradeData()[side] is not None and i < len(game.getTradeData()[side]["properties"])),      # Handelspartner ist ausgewählt und es wurden ausreichend Properties zum Handel hinzugefügt
                 container = sideContainer
             )
 
@@ -776,13 +797,13 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     
     # Gewinner
-    winContainer = Container(
+    winContainer = Container(       # Container, der den Gewinner-Screen enthält
         relative_rect = pygame.Rect(70, 100, 0, -1),
         dimensionsFunction = lambda: (max(500,guiContainer.relative_rect.width-170), -1),
         screenList = [SCREEN_WIN],
         container = guiContainer
     )
-    Label(
+    Label(      # Label für Gewinner Ausruf
         relative_rect = pygame.Rect(0,0,400,-1),
         textFunction = lambda: f"{game.getWinner().getName()} hat das Spiel gewonnen",
         object_id = "@centerBigLabel",
@@ -799,44 +820,45 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
 
     def initSelectedPropertyCard():
         """
-        Erstellt die Besitzrechtskartenelemente.
+        Erstellt die GUI-Elemente für die Besitzrechtskartenanzeige.
         """
-        propertyCardContainer = Container(      # Zeigt selektiertes Grundstück an
+        propertyCardContainer = Container(      # Container für die Besitzrechtskarte des selektiertes Grundstücks sorgt
             relative_rect = pygame.Rect(-200, 10, 200, -1),
             screenList = [SCREEN_ROLLDICE, SCREEN_ROLLDICEAGAIN, SCREEN_PAYRENT, SCREEN_BUYOPTION, SCREEN_OWNPROPERTY, SCREEN_CARD, SCREEN_FREEPARKING, SCREEN_TAXES, SCREEN_GOTOPRISON, SCREEN_CONTINUE, SCREEN_PRISON, SCREEN_PRISONESCAPED, SCREEN_FAILEDPRISONESCAPE, SCREEN_MANAGEMENT, SCREEN_BANKRUPTCY, SCREEN_TRADE],
             visibilityCondition = lambda: not game.getSelectedProperty() is None,
             anchors = {"right": "right"},
             container = guiContainer
         )
-        for group in ["A","B","C","D","E","F","G","H","SP","TS"]:
-            namePanel = Panel(      # Hintergrund der Leiste des selektierten Grundstücks
+        for group in ["A","B","C","D","E","F","G","H","SP","TS"]:       # Schleife, die Alle Gruppen durchgeht
+            namePanel = Panel(      # Hintergrund der oberen Leiste des selektierten Grundstücks
                 relative_rect = pygame.Rect(0, 0, 200, 50),
                 object_id = f"#group{group}",
                 visibilityCondition = lambda group=group: not game.getSelectedProperty() is None and game.getSelectedProperty().getGroup() == group,
                 container = propertyCardContainer
             )
-            Label(
+            Label(      # Zeigt den Grundstücksnamen an
                 relative_rect = pygame.Rect(0,0,namePanel.relative_rect.width,50),
                 textFunction = lambda: game.getSelectedProperty().getName(),
                 object_id = pygame_gui.core.ObjectID(class_id='@centerLabel', object_id = f"#group{group}"),
                 container = namePanel
             )
-        propertyCardBottomPanel = Panel(      # Hintergrund der Daten des Selektierten Grundstücks
+        propertyCardBottomPanel = Panel(      # Container, der für Hintergrund und Rahmen um die Daten des Selektierten Grundstücks
             relative_rect = pygame.Rect(0, 50-5, 200, 310),
             object_id = "@whitePanel",
             container = propertyCardContainer
         )
-        Label(      # Grundstückswert
+        # allgemeine Werte, die jedes Grundstück hat
+        Label(      # Grundstückswerts
             relative_rect = pygame.Rect(10,10,namePanel.relative_rect.width-10,-1),
             textFunction = lambda: f"Grundstückswert: {game.getSelectedProperty().getCost()} $",
             container = propertyCardBottomPanel
         )
-        Label(      # Hypothekenwert
+        Label(      # Hypothekenwerts
             relative_rect = pygame.Rect(10,30,namePanel.relative_rect.width-10,-1),
             textFunction = lambda: f"Hypothekenwert: {int(game.getSelectedProperty().getCost() * 0.5)} $",
             container = propertyCardBottomPanel
         )
-        # normalen Property
+        # normales Grundstück (type == "property")
         propertyRentContainer = Container(      # Container für Mieten einer normalen Property
             relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,210),
             visibilityCondition = lambda: game.getSelectedProperty().getType() == "property",
@@ -875,12 +897,12 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
         propertyHousePanel = Panel(     # Container für Häuseranzahl und Hauskauf
             relative_rect = pygame.Rect(-5, 130-5, namePanel.relative_rect.width+5, 80),
             object_id = "@whitePanel",
-            visibilityCondition = lambda: (not game.getSelectedProperty().getOwner() is None and                                            # hat Besitzer
+            visibilityCondition = lambda: (game.getSelectedProperty().getOwner() is not None and                                         # Grundstück hat Besitzer
                                         game.getSelectedProperty().getOwner().completeGroup(game.getSelectedProperty().getGroup())),     # Besitzer besitzt alle Grundstücke der Gruppe
             container = propertyRentContainer
         )
         for i in range(6):
-            Image(      # Haus-Anzahl-Bider
+            Image(      # Bilder um Haus-Anzahl anzuzeigen
                 relative_rect = pygame.Rect(5, 5, 25 * ((i-1) % 4 + 1), 25),
                 image_surface = pygame.image.load(f"images/houses/{i}.png").convert_alpha(),
                 visibilityCondition = lambda i=i: game.getSelectedProperty().getHouses() == i,
@@ -890,20 +912,20 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             relative_rect = pygame.Rect(5, 35, -1, 20),
             textFunction = lambda: f" Bauen {game.getSelectedProperty().getHouseCost()} $",
             onClickMethod = lambda: game.getSelectedProperty().buildHouse(),
-            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(True) and           # Haus Aktion 'Bauen' ist möglich
-                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]] and        # Besitzer ist aktueller Spieler oder Bankrott
-                                          not game.isPropertyInTrade()),        # Grundstück befindet sich nicht in Handelsauswahl. Verhindert, dass Spieler Grundstücke mit Häusern handeln kann
+            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(True) and                                                   # Haus Aktion 'Bauen' ist möglich
+                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]] and    # Besitzer ist aktueller Spieler oder Bankrott
+                                          not game.isPropertyInTrade()),                                                                                # Grundstück befindet sich nicht in Handelsauswahl. Verhindert, dass Spieler Grundstücke mit Häusern handeln kann
             container = propertyHousePanel
         )
         Button(     # Knopf zum Haus verkaufen
             relative_rect = pygame.Rect(5, 55, -1, 20),
             textFunction = lambda: f" Verkaufen {int(game.getSelectedProperty().getHouseCost() * 0.5)} $",
             onClickMethod = lambda: game.getSelectedProperty().sellHouse(),
-            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(False) and          # Haus Aktion 'Verkaufen' ist möglich
-                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),        # Besitzer ist aktueller Spieler oder Bankrott
+            visibilityCondition = lambda: (game.getSelectedProperty().isHouseActionPossible(False) and                                                  # Haus Aktion 'Verkaufen' ist möglich
+                                          game.getSelectedProperty().getOwner() in [game.getCurrentPlayer(), game.getBankruptcyData()["player"]]),      # Besitzer ist aktueller Spieler oder Bankrott
             container = propertyHousePanel
         )
-        # Bahnhof
+        # Bahnhof (type == "trainStation")
         trainStationRentContainer = Container(      # Container für Mieten eines Bahnhofs
             relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,-1),
             visibilityCondition = lambda: game.getSelectedProperty().getType() == "trainStation",
@@ -934,7 +956,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             textFunction = lambda: f"4 Bahnhöfen: {game.getSelectedProperty().getBaseRent() * 8} $",
             container = trainStationRentContainer
         )
-        # Versorgungswerk
+        # Versorgungswerk (type == "supplyPlant")
         supplyPlantRentContainer = Container(      # Container für Mieten eines Bahnhofs
             relative_rect = pygame.Rect(0,60,namePanel.relative_rect.width-10,-1),
             visibilityCondition = lambda: game.getSelectedProperty().getType() == "supplyPlant",
@@ -995,7 +1017,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
     
     def initPlayerInformationContainer():
         """
-        Erstellt die Spielerinformations-Elemente
+        Erstellt die Spielerinformations-Elemente.
         """
         propertyCardGrid = [                # deklariert an welcher Position welche Grundstückskarte angezeigt werden soll; -1 steht für keine Nutzung des Platzes
             [0,3,6,11,14,18,22,26,2,17],
@@ -1028,7 +1050,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
             )
             Label(      # Zeigt Geld / bankrott an
                 relative_rect = pygame.Rect(5, 20, -1, -1),
-                textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} $'}",
+                textFunction = lambda player=player: f"{'Bankrott' if player.getBankrupt() else f'Geld: {player.getMoney()} $'}",   # Zeigt abhängig davon ab der Spieler Bankrott ist "Bankrott" oder das Geld des SPielers an
                 container = playerContainer,
             )
             
@@ -1042,7 +1064,7 @@ def initGUI(manager: pygame_gui.ui_manager, game, container):
                     id = propertyCardGrid[row][col]
                     property = game.getProperties()[id]
                     if id >= 0:
-                        Button(
+                        Button(     # farbiger Knopf ohne Text, der Grundstück repräsentiert
                             relative_rect = pygame.Rect(col * 35, row * 25, 35, 25),
                             onClickMethod = lambda id=id: game.setSelectedPropertyById(id),
                             visibilityCondition = lambda property = property, player = player: property in player.getProperties(),
