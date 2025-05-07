@@ -1,6 +1,7 @@
 from player import Player
 from square import Square
 from property import Property
+from actionCard import ActionCard
 import random
 import os
 from gui import *
@@ -18,10 +19,10 @@ class Game():
         self.__players : list[Player] = []                      # Liste aller Objekten der Klasse Spieler
         self.__gameBoard : list[Square | Property] = []         # Liste aller Objekten der Klasse Square (bzw. Property als Unterklasse von Square)
         self.__properties : list[Property] = []                 # Liste aller Objekten der Klasse Property
-        self.__communityCards : dict[str, str | int] = []       # Liste aller Gemeinschaftskarten in der Struktur {'text': str, 'action': str, 'value': int}
-        self.__eventCards : dict[str, str | int] = []           # Liste aller Ereigniskarten in der Struktur {'text': str, 'action': str, 'value': int}
+        self.__communityCards : list[ActionCard] = []           # Liste aller Gemeinschaftskarten als Objekte der Klasse ActionCard
+        self.__eventCards : list[ActionCard] = []               # Liste aller Ereigniskarten als Objekte der Klasse ActionCard
         self.__freeParkingMoney = 0
-        self.__lastDrawnCard : dict[str, str | int] = None
+        self.__lastDrawnCard : ActionCard = None
         self.__selectedProperty : Property = None
         self.__bankruptcyData : dict[str, Player | int] = {"player": None, "target": None, "amount": 0}
         self.__tradeData = [None, None]
@@ -44,10 +45,10 @@ class Game():
         # Lädt die Gemeinschafts- und Ereigniskarten aus den CSV-Dateien
         communityTable = self.__loadCSV(csvDirPath + "communityCards.csv")
         for card in communityTable:
-            self.__communityCards.append({'text': card[0], 'action': card[1], 'value': int(card[2])})
+            self.__communityCards.append(ActionCard(self, "community", card[0], card[1], int(card[2])))
         eventTable = self.__loadCSV(csvDirPath + "eventCards.csv")
         for card in eventTable:
-            self.__eventCards.append({'text': card[0], 'action': card[1], 'value': int(card[2])})
+            self.__eventCards.append(ActionCard(self, "event", card[0], card[1], int(card[2])))
         
 
 
@@ -151,7 +152,6 @@ class Game():
         else:                       # Ereigniskarte
             card = self.__eventCards.pop(0)         # Entfernt erste Karte aus Karten-Reihenfolge
             self.__eventCards.append(card)          # Fügt entfernte KArte an der letzten Stelle der Reihenfolge wieder ein
-        card["type"] = type             # Fügt Eigenschaft "type" in Karten-Dictionary ein
         self.__lastDrawnCard = card
         return card
 

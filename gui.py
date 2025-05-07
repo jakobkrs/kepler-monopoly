@@ -433,14 +433,14 @@ def initGUI(manager: pygame_gui.UIManager, game, container: pygame_gui.elements)
     )
     Label(      # Zeigt Typ der Karte
         relative_rect = pygame.Rect(0, 0, cardPanel.relative_rect.width, -1),
-        textFunction = lambda: f"{'Gemeinschafts' if game.getLastDrawnCard()['type'] == 'community' else 'Ereignis'}karte",
+        textFunction = lambda: f"{'Gemeinschafts' if game.getLastDrawnCard().getType() == 'community' else 'Ereignis'}karte",
         object_id = "@centerLabel",
         container = cardPanel
     )
     Label(      # Text der Karte
-        relative_rect = pygame.Rect(0, 30, cardPanel.relative_rect.width, -1),
+        relative_rect = pygame.Rect(0, 30, cardPanel.relative_rect.width - 10, -1),
         useContainerWidth = False,
-        textFunction = lambda: game.getLastDrawnCard()["text"],
+        textFunction = lambda: game.getLastDrawnCard().getText(),
         object_id = "@centerLabel",
         container = cardPanel
     )
@@ -448,7 +448,7 @@ def initGUI(manager: pygame_gui.UIManager, game, container: pygame_gui.elements)
         relative_rect = pygame.Rect(0, 120, -1, -1),
         screenList = [SCREEN_CARD],
         text = ' Ausführen ',
-        onClickMethod = lambda: game.getCurrentPlayer().getCurrentSquare().executeCard(),
+        onClickMethod = lambda: game.getLastDrawnCard().execute(),
         anchors = {'centerx': 'centerx'},
         container = cardPanel
     )  

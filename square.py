@@ -1,7 +1,7 @@
 from gui import *
 
 class Square():
-    def __init__(self, game,  position: int, name: str, squaretype: str):
+    def __init__(self, game, position: int, name: str, squaretype: str):
         """
         Konstruktor der Klasse Square
         """
@@ -38,62 +38,7 @@ class Square():
             case 'goToPrison':
                 setScreen(SCREEN_GOTOPRISON)
             case 'start' | 'prison':                # hier muss nichts besonderes (im GUI und Hintergrund) passieren
-                setScreen(SCREEN_CONTINUE)
-
-    def executeCard(self):
-        """
-        Führt die zuletzt gezogene Gemeinschafts- oder Ereigniskarte aus.
-        """
-        card = self.__game.getLastDrawnCard()
-        player = self.__game.getCurrentPlayer()
-        match card["action"]:
-            case "moveTo":
-                player.goToPosition(card["value"])
-            case "moveToNearestSupplyPlant":
-                self.moveToNearest(player, "supplyPlant")
-            case "moveToNearestTrainStation":
-                self.moveToNearest(player, "trainStation")
-            case "goToPrison":
-                player.goToPrison()
-            case "renovate":
-                sum = 0
-                for property in player.getProperties():
-                    sum += 500 * min(property.getHouses(),4)
-                if player.payBank(sum):
-                    nextScreen()
-            case "moveBack":
-                player.goToPosition(player.getPosition() - card["value"], False)
-            case "earnMoney":
-                player.giveMoney(card["value"])
-                nextScreen()
-            case "payMoney":
-                if player.payBank(card["value"]):
-                    nextScreen()
-            case "earnFromPlayers":
-                allCanPay = True
-                for opponent in self.__game.getPlayers():
-                    if opponent != player:
-                        allCanPay = allCanPay and opponent.payPlayer(player, card["value"])  
-                if allCanPay:
-                    nextScreen()  
-            case "payPlayers":
-                canPayAll = True
-                for opponent in self.__game.getPlayers():
-                    if opponent != player:
-                        canPayAll = canPayAll and player.payPlayer(opponent, card["value"])
-                if canPayAll:
-                    nextScreen()
-
-            
-    def moveToNearest(self, player, type: str):
-        """
-        Ermittelt das nächstliegende Feld eines bestimmten Typen und bewegt Spieler dort hint
-        """
-        pos = player.getPosition()
-        while  self.__game.getGameBoard()[pos].getType() != type:
-            pos = (pos + 1) % len(self.__game.getGameBoard())
-        player.goToPosition(pos)
-                
+                setScreen(SCREEN_CONTINUE)                
 
 
     def setFieldCoord(self, x, y, width, height):
