@@ -1,7 +1,7 @@
 text;action;value
 Du hast das Dartsturnier des Schulclubs gewonnen und erhälst 1.000 $.;earnMoney;1000
 Während der Klassenfahrt muss der Besuch des jüdischen Viertels ausfallen, da jüdischer Feiertag ist. Du erhälst eine Entschädigung von 2.000 $.;earnMoney;2000
-Du bekommst die Arbeit des letzten Jahres und schreibst 15 Punkte. Deine Oma gibt dir als Belohnung 2.000 $.;earnMoney;2000
+Du bekommst die Arbeit des letzten Jahrgangs und schreibst 15 Punkte. Deine Oma gibt dir als Belohnung 2.000 $.;earnMoney;2000
 Du läufst beim Spendenlauf 10 Runden und musst 1.000 $ an den Schulclub spenden.;payMoney;1000
 Das Kepler Gymnasium ist zu einer Privatschule geworden, weshalb du Schulgeld von 1.500 $ bezahlen musst.;payMoney;1500
 Deine jährliche Spende 1.000 $ für den Förderverein ist fällig.;payMoney;1000
