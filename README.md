@@ -30,7 +30,7 @@ Kepler-Monopoly ist eine textbasierte Umsetzung des klassischen Brettspiels Mono
 4.  **Das Spiel herunterladen**: Lade den Quellcode des Spiels von GitHub herunter oder klone das Repository:
 
     ```bash
-    git clone <repository-url>
+    git clone [<repository-url>](https://github.com/jakobkrs/kepler-monopoly)
     ```
 
 ## Spiel starten
